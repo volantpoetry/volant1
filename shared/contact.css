@@ -1,0 +1,76 @@
+.contact-box {
+  background: #fff;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.contact-form label {
+  font-weight: bold;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.contact-form button {
+  background-color: #1c1c1c;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+  background-color: #333;
+}
+
+.direct-email {
+  margin-top: 30px;
+  font-size: 1rem;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between image and text */
+}
+
+.nav-logo-img {
+  display: block;
+  height: 40px;  /* adjust as needed */
+  width: auto;
+  order: 1; /* ensures image is first (left) */
+}
+
+.logo-text {
+  order: 2; /* text stays right of image */
+  white-space: nowrap;
+}
+
+/* On desktop, the nav container should also use flex */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* optional, for nav layout */
+}

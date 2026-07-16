@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin: Fetch All Collaborators | Volant Poetry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f6f5fc 0%, #f0eef9 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #4b2aad 0%, #7c5cbf 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+    }
+
+    .card-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .trigger-btn {
+      background: #4b2aad;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .trigger-btn:hover {
+      background: #3a1f8a;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(75,42,173,0.3);
+    }
+
+    .trigger-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      background: #f0f0f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: #333;
+      border-left: 4px solid #4b2aad;
+    }
+
+    .status.loading {
+      border-left-color: #ff9800;
+      background: #fff8e1;
+    }
+
+    .status.success {
+      border-left-color: #4caf50;
+      background: #e8f5e9;
+    }
+
+    .status.error {
+      border-left-color: #f44336;
+      background: #ffebee;
+    }
+
+    .results-summary {
+      background: #f8f6ff;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .badge {
+      background: #4b2aad;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .user-group {
+      background: white;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      border: 1px solid #e9e4ff;
+      overflow: hidden;
+    }
+
+    .user-header {
+      background: #f8f6ff;
+      padding: 1rem 1.5rem;
+      border-bottom: 2px solid #e9e4ff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .user-header:hover {
+      background: #f0edff;
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: #1a1a1a;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-email {
+      font-size: 0.8rem;
+      color: #666;
+      font-weight: normal;
+    }
+
+    .collab-count {
+      background: #4b2aad20;
+      color: #4b2aad;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .collab-list {
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .collab-list.open {
+      max-height: 2000px;
+      padding: 1rem 1.5rem;
+    }
+
+    .collab-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0eef9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .collab-item:last-child {
+      border-bottom: none;
+    }
+
+    .collab-title {
+      font-weight: 500;
+      color: #333;
+      flex: 1;
+    }
+
+    .collab-type {
+      font-size: 0.75rem;
+      background: #e9e4ff;
+      padding: 3px 10px;
+      border-radius: 20px;
+      color: #4b2aad;
+    }
+
+    .collab-date {
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+
+    .notification-preview {
+      background: #1a1a2e;
+      color: #eee;
+      border-radius: 16px;
+      padding: 1.5rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin-top: 1.5rem;
+    }
+
+    .notification-preview h4 {
+      color: #ffd966;
+      margin-bottom: 0.75rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    hr {
+      margin: 1rem 0;
+      border: none;
+      border-top: 1px solid #e9e4ff;
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 1rem; }
+      .card-body { padding: 1.5rem; }
+      .user-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h1>🤝 Fetch All Existing Collaborators</h1>
+      <p>Trigger a scan across all users — finds every user who has been added as a collaborator on any poem or collaboration work. Generates notifications that will appear in each user's notification panel.</p>
+    </div>
+    <div class="card-body">
+      <button id="triggerFetchBtn" class="trigger-btn">
+        🚀 Fetch Collaborators for ALL Users
+      </button>
+      
+      <div id="statusMessage" class="status" style="display: none;"></div>
+      
+      <div id="resultsContainer" style="display: none;">
+        <div class="results-summary">
+          <span>📊 <strong id="totalUsersCount">0</strong> users scanned</span>
+          <span>🤝 <strong id="totalCollabsCount">0</strong> total collaborator entries found</span>
+          <span class="badge" id="notificationBadge">🔔 Notifications will be shown in notification.html</span>
+        </div>
+        <div id="usersList"></div>
+        
+        <!-- Preview of how notifications will look -->
+        <div class="notification-preview" id="notificationPreview" style="display: none;">
+          <h4>📬 Sample Notification (as seen in notification.html)</h4>
+          <div id="previewContent"></div>
+          <p style="font-size: 0.7rem; margin-top: 10px; color: #aaa;">✨ These notifications use type "collaboration" and will appear in the Collaborations tab</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs, 
+    getDoc, 
+    doc, 
+    updateDoc,
+    setDoc,
+    writeBatch,
+    Timestamp,
+    arrayUnion
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // DOM elements
+  const triggerBtn = document.getElementById('triggerFetchBtn');
+  const statusDiv = document.getElementById('statusMessage');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const usersListDiv = document.getElementById('usersList');
+  const totalUsersSpan = document.getElementById('totalUsersCount');
+  const totalCollabsSpan = document.getElementById('totalCollabsCount');
+  const notificationPreviewDiv = document.getElementById('notificationPreview');
+  const previewContent = document.getElementById('previewContent');
+
+  let currentAdminUser = null;
+
+  // Helper: format timestamp
+  function formatDate(timestamp) {
+    if (!timestamp) return "Unknown date";
+    let date;
+    if (timestamp.toDate) date = timestamp.toDate();
+    else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000);
+    else date = new Date(timestamp);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+
+  // Helper: fetch username by userId
+  async function getUserName(userId) {
+    if (!userId) return "Unknown User";
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        return userDoc.data().username || userDoc.data().displayName || userId.slice(0, 8);
+      }
+      return userId.slice(0, 8);
+    } catch (e) {
+      return userId.slice(0, 8);
+    }
+  }
+
+  // Helper: fetch poem title by poemId
+  async function getPoemTitle(poemId) {
+    if (!poemId) return null;
+    try {
+      const poemDoc = await getDoc(doc(db, "recentPoems", poemId));
+      if (poemDoc.exists()) return poemDoc.data().title || "Untitled Poem";
+    } catch(e) {}
+    return null;
+  }
+
+  // CORE FUNCTION: Fetch all users and find their existing collaborations
+  async function fetchAndTriggerCollaboratorsForAllUsers() {
+    if (!currentAdminUser) {
+      showStatus("⚠️ You need to be logged in to perform this action.", "error");
+      return;
+    }
+
+    showStatus("🔄 Scanning all users and fetching existing collaborator relationships... This may take a moment.", "loading");
+    triggerBtn.disabled = true;
+    resultsContainer.style.display = "none";
+    usersListDiv.innerHTML = '';
+    
+    try {
+      // Step 1: Get ALL users from Firestore
+      const usersSnapshot = await getDocs(collection(db, "users"));
+      const allUsers = [];
+      usersSnapshot.forEach(docSnap => {
+        allUsers.push({ uid: docSnap.id, ...docSnap.data() });
+      });
+      
+      console.log(`Found ${allUsers.length} total users`);
+      
+      // Step 2: For each user, find works where they are a collaborator
+      // We'll collect data to display and also to "trigger" notifications
+      
+      const userCollaborationsMap = new Map(); // uid -> array of collab objects
+      let totalCollabEntries = 0;
+      
+      // Progress tracking
+      let processed = 0;
+      
+      for (const user of allUsers) {
+        const uid = user.uid;
+        const collabEntries = [];
+        
+        // 2a: Check collaborations collection where user is in collaborators array
+        try {
+          const collabQuery = query(
+            collection(db, "collaborations"),
+            where("collaborators", "array-contains", uid)
+          );
+          const collabSnap = await getDocs(collabQuery);
+          
+          for (const collabDoc of collabSnap.docs) {
+            const data = collabDoc.data();
+            const addedBy = data.ownerId || data.createdBy || data.addedBy;
+            // Skip if user added themselves
+            if (addedBy === uid) continue;
+            
+            const addedByName = addedBy ? await getUserName(addedBy) : "A poet";
+            const workTitle = data.title || data.workTitle || "Untitled Collaboration";
+            
+            collabEntries.push({
+              type: 'collaboration_doc',
+              workId: collabDoc.id,
+              workTitle: workTitle,
+              addedBy: addedBy,
+              addedByName: addedByName,
+              timestamp: data.createdAt || data.timestamp || Timestamp.now(),
+              isExistingCollaborator: true
+            });
+          }
+        } catch(e) { console.warn(`Error fetching collabs for ${uid}:`, e); }
+        
+        // 2b: Check recentPoems collection where user is in collaborators array
+        try {
+          const poemsQuery = query(
+            collection(db, "recentPoems"),
+            where("collaborators", "array-contains", uid)
+          );
+          const poemsSnap = await getDocs(poemsQuery);
+          
+          for (const poemDoc of poemsSnap.docs) {
+            const poemData = poemDoc.data();
+            const addedBy = poemData.ownerId || poemData.authorId || poemData.createdBy;
+            if (addedBy === uid) continue;
+            
+            const addedByName = addedBy ? await getUserName(addedBy) : "The author";
+            const poemTitle = poemData.title || "Untitled Poem";
+            
+            collabEntries.push({
+              type: 'poem_collab',
+              workId: poemDoc.id,
+              workTitle: poemTitle,
+              addedBy: addedBy,
+              addedByName: addedByName,
+              timestamp: poemData.createdAt || poemData.timestamp || Timestamp.now(),
+              poemSlug: poemData.slug || null,
+              isExistingCollaborator: true
+            });
+          }
+        } catch(e) { console.warn(`Error fetching poem collabs for ${uid}:`, e); }
+        
+        if (collabEntries.length > 0) {
+          userCollaborationsMap.set(uid, {
+            userInfo: user,
+            collaborations: collabEntries
+          });
+          totalCollabEntries += collabEntries.length;
+        }
+        
+        processed++;
+        // Update status every 10 users
+        if (processed % 10 === 0) {
+          showStatus(`🔄 Processed ${processed}/${allUsers.length} users... Found ${totalCollabEntries} collaborator entries so far.`, "loading");
+        }
+      }
+      
+      // Step 3: Display results in UI
+      displayResults(userCollaborationsMap, allUsers.length, totalCollabEntries);
+      
+      // Step 4: Also show a preview of how notifications would look in notification.html
+      showNotificationPreview(userCollaborationsMap);
+      
+      showStatus(`✅ Success! Found collaborator relationships for ${userCollaborationsMap.size} users. Total ${totalCollabEntries} collaborator entries. These will now appear in each user's notification panel.`, "success");
+      
+      // Optional: Actually WRITE missing notifications to Firestore?
+      // The snippet is designed to let the notification.html fetch them on-the-fly.
+      // But if you want to explicitly store them as notification docs, uncomment the next block.
+      
+      // Uncomment the following if you want to PERSIST these as notification documents:
+      /*
+      let notificationsWritten = 0;
+      for (const [uid, data] of userCollaborationsMap.entries()) {
+        for (const collab of data.collaborations) {
+          // Check if notification already exists to avoid duplicates
+          const existingQuery = query(
+            collection(db, "notifications"),
+            where("forUser", "==", uid),
+            where("type", "==", "collaboration"),
+            where("collaborationWorkId", "==", collab.workId)
+          );
+          const existingSnap = await getDocs(existingQuery);
+          if (existingSnap.empty) {
+            const notifRef = doc(collection(db, "notifications"));
+            await setDoc(notifRef, {
+              forUser: uid,
+              type: "collaboration",
+              fromUser: collab.addedBy,
+              fromUserName: collab.addedByName,
+              message: `${collab.addedByName} added you as a collaborator on "${collab.workTitle}"`,
+              workTitle: collab.workTitle,
+              collaborationWorkId: collab.workId,
+              timestamp: collab.timestamp,
+              read: false,
+              isExistingCollaborator: true,
+              createdAt: Timestamp.now()
+            });
+            notificationsWritten++;
+          }
+        }
+      }
+      console.log(`Written ${notificationsWritten} new notification documents.`);
+      */
+      
+    } catch (err) {
+      console.error("Error fetching collaborators:", err);
+      showStatus(`❌ Error: ${err.message}`, "error");
+    } finally {
+      triggerBtn.disabled = false;
+    }
+  }
+
+  // Display collapsible list of users and their collaborator entries
+  function displayResults(userCollabMap, totalUsers, totalEntries) {
+    totalUsersSpan.textContent = totalUsers;
+    totalCollabsSpan.textContent = totalEntries;
+    
+    if (userCollabMap.size === 0) {
+      usersListDiv.innerHTML = '<div class="empty-message">✨ No existing collaborator relationships found across any users.</div>';
+      resultsContainer.style.display = "block";
+      return;
+    }
+    
+    resultsContainer.style.display = "block";
+    usersListDiv.innerHTML = '';
+    
+    for (const [uid, { userInfo, collaborations }] of userCollabMap.entries()) {
+      const userName = userInfo.username || userInfo.displayName || uid.slice(0, 8);
+      const userEmail = userInfo.email || '';
+      const collabCount = collaborations.length;
+      
+      const userGroup = document.createElement('div');
+      userGroup.className = 'user-group';
+      
+      const header = document.createElement('div');
+      header.className = 'user-header';
+      header.innerHTML = `
+        <div class="user-name">
+          👤 ${escapeHtml(userName)}
+          ${userEmail ? `<span class="user-email">(${escapeHtml(userEmail)})</span>` : ''}
+          <span class="collab-count">${collabCount} collaborator${collabCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div style="font-size: 0.75rem; color: #4b2aad;">▼ Click to expand</div>
+      `;
+      
+      const collabList = document.createElement('div');
+      collabList.className = 'collab-list';
+      
+      collaborations.forEach(collab => {
+        const item = document.createElement('div');
+        item.className = 'collab-item';
+        item.innerHTML = `
+          <div class="collab-title">
+            📄 ${escapeHtml(collab.workTitle)}
+          </div>
+          <div class="collab-type">${collab.type === 'poem_collab' ? 'Poem Collaboration' : 'Workspace Collaboration'}</div>
+          <div class="collab-date">➕ Added by ${escapeHtml(collab.addedByName)} • ${formatDate(collab.timestamp)}</div>
+        `;
+        collabList.appendChild(item);
+      });
+      
+      header.addEventListener('click', () => {
+        collabList.classList.toggle('open');
+      });
+      
+      userGroup.appendChild(header);
+      userGroup.appendChild(collabList);
+      usersListDiv.appendChild(userGroup);
+    }
+  }
+  
+  // Show preview of how a sample notification would appear in notification.html
+  function showNotificationPreview(userCollabMap) {
+    if (userCollabMap.size === 0) {
+      notificationPreviewDiv.style.display = 'none';
+      return;
+    }
+    
+    notificationPreviewDiv.style.display = 'block';
+    
+    // Get first user with at least one collaboration for preview
+    let sampleNotification = null;
+    for (const [uid, data] of userCollabMap.entries()) {
+      if (data.collaborations.length > 0) {
+        const collab = data.collaborations[0];
+        sampleNotification = {
+          username: data.userInfo.username || uid.slice(0, 8),
+          addedByName: collab.addedByName,
+          workTitle: collab.workTitle,
+          timestamp: collab.timestamp
+        };
+        break;
+      }
+    }
+    
+    if (sampleNotification) {
+      previewContent.innerHTML = `
+        <div style="background: #2a2a3e; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="font-size: 28px;">🤝</div>
+            <div>
+              <div style="margin-bottom: 5px;"><strong style="color: #ffd966;">${escapeHtml(sampleNotification.addedByName)}</strong> added you as a collaborator on "<strong>${escapeHtml(sampleNotification.workTitle)}</strong>" ✨ You are now part of this creative team!</div>
+              <div style="font-size: 11px; color: #aaa;">${formatDate(sampleNotification.timestamp)} <span style="background:#4b2aad; padding:2px 8px; border-radius:20px; margin-left:8px;">Existing collaborator</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top: 10px;">💡 This notification uses <code style="background:#333; padding:2px 6px; border-radius:6px;">type: "collaboration"</code> and appears in the <strong>Collaborations tab</strong> of notification.html. The <code>isExistingCollaborator</code> flag triggers the special message format.</p>
+        <p style="margin-top: 8px;">✅ The notification.html page already includes logic (function <code>fetchExistingCollaborationsAsNotifications()</code>) that automatically fetches and displays these without needing to store duplicate notification docs.</p>
+      `;
+    } else {
+      previewContent.innerHTML = '<p>No collaborator entries to preview.</p>';
+    }
+  }
+  
+  function showStatus(msg, type) {
+    statusDiv.style.display = 'block';
+    statusDiv.textContent = msg;
+    statusDiv.className = `status ${type}`;
+    if (type === 'success' || type === 'error') {
+      setTimeout(() => {
+        if (statusDiv.style.display === 'block') {
+          // keep but fade out visually? we'll keep.
+        }
+      }, 5000);
+    }
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  // Authentication check before allowing trigger
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      statusDiv.style.display = 'block';
+      statusDiv.className = 'status error';
+      statusDiv.innerHTML = '⚠️ You must be logged in to use this admin tool. <a href="../shared/users-login" style="color:#4b2aad;">Login here</a>';
+      triggerBtn.disabled = true;
+      return;
+    }
+    
+    currentAdminUser = user;
+    // Optional: verify if user is admin (can be added)
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'status success';
+    statusDiv.innerHTML = `✅ Logged in as ${user.email || user.uid}. You can now fetch all collaborators.`;
+    setTimeout(() => {
+      if (statusDiv.style.display === 'block') statusDiv.style.display = 'none';
+    }, 3000);
+    triggerBtn.disabled = false;
+  });
+  
+  triggerBtn.addEventListener('click', fetchAndTriggerCollaboratorsForAllUsers);
+  
+  // Add a note on page load
+  console.log("🔥 Standalone snippet ready: 'Fetch Collaborators for ALL Users' will scan every user's existing collaborator relationships.");
+</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Achievements Admin</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
+  h1 { text-align: center; }
+  form { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; max-width: 500px; margin: 0 auto 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);}
+  label { display:block; margin-top: 10px; font-weight: 600; }
+  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc; }
+  button { margin-top: 12px; padding: 10px 16px; border:none; border-radius:6px; background:#5a3cb3; color:white; cursor:pointer; }
+  .achievement { background: #fff; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; display:flex; align-items:center; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+  .achievement img { width: 50px; height: 50px; border-radius: 50%; margin-right: 12px; object-fit:cover; }
+  .achievement-details { flex:1; }
+  .achievement-actions button { margin-left: 6px; background:#888; }
+</style>
+</head>
+<body>
+
+<h1>Achievements Admin</h1>
+
+<form id="achievementForm">
+  <input type="hidden" id="achId">
+  <label for="title">Title</label>
+  <input type="text" id="title" required>
+
+  <label for="description">Description</label>
+  <textarea id="description" rows="2"></textarea>
+
+  <label for="conditionType">Condition Type</label>
+  <select id="conditionType">
+    <option value="poemsSubmitted">Poems Submitted</option>
+    <option value="likesReceived">Likes Received</option>
+    <option value="commentsMade">Comments Made</option>
+    <option value="commentsReceived">Comments Received</option>
+  </select>
+
+  <label for="conditionMin">Minimum Value</label>
+  <input type="number" id="conditionMin" min="1" required>
+
+  <label for="active">Active</label>
+  <input type="checkbox" id="active" checked>
+
+  <button type="submit">Save Achievement</button>
+</form>
+
+<div id="achievementsList"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// --- Achievements JSON (short example; expand as needed) ---
+const achievementsJSON = 
+[
+  {"id":1,"name":"First Lines","criteria":{"type":"poemsSubmitted","min":1},"description":"Start your poetic journey","badgePrompt":"small pencil icon, flat style, representing writing"},
+  {"id":2,"name":"Aspiring Poet","criteria":{"type":"poemsSubmitted","min":5},"description":"Keep the inspiration flowing","badgePrompt":"open notebook icon, flat style, symbolizing creativity"},
+  {"id":3,"name":"Rising Star","criteria":{"type":"poemsSubmitted","min":10},"description":"Your talent is shining","badgePrompt":"shooting star icon, flat style, inspiring growth"},
+  {"id":4,"name":"Dedicated Writer","criteria":{"type":"poemsSubmitted","min":20},"description":"Consistency is key","badgePrompt":"quill pen icon, flat style, classic writing"},
+  {"id":5,"name":"Prolific Poet","criteria":{"type":"poemsSubmitted","min":30},"description":"Words flow like a river","badgePrompt":"stack of papers icon, flat style, productive writing"},
+  {"id":6,"name":"Literary Enthusiast","criteria":{"type":"poemsSubmitted","min":50},"description":"Passion shows in your work","badgePrompt":"book stack icon, flat style, passion for literature"},
+  {"id":7,"name":"Verse Virtuoso","criteria":{"type":"poemsSubmitted","min":75},"description":"Mastering the art of poetry","badgePrompt":"feather quill with ink bottle icon, flat style, mastery of writing"},
+  {"id":8,"name":"Poetic Sage","criteria":{"type":"poemsSubmitted","min":100},"description":"A hundred voices in your heart","badgePrompt":"owl with book icon, flat style, wisdom in writing"},
+  {"id":9,"name":"Legendary Lyricist","criteria":{"type":"poemsSubmitted","min":150},"description":"Your poems inspire others","badgePrompt":"golden trophy with pen icon, flat style, achievement in poetry"},
+  {"id":10,"name":"Eternal Poet","criteria":{"type":"poemsSubmitted","min":200},"description":"A true master of words","badgePrompt":"medal icon with feather, flat style, ultimate poetic achievement"},
+
+  {"id":11,"name":"Liked Once","criteria":{"type":"likesReceived","min":1},"description":"Someone noticed your work","badgePrompt":"thumbs up icon, flat style, minimal"},
+  {"id":12,"name":"Appreciated","criteria":{"type":"likesReceived","min":5},"description":"Your talent is recognized","badgePrompt":"heart icon, flat style, small love"},
+  {"id":13,"name":"Popular Poet","criteria":{"type":"likesReceived","min":10},"description":"Your words touch hearts","badgePrompt":"star icon, flat style, recognition"},
+  {"id":14,"name":"Well-Received","criteria":{"type":"likesReceived","min":20},"description":"Gaining admiration","badgePrompt":"ribbon icon, flat style, achievement"},
+  {"id":15,"name":"Crowd Favorite","criteria":{"type":"likesReceived","min":30},"description":"Followers love your work","badgePrompt":"megaphone icon, flat style, popularity"},
+  {"id":16,"name":"Influencer","criteria":{"type":"likesReceived","min":50},"description":"Your reach is growing","badgePrompt":"social network icon, flat style, high engagement"},
+  {"id":17,"name":"Poetic Star","criteria":{"type":"likesReceived","min":75},"description":"People can’t get enough","badgePrompt":"shining star icon, flat style, high recognition"},
+  {"id":18,"name":"Beloved Bard","criteria":{"type":"likesReceived","min":100},"description":"Your work resonates widely","badgePrompt":"smiling face with heart icon, flat style, loved by all"},
+  {"id":19,"name":"Legendary Poet","criteria":{"type":"likesReceived","min":150},"description":"Renowned for your verses","badgePrompt":"trophy icon, flat style, legendary achievement"},
+  {"id":20,"name":"Iconic Wordsmith","criteria":{"type":"likesReceived","min":200},"description":"You’ve reached iconic status","badgePrompt":"crown with pen icon, flat style, iconic recognition"},
+
+  {"id":21,"name":"Friendly Commenter","criteria":{"type":"commentsMade","min":1},"description":"Join the community","badgePrompt":"speech bubble icon, flat style, small comment"},
+  {"id":22,"name":"Active Voice","criteria":{"type":"commentsMade","min":5},"description":"Share your thoughts","badgePrompt":"chat icon, flat style, active discussion"},
+  {"id":23,"name":"Social Poet","criteria":{"type":"commentsMade","min":10},"description":"Engage with peers","badgePrompt":"group of people icon, flat style, community engagement"},
+  {"id":24,"name":"Conversationalist","criteria":{"type":"commentsMade","min":20},"description":"Becoming more interactive","badgePrompt":"dialogue icon, flat style, discussion focus"},
+  {"id":25,"name":"Community Member","criteria":{"type":"commentsMade","min":30},"description":"People notice your presence","badgePrompt":"handshake icon, flat style, collaboration"},
+  {"id":26,"name":"Engaged Poet","criteria":{"type":"commentsMade","min":50},"description":"A helping hand in discussion","badgePrompt":"conversation bubble with pen icon, flat style, commenting actively"},
+  {"id":27,"name":"Discussion Leader","criteria":{"type":"commentsMade","min":75},"description":"Spark meaningful dialogue","badgePrompt":"microphone icon, flat style, leading talks"},
+  {"id":28,"name":"Mentor Poet","criteria":{"type":"commentsMade","min":100},"description":"Guide and inspire others","badgePrompt":"teacher icon, flat style, guidance"},
+  {"id":29,"name":"Valued Contributor","criteria":{"type":"commentsMade","min":150},"description":"Your feedback is appreciated","badgePrompt":"medal with speech bubble icon, flat style, recognition for commenting"},
+  {"id":30,"name":"Pillar of Community","criteria":{"type":"commentsMade","min":200},"description":"A respected community figure","badgePrompt":"pillar with speech bubble icon, flat style, community foundation"},
+
+  {"id":31,"name":"Heard Once","criteria":{"type":"commentsReceived","min":1},"description":"Someone responded to you","badgePrompt":"speech bubble icon, flat style, first comment received"},
+  {"id":32,"name":"Noticed Poet","criteria":{"type":"commentsReceived","min":5},"description":"Your words spark discussion","badgePrompt":"magnifying glass over chat icon, flat style, attention received"},
+  {"id":33,"name":"Appreciated Voice","criteria":{"type":"commentsReceived","min":10},"description":"Others value your input","badgePrompt":"heart inside chat bubble icon, flat style, appreciation"},
+  {"id":34,"name":"Conversation Starter","criteria":{"type":"commentsReceived","min":20},"description":"You inspire engagement","badgePrompt":"spark icon with speech bubble, flat style, inspiring discussion"},
+  {"id":35,"name":"Interactive Poet","criteria":{"type":"commentsReceived","min":30},"description":"Community interaction grows","badgePrompt":"chat bubbles group icon, flat style, high interaction"},
+  {"id":36,"name":"Respected Poet","criteria":{"type":"commentsReceived","min":50},"description":"Your thoughts resonate","badgePrompt":"shield icon with speech bubble, flat style, respected voice"},
+  {"id":37,"name":"Influential Voice","criteria":{"type":"commentsReceived","min":75},"description":"Others look up to you","badgePrompt":"star inside chat bubble, flat style, influential"},
+  {"id":38,"name":"Encouraging Poet","criteria":{"type":"commentsReceived","min":100},"description":"Many engage with your words","badgePrompt":"hand with chat bubble icon, flat style, motivating others"},
+  {"id":39,"name":"Community Favorite","criteria":{"type":"commentsReceived","min":150},"description":"Loved by the community","badgePrompt":"trophy with chat bubble icon, flat style, admired by peers"},
+  {"id":40,"name":"Legendary Voice","criteria":{"type":"commentsReceived","min":200},"description":"Everyone respects your insights","badgePrompt":"gold medal with chat bubble icon, flat style, legendary commenter"},
+
+  {"id":41,"name":"Poet in Motion","criteria":{"type":"mixed","min":{"poemsSubmitted":10,"likesReceived":10}},"description":"Balanced contribution","badgePrompt":"pencil and star icon, flat style, balanced progress"},
+  {"id":42,"name":"Social Butterfly","criteria":{"type":"mixed","min":{"commentsMade":20,"commentsReceived":20}},"description":"Active and engaging","badgePrompt":"butterfly with chat bubbles, flat style, social activity"},
+  {"id":43,"name":"Rising Influence","criteria":{"type":"mixed","min":{"poemsSubmitted":20,"likesReceived":30}},"description":"Popular and prolific","badgePrompt":"trophy with pen icon, flat style, recognized writer"},
+  {"id":44,"name":"Well-Rounded Poet","criteria":{"type":"mixed","min":{"poemsSubmitted":30,"likesReceived":30,"commentsMade":10}},"description":"Multi-talented creator","badgePrompt":"book, pen, and star icon, flat style, versatile achievement"},
+  {"id":45,"name":"Community Builder","criteria":{"type":"mixed","min":{"commentsMade":50,"likesReceived":50}},"description":"Connects with everyone","badgePrompt":"hands forming network icon, flat style, connecting people"},
+  {"id":46,"name":"Encourager","criteria":{"type":"mixed","min":{"commentsMade":30,"likesReceived":30}},"description":"Inspires others","badgePrompt":"hand giving heart icon, flat style, inspiring others"},
+  {"id":47,"name":"Star Writer","criteria":{"type":"mixed","min":{"poemsSubmitted":50,"likesReceived":50}},"description":"Recognition + dedication","badgePrompt":"star and quill icon, flat style, famous writer"},
+  {"id":48,"name":"Poet Mentor","criteria":{"type":"mixed","min":{"commentsMade":75,"poemsSubmitted":30}},"description":"Leads by example","badgePrompt":"teacher with book icon, flat style, guiding others"},
+  {"id":49,"name":"Legendary Contributor","criteria":{"type":"mixed","min":{"poemsSubmitted":100,"likesReceived":100}},"description":"Legendary achievement","badgePrompt":"gold trophy with books icon, flat style, high achievement"},
+  {"id":50,"name":"Social Icon","criteria":{"type":"mixed","min":{"commentsMade":100,"commentsReceived":100}},"description":"Highly interactive","badgePrompt":"crown with chat bubbles icon, flat style, community leader"},
+
+  {"id":51,"name":"Century Poet","criteria":{"type":"poemsSubmitted","min":100},"description":"Significant milestone","badgePrompt":"medal with quill icon, flat style, 100 poems"},
+  {"id":52,"name":"500 Likes Club","criteria":{"type":"likesReceived","min":500},"description":"Highly popular","badgePrompt":"heart icon with 500 number, flat style, popularity milestone"},
+  {"id":53,"name":"Comment Legend","criteria":{"type":"commentsMade","min":500},"description":"Community powerhouse","badgePrompt":"speech bubble with 500 number, flat style, milestone comments"},
+  {"id":54,"name":"Commented Upon","criteria":{"type":"commentsReceived","min":500},"description":"Very influential","badgePrompt":"chat bubble with medal icon, flat style, receiving many comments"},
+  {"id":55,"name":"Master Poet","criteria":{"type":"poemsSubmitted","min":200},"description":"Truly dedicated","badgePrompt":"gold pen icon, flat style, top-tier poet"},
+  {"id":56,"name":"Iconic Contributor","criteria":{"type":"mixed","min":{"poemsSubmitted":150,"likesReceived":200}},"description":"Fame + dedication","badgePrompt":"crown with pen and heart icon, flat style, iconic achievement"},
+  {"id":57,"name":"Community Star","criteria":{"type":"mixed","min":{"commentsMade":200,"commentsReceived":200}},"description":"Well-known and loved","badgePrompt":"star with chat bubbles icon, flat style, well-known community member"},
+  {"id":58,"name":"Hall of Fame","criteria":{"type":"poemsSubmitted","min":500},"description":"Legendary poet","badgePrompt":"trophy with books icon, flat style, hall of fame poet"},
+  {"id":59,"name":"Grand Poet","criteria":{"type":"likesReceived","min":1000},"description":"Huge recognition","badgePrompt":"grand medal with heart icon, flat style, ultimate recognition"},
+  {"id":60,"name":"Eternal Voice","criteria":{"type":"commentsReceived","min":500},"description":"Eternal impact on community","badgePrompt":"gold trophy with speech bubble icon, flat style, eternal influence"},
+
+  {"id":61,"name":"Century Plus Poet","criteria":{"type":"poemsSubmitted","min":250},"description":"Your dedication is legendary","badgePrompt":"gold pen icon with stars, flat style, high-level writing"},
+  {"id":62,"name":"Master Wordsmith","criteria":{"type":"poemsSubmitted","min":300},"description":"Truly a master of the craft","badgePrompt":"quill with crown icon, flat style, mastery in writing"},
+  {"id":63,"name":"Literary Legend","criteria":{"type":"poemsSubmitted","min":400},"description":"Revered by all","badgePrompt":"open book with medal icon, flat style, legendary achievement"},
+  {"id":64,"name":"Poet Supreme","criteria":{"type":"poemsSubmitted","min":500},"description":"Extreme poetic output","badgePrompt":"trophy with quill and books icon, flat style, supreme achievement"},
+  {"id":65,"name":"Infinite Poet","criteria":{"type":"poemsSubmitted","min":1000},"description":"Endless creativity","badgePrompt":"infinity symbol with pen icon, flat style, ultimate writing"},
+
+  {"id":66,"name":"1000 Likes Achiever","criteria":{"type":"likesReceived","min":1000},"description":"Your popularity is immense","badgePrompt":"heart icon with 1000 number, flat style, massive recognition"},
+  {"id":67,"name":"Social Superstar","criteria":{"type":"likesReceived","min":1500},"description":"Famous in the community","badgePrompt":"star with heart icon, flat style, superstar recognition"},
+  {"id":68,"name":"Loved by Many","criteria":{"type":"likesReceived","min":2000},"description":"Your work is admired widely","badgePrompt":"group of hearts icon, flat style, widespread admiration"},
+  {"id":69,"name":"Iconic Poet","criteria":{"type":"likesReceived","min":3000},"description":"Legendary recognition","badgePrompt":"crown with heart icon, flat style, iconic achievement"},
+  {"id":70,"name":"Eternal Popularity","criteria":{"type":"likesReceived","min":5000},"description":"Immortalized by community love","badgePrompt":"golden heart trophy icon, flat style, eternal popularity"},
+
+  {"id":71,"name":"Comment Champion","criteria":{"type":"commentsMade","min":300},"description":"Outstanding participation","badgePrompt":"chat bubble with medal icon, flat style, champion"},
+  {"id":72,"name":"Conversational Star","criteria":{"type":"commentsMade","min":400},"description":"Highly active in discussions","badgePrompt":"multiple chat bubbles icon, flat style, star participant"},
+  {"id":73,"name":"Dialogue Master","criteria":{"type":"commentsMade","min":500},"description":"Your voice is prominent","badgePrompt":"speech bubble with crown icon, flat style, master communicator"},
+  {"id":74,"name":"Community Leader","criteria":{"type":"commentsMade","min":750},"description":"Leading the conversation","badgePrompt":"leader icon with chat bubbles, flat style, recognized leader"},
+  {"id":75,"name":"Legendary Commenter","criteria":{"type":"commentsMade","min":1000},"description":"Truly influential","badgePrompt":"gold trophy with speech bubbles icon, flat style, legendary commenter"},
+
+  {"id":76,"name":"Heard by Many","criteria":{"type":"commentsReceived","min":300},"description":"Your words resonate","badgePrompt":"chat bubble with group icon, flat style, widely heard"},
+  {"id":77,"name":"Popular Voice","criteria":{"type":"commentsReceived","min":400},"description":"Very influential","badgePrompt":"microphone with chat bubble icon, flat style, popular voice"},
+  {"id":78,"name":"Community Favorite","criteria":{"type":"commentsReceived","min":500},"description":"Admired by peers","badgePrompt":"smiling face with chat bubble icon, flat style, admired by community"},
+  {"id":79,"name":"Influencer Poet","criteria":{"type":"commentsReceived","min":750},"description":"Highly respected","badgePrompt":"star with chat bubble icon, flat style, influential poet"},
+  {"id":80,"name":"Eternal Influence","criteria":{"type":"commentsReceived","min":1000},"description":"Immortal community impact","badgePrompt":"gold medal with speech bubble icon, flat style, eternal influence"},
+
+  {"id":81,"name":"Balanced Pro","criteria":{"type":"mixed","min":{"poemsSubmitted":50,"likesReceived":100}},"description":"Strong and popular","badgePrompt":"trophy with pen and heart icon, flat style, balanced achievement"},
+  {"id":82,"name":"Social Leader","criteria":{"type":"mixed","min":{"commentsMade":100,"commentsReceived":100}},"description":"Highly interactive","badgePrompt":"crown with chat bubbles icon, flat style, community leader"},
+  {"id":83,"name":"Poet Icon","criteria":{"type":"mixed","min":{"poemsSubmitted":100,"likesReceived":200}},"description":"Popular and prolific","badgePrompt":"star with pen and heart icon, flat style, icon level"},
+  {"id":84,"name":"Community Hero","criteria":{"type":"mixed","min":{"commentsMade":200,"commentsReceived":200}},"description":"Respected member","badgePrompt":"shield with chat bubbles icon, flat style, hero"},
+  {"id":85,"name":"Legendary Writer","criteria":{"type":"mixed","min":{"poemsSubmitted":200,"likesReceived":500}},"description":"Legendary contribution","badgePrompt":"gold trophy with quill and heart icon, flat style, legendary"},
+  {"id":86,"name":"Master Connector","criteria":{"type":"mixed","min":{"commentsMade":500,"commentsReceived":500}},"description":"Community influencer","badgePrompt":"network icon with crown, flat style, master connector"},
+  {"id":87,"name":"Poetic Titan","criteria":{"type":"mixed","min":{"poemsSubmitted":300,"likesReceived":1000}},"description":"Huge impact","badgePrompt":"trophy with pen and heart icon, flat style, titan level"},
+  {"id":88,"name":"Supreme Voice","criteria":{"type":"mixed","min":{"commentsMade":1000,"commentsReceived":1000}},"description":"Ultimate influencer","badgePrompt":"gold crown with chat bubbles icon, flat style, supreme voice"},
+  {"id":89,"name":"Immortal Poet","criteria":{"type":"mixed","min":{"poemsSubmitted":500,"likesReceived":2000}},"description":"Immortal achievement","badgePrompt":"gold medal with quill and heart icon, flat style, immortal"},
+  {"id":90,"name":"Eternal Community Star","criteria":{"type":"mixed","min":{"commentsMade":2000,"commentsReceived":2000}},"description":"Forever respected","badgePrompt":"gold star with chat bubbles icon, flat style, eternal star"},
+
+  {"id":91,"name":"Ultra Poet","criteria":{"type":"poemsSubmitted","min":1000},"description":"Extreme output","badgePrompt":"trophy with quill icon, flat style, ultra level"},
+  {"id":92,"name":"Ultra Popular","criteria":{"type":"likesReceived","min":5000},"description":"Immense recognition","badgePrompt":"heart trophy icon, flat style, ultra level"},
+  {"id":93,"name":"Ultra Commenter","criteria":{"type":"commentsMade","min":3000},"description":"Extreme community participation","badgePrompt":"speech bubble trophy icon, flat style, ultra level"},
+  {"id":94,"name":"Ultra Influence","criteria":{"type":"commentsReceived","min":3000},"description":"Immense impact","badgePrompt":"gold medal with chat bubbles icon, flat style, ultra level"},
+  {"id":95,"name":"Legendary Poet Icon","criteria":{"type":"mixed","min":{"poemsSubmitted":1000,"likesReceived":5000}},"description":"Ultimate poet","badgePrompt":"gold trophy with quill and hearts icon, flat style, legendary"},
+  {"id":96,"name":"Legendary Community Icon","criteria":{"type":"mixed","min":{"commentsMade":3000,"commentsReceived":3000}},"description":"Ultimate community influence","badgePrompt":"gold trophy with chat bubbles icon, flat style, legendary"},
+  {"id":97,"name":"Supreme Poet","criteria":{"type":"poemsSubmitted","min":2000},"description":"Supreme level writing","badgePrompt":"double gold pen trophy icon, flat style, supreme"},
+  {"id":98,"name":"Supreme Popularity","criteria":{"type":"likesReceived","min":10000},"description":"Supreme recognition","badgePrompt":"double gold heart trophy icon, flat style, supreme"},
+  {"id":99,"name":"Supreme Community Voice","criteria":{"type":"commentsReceived","min":5000},"description":"Supreme influence","badgePrompt":"double gold chat bubble trophy icon, flat style, supreme"},
+  {"id":100,"name":"Legendary Eternal Poet","criteria":{"type":"mixed","min":{"poemsSubmitted":5000,"likesReceived":10000,"commentsMade":5000,"commentsReceived":5000}},"description":"Ultimate poetic and community legend","badgePrompt":"crown, quill, hearts, chat bubbles icon, flat style, ultimate achievement"}
+];
+
+// --- Generate Cloudinary Icon URL from badgePrompt ---
+function generateCloudinaryIcon(badgePrompt) {
+  // Replace spaces with underscores to avoid URL issues
+  const iconName = badgePrompt.replace(/\s+/g, "_");
+  return `https://res.cloudinary.com/dzoq4pgjn/image/upload/w_50,h_50,c_fill,q_auto,f_auto/${iconName}.png`;
+}
+
+// --- Push achievements to Firestore (no duplicates) ---
+async function pushAchievementsToFirestore() {
+  const snapshot = await getDocs(collection(db, "achievements"));
+  const existingTitles = new Set(snapshot.docs.map(docSnap => docSnap.data().title));
+
+  for (const ach of achievementsJSON) {
+    if (!existingTitles.has(ach.name)) {
+      await addDoc(collection(db, "achievements"), {
+        title: ach.name,
+        description: ach.description,
+        condition: ach.criteria,
+        active: true,
+        imageUrl: generateCloudinaryIcon(ach.badgePrompt),
+        badgePrompt: ach.badgePrompt
+      });
+    }
+  }
+}
+
+// --- Load Achievements ---
+async function loadAchievements() {
+  const list = document.getElementById("achievementsList");
+  list.innerHTML = "";
+  const snapshot = await getDocs(collection(db, "achievements"));
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    const id = docSnap.id;
+    const div = document.createElement("div");
+    div.className = "achievement";
+    div.innerHTML = `
+      <img src="${data.imageUrl || generateCloudinaryIcon(data.badgePrompt || 'star')}" alt="badge">
+      <div class="achievement-details">
+        <strong>${data.title}</strong> - ${data.description} <br>
+        Condition: ${data.condition.type} ≥ ${JSON.stringify(data.condition.min)} <br>
+        Badge Prompt: ${data.badgePrompt || ''}
+      </div>
+      <div class="achievement-actions">
+        <button onclick="editAchievement('${id}')">Edit</button>
+        <button onclick="deleteAchievement('${id}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// --- Form Submission ---
+const form = document.getElementById("achievementForm");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const type = document.getElementById("conditionType").value;
+  const min = parseInt(document.getElementById("conditionMin").value);
+  const active = document.getElementById("active").checked;
+  const achId = document.getElementById("achId").value;
+
+  try {
+    if (achId) {
+      const achRef = doc(db, "achievements", achId);
+      await updateDoc(achRef, { title, description, condition: { type, min }, active });
+    } else {
+      await addDoc(collection(db, "achievements"), {
+        title,
+        description,
+        condition: { type, min },
+        active,
+        badgePrompt: title.toLowerCase(),
+        imageUrl: generateCloudinaryIcon(title.toLowerCase())
+      });
+    }
+    form.reset();
+    document.getElementById("achId").value = "";
+    loadAchievements();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save achievement.");
+  }
+});
+
+// --- Edit Achievement ---
+window.editAchievement = async (id) => {
+  const snapshot = await getDocs(collection(db, "achievements"));
+  const dataSnap = snapshot.docs.find(d => d.id === id)?.data();
+  if (!dataSnap) return;
+  document.getElementById("title").value = dataSnap.title || "";
+  document.getElementById("description").value = dataSnap.description || "";
+  document.getElementById("conditionType").value = dataSnap.condition?.type || "poemsSubmitted";
+  document.getElementById("conditionMin").value = dataSnap.condition?.min || 1;
+  document.getElementById("active").checked = dataSnap.active || false;
+  document.getElementById("achId").value = id;
+}
+
+// --- Delete Achievement ---
+window.deleteAchievement = async (id) => {
+  if (!confirm("Are you sure you want to delete this achievement?")) return;
+  await deleteDoc(doc(db, "achievements", id));
+  loadAchievements();
+}
+
+// --- Initialize ---
+pushAchievementsToFirestore().then(() => loadAchievements());
+</script>
+
+</body>
+</html>
+
+
+

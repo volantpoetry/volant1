@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; background: #f9f9f9; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { padding: 10px 15px; border-radius: 6px; border: none; background: #2a7ae2; color: #fff; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #1e5cb8; }
+  </style>
+    <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+
+  <h2 style="text-align:center;">Admin Login</h2>
+  <form id="admin-login-form">
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.firebasestorage.app",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543",
+      measurementId: "G-WSWDCB7KD8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("admin-login-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const usernameInput = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        // Query admins collection by username
+        const q = query(collection(db, "admins"), where("username", "==", usernameInput));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          alert("Username not found.");
+          return;
+        }
+
+        const adminDoc = querySnapshot.docs[0].data();
+        const email = adminDoc.email; // fetch email for authentication
+
+        // Sign in using email & password
+        await signInWithEmailAndPassword(auth, email, password);
+
+        window.location.href = "/admin"; // redirect to admin dashboard
+      } catch (err) {
+        console.error(err);
+        alert("Login failed: " + err.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

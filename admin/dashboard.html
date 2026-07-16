@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin Dashboard | Volant Poetry</title>
+ <!-- Styles & Icons -->
+  <link rel="stylesheet" href="../style.css" />
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="../images/volant-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-favicon.png">
+
+<style>
+  body { font-family: Inter, sans-serif; margin: 0; background: #f4f4f4; }
+  h1 { text-align: center; margin-top: 20px; }
+  .admin-info { text-align: left; margin: 10px 20px; font-weight: bold; }
+  .section { background: white; padding: 20px; margin: 20px auto; width: 95%; max-width: 1100px; border-radius: 10px; }
+  .stats-boxes { display: flex; flex-wrap: wrap; gap: 20px; }
+  .stat { flex: 1 1 200px; background: #ffffff; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .stat h2 { margin: 0; font-size: 2rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+  tr:hover { background: #f7f7f7; }
+  .log-item { padding: 10px; border-bottom: 1px solid #eee; }
+</style>
+</head>
+
+<body>
+
+<!-- Signed-in Admin Info -->
+<div id="admin-info" class="admin-info"></div>
+
+<h1>📊 Volant Poetry — Admin Dashboard</h1>
+
+<!-- GLOBAL STATS -->
+<div class="section">
+  <h2>Community Overview</h2>
+  <div class="stats-boxes">
+    <div class="stat"><h2 id="total-users">0</h2><p>Total Users</p></div>
+    <div class="stat"><h2 id="total-poems">0</h2><p>Total Poems</p></div>
+    <div class="stat"><h2 id="total-likes">0</h2><p>Total Likes</p></div>
+    <div class="stat"><h2 id="total-comments">0</h2><p>Total Comments</p></div>
+    <div class="stat"><h2 id="total-replies">0</h2><p>Total Replies</p></div>
+    <div class="stat"><h2 id="total-views">0</h2><p>Total Views</p></div>
+  </div>
+</div>
+
+<!-- ACTIVITY FEED -->
+<div class="section">
+  <h2>⚡ Live Activity Feed</h2>
+  <div id="activity-feed"></div>
+</div>
+
+<!-- RECENT POEMS -->
+<div class="section">
+  <h2>Recent Poems</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Likes</th>
+        <th>Views</th>
+        <th>Comments</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="recent-poem-table"></tbody>
+  </table>
+</div>
+
+<!-- CLASSIC POEMS -->
+<div class="section">
+  <h2>Classic Poems</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Likes</th>
+        <th>Views</th>
+        <th>Comments</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="classic-poem-table"></tbody>
+  </table>
+</div>
+
+<!-- USER ACTIVITY -->
+<div class="section">
+  <h2>👥 User Activity Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Poems</th>
+        <th>Likes</th>
+        <th>Comments</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody id="user-table"></tbody>
+  </table>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, onSnapshot, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* ---------------- FIREBASE CONFIG ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* ---------------- ADMIN ACCESS CHECK ---------------- */
+async function checkAdminAccess(user) {
+  const email = user.email;
+  const adminDoc = await getDoc(doc(db, "admins", email)); // document ID = admin email
+  return adminDoc.exists() ? adminDoc.data() : null;
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    alert("Access denied. Sign in required.");
+    window.location.href = "/index";
+    return;
+  }
+
+  const adminData = await checkAdminAccess(user);
+  if (!adminData) {
+    alert("You are not authorized to access the Admin Dashboard.");
+    window.location.href = "/index";
+  } else {
+    // Show signed-in admin info
+    document.getElementById("admin-info").textContent = `Signed in as: ${user.email}`;
+  }
+});
+
+/* ---------------- LOAD GLOBAL STATS ---------------- */
+async function loadStats() {
+  const users = await getDocs(collection(db, "users"));
+  const recentPoems = await getDocs(collection(db, "recentPoems"));
+  const classicPoems = await getDocs(collection(db, "classicPoems"));
+
+  let likes = 0, comments = 0, replies = 0, views = 0;
+  const allPoems = [...recentPoems.docs, ...classicPoems.docs];
+
+  allPoems.forEach(p => {
+    const d = p.data();
+    likes += d.likes || 0;
+    comments += d.comments || 0;
+    replies += d.replies || 0;
+    views += d.views || 0;
+  });
+
+  document.getElementById("total-users").textContent = users.size;
+  document.getElementById("total-poems").textContent = allPoems.length;
+  document.getElementById("total-likes").textContent = likes;
+  document.getElementById("total-comments").textContent = comments;
+  document.getElementById("total-replies").textContent = replies;
+  document.getElementById("total-views").textContent = views;
+}
+
+/* ---------------- LIVE ACTIVITY FEED ---------------- */
+const activityQuery = query(collection(db, "activityLogs"), orderBy("time", "desc"));
+onSnapshot(activityQuery, snapshot => {
+  const feed = document.getElementById("activity-feed");
+  feed.innerHTML = "";
+  snapshot.forEach(log => {
+    const d = log.data();
+    feed.innerHTML += `
+      <div class="log-item">
+        <strong>${d.user}</strong> — ${d.action}<br>
+        <small>${new Date(d.time).toLocaleString()}</small>
+      </div>
+    `;
+  });
+});
+
+/* ---------------- POEM TABLES ---------------- */
+async function loadPoemTables() {
+  const recentPoems = await getDocs(collection(db, "recentPoems"));
+  const classicPoems = await getDocs(collection(db, "classicPoems"));
+
+  const recentTable = document.getElementById("recent-poem-table");
+  const classicTable = document.getElementById("classic-poem-table");
+
+  recentTable.innerHTML = "";
+  recentPoems.forEach(poem => {
+    const p = poem.data();
+    recentTable.innerHTML += `
+      <tr>
+        <td>${p.title}</td>
+        <td>${p.authorName || p.author || "Unknown"}</td>
+        <td>${p.likes || 0}</td>
+        <td>${p.views || 0}</td>
+        <td>${p.comments || 0}</td>
+        
+        <td>${p.date ? new Date(p.date).toLocaleDateString() : "-"}</td>
+      </tr>
+    `;
+  });
+
+  classicTable.innerHTML = "";
+  classicPoems.forEach(poem => {
+    const p = poem.data();
+    classicTable.innerHTML += `
+      <tr>
+        <td>${p.title}</td>
+        <td>${p.authorName || p.author || "Unknown"}</td>
+        <td>${p.likes || 0}</td>
+        <td>${p.views || 0}</td>
+        <td>${p.comments || 0}</td>
+        <td>${p.date ? new Date(p.date).toLocaleDateString() : "-"}</td>
+      </tr>
+    `;
+  });
+}
+/* ---------------- USER SUMMARY TABLE ---------------- */
+async function loadUserTable() {
+  const users = await getDocs(collection(db, "users"));
+  const table = document.getElementById("user-table");
+  table.innerHTML = "";
+
+  users.forEach(userDoc => {
+    const u = userDoc.data();
+
+    // Convert Firestore timestamp to JS Date
+    let joinedDate = "-";
+    if (u.joined && u.joined.toDate) {
+      joinedDate = u.joined.toDate().toLocaleDateString();
+    }
+
+    table.innerHTML += `
+      <tr>
+        <td>${u.username || "Unknown"}</td>
+        <td>${u.totalPoems || 0}</td>
+        <td>${u.totalLikes || 0}</td>
+        <td>${u.totalComments || 0}</td>
+        <td>${joinedDate}</td>
+      </tr>
+    `;
+  });
+}
+
+
+/* ---------------- INITIAL LOAD ---------------- */
+loadStats();
+loadPoemTables();
+loadUserTable();
+
+</script>
+</body>
+</html>

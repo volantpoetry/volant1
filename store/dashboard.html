@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<script>
+// Better auth check - wait for Firebase to initialize
+(function() {
+    // Check if we're already on the login page to avoid loops
+    if (window.location.pathname.includes('universal-login') || 
+        window.location.pathname.includes('verify-email')) {
+        return;
+    }
+    
+    // Check if there's a Firebase session
+    // Look for the Firebase auth token in localStorage
+    const firebaseAuth = localStorage.getItem('firebase:authUser');
+    const hasAuth = firebaseAuth !== null && firebaseAuth !== 'null' && firebaseAuth !== 'undefined';
+    
+    // If no auth, redirect to login with return URL
+    if (!hasAuth) {
+        // But don't redirect if we've already been redirected (prevent loops)
+        if (!sessionStorage.getItem('auth_redirect_attempted')) {
+            sessionStorage.setItem('auth_redirect_attempted', 'true');
+            const currentPage = window.location.pathname + window.location.search;
+            window.location.href = '../shared/universal-login.html?platform=reads&redirect=' + 
+                                  encodeURIComponent(currentPage);
+        }
+    } else {
+        // Clear the redirect attempt flag if we have auth
+        sessionStorage.removeItem('auth_redirect_attempted');
+    }
+})();
+</script>
+
+
+
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Volant Reads | Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../images/volant-reads-favicon.png" />
+  <link rel="apple-touch-icon" href="../images/volant-reads-favicon.png" />
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { background:#f7f7fb; color:#1d1833; }
+    .dashboard { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+    .sidebar {
+      background:white; padding:28px 20px; border-right:1px solid #ececec;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    .logo { text-align:center; margin-bottom:40px; }
+    .logo-circle {
+      width:90px; height:90px; border-radius:50%; background:#6a34ff;
+      margin:0 auto; display:flex; align-items:center; justify-content:center;
+      color:white; font-size:38px; font-weight:700; box-shadow:0 8px 18px rgba(106,52,255,0.25);
+    }
+    .logo h2 { margin-top:18px; letter-spacing:3px; font-weight:600; }
+    .nav {
+      display:flex; flex-direction:column; gap:6px; margin-top:8px;
+    }
+    .nav a {
+      padding:14px 16px; text-decoration:none; color:#444; border-radius:14px;
+      font-weight:500; display:flex; align-items:center; gap:12px; transition:0.2s;
+      cursor:pointer;
+    }
+    .nav a i { width:22px; font-size:1.1rem; color:#6b6b80; }
+    .nav a:hover { background:#f0eaff; color:#6a34ff; }
+    .nav a:hover i { color:#6a34ff; }
+    .nav .active { background:#f0eaff; color:#6a34ff; }
+    .nav .active i { color:#6a34ff; }
+    .card-side {
+      margin-top:40px; background:#f7f2ff; padding:24px 20px; border-radius:24px; text-align:center;
+    }
+    .card-side h3 { font-weight:600; font-size:1.2rem; }
+    .card-side p { margin-top:12px; font-size:0.9rem; color:#3d3a4a; line-height:1.5; }
+    .card-side button {
+      margin-top:24px; width:100%; height:48px; border:none; border-radius:40px;
+      background:#6a34ff; color:white; font-weight:600; cursor:pointer; transition:0.2s;
+    }
+    .card-side button:hover { background:#5428d9; transform:scale(0.98); }
+    .content { padding:34px 40px; background:#f7f7fb; }
+
+    .topbar {
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;
+      margin-bottom: 12px;
+    }
+    .topbar-left {
+      display:flex; flex-direction:column; gap: 4px;
+    }
+    .topbar h1 { font-size:2rem; font-weight:700; margin:0; }
+    .topbar p { color:#5f5b70; margin-top: 2px; font-size:0.95rem; }
+
+    .page-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+      margin-top: 18px;
+    }
+    .page-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(10px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    .user { display:flex; align-items:center; gap:16px; }
+    .avatar {
+      width:48px; height:48px; border-radius:50%; background:#cbc3e0;
+      background-size:cover; background-position:center;
+    }
+    .action-btn {
+      background:#6a34ff; color:white; border:none; height:50px; padding:0 28px;
+      border-radius:40px; font-weight:600; cursor:pointer; transition:0.2s;
+      display:flex; align-items:center; gap:10px; font-size:0.95rem;
+      text-decoration:none;
+    }
+    .action-btn:hover { background:#5428d9; transform:translateY(-2px); }
+    .action-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+    .stats {
+      margin-top:28px; display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:18px;
+    }
+    .stat {
+      background:white; padding:24px 20px; border-radius:24px; border:1px solid #eee;
+      transition:0.25s;
+    }
+    .stat:hover { box-shadow:0 8px 20px rgba(0,0,0,0.02); border-color:#d9d0f0; }
+    .stat h4 { color:#666; font-weight:500; font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase; margin-bottom:10px; }
+    .stat .value { font-size:2.2rem; font-weight:700; color:#1d1833; }
+    .stat .value small { font-size:0.9rem; font-weight:400; color:#777; }
+
+    .grid { margin-top:24px; display:grid; grid-template-columns:1.4fr 1fr; gap:24px; }
+    .panel {
+      background:white; padding:28px 26px; border-radius:28px; border:1px solid #eee;
+      box-shadow:0 2px 10px rgba(0,0,0,0.02);
+    }
+    .section-title {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;
+    }
+    .section-title h2 { font-size:1.3rem; font-weight:600; }
+    .section-title a { color:#6a34ff; font-weight:500; text-decoration:none; font-size:0.9rem; cursor:pointer; }
+    .section-title a:hover { text-decoration:underline; }
+
+    .page-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:20px; margin-top:20px;
+    }
+    .page-card {
+      background:transparent; border:none; transition:all 0.3s ease;
+      display:flex; flex-direction:column;
+      position:relative;
+    }
+    .page-card:hover { transform:translateY(-4px); }
+    .page-card .cover-wrapper {
+      position:relative; padding-top:140%; background:#f0ebe4;
+      overflow:hidden; border-radius:0 !important;
+      box-shadow:0 4px 12px rgba(0,0,0,0.06); transition:box-shadow 0.3s ease;
+      cursor:pointer;
+    }
+    .page-card:hover .cover-wrapper { box-shadow:0 8px 25px rgba(0,0,0,0.12); }
+    .page-card .cover-wrapper img {
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      object-fit:cover; transition:transform 0.3s ease;
+    }
+    .page-card:hover .cover-wrapper img { transform:scale(1.03); }
+    .page-card .cover-wrapper .no-image {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      font-size:3.5rem; color:#cbb9a8;
+    }
+    .page-card .book-body {
+      padding:0.6rem 0.2rem 0; display:flex; flex-direction:column;
+    }
+    .page-card .book-title {
+      font-family:'Playfair Display',serif; font-weight:700; font-size:1.15rem;
+      color:#2d2a24; line-height:1.3; margin-bottom:0.1rem;
+      display:-webkit-box; -webkit-line-clamp:2; line-clamp:2;
+      -webkit-box-orient:vertical; box-orient:vertical; overflow:hidden;
+    }
+    .page-card .book-subtitle {
+      font-size:0.85rem; color:#8a7b6a; font-style:italic; margin-bottom:0.1rem;
+      display:-webkit-box; -webkit-line-clamp:1; line-clamp:1;
+      -webkit-box-orient:vertical; box-orient:vertical; overflow:hidden;
+    }
+    .page-card .book-author {
+      font-size:0.9rem; color:#6f6252; margin-bottom:0.1rem; font-weight:500;
+    }
+    .page-card .book-price {
+      font-weight:700; font-size:1.05rem; color:#4b2aad; margin-top:0.1rem;
+    }
+    .page-card .badge-status {
+      display:inline-block; padding:2px 10px; border-radius:999px;
+      font-size:0.65rem; font-weight:600; margin-top:4px; align-self:flex-start;
+    }
+    .page-card .badge-status.pending { background:#fff2d6; color:#a8640b; }
+    .page-card .badge-status.approved { background:#dff7e5; color:#15723d; }
+    .page-card .badge-status.rejected { background:#fde8e8; color:#c62828; }
+    .page-card .badge-status.draft { background:#f0f0f0; color:#666; }
+
+    .sales-badge {
+      display:inline-block; padding:2px 12px; border-radius:999px;
+      font-size:0.7rem; font-weight:600; margin-top:4px; align-self:flex-start;
+      background:#e8e0f0; color:#4b2aad;
+    }
+    .sales-badge i { margin-right:4px; }
+    .revenue-badge {
+      display:inline-block; padding:2px 12px; border-radius:999px;
+      font-size:0.7rem; font-weight:600; margin-top:4px; align-self:flex-start;
+      background:#dff7e5; color:#15723d;
+    }
+    .revenue-badge i { margin-right:4px; }
+
+    .update-book-btn {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:#6a34ff;
+      color:white;
+      border:none;
+      padding:6px 16px;
+      border-radius:20px;
+      font-size:0.7rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.2s;
+      margin-top:6px;
+      align-self:flex-start;
+      text-decoration:none;
+    }
+    .update-book-btn:hover {
+      background:#5428d9;
+      transform:scale(1.05);
+    }
+    .update-book-btn i {
+      font-size:0.65rem;
+    }
+
+    .share-book-btn {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:#15723d;
+      color:white;
+      border:none;
+      padding:6px 16px;
+      border-radius:20px;
+      font-size:0.7rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.2s;
+      margin-top:6px;
+      align-self:flex-start;
+      text-decoration:none;
+    }
+    .share-book-btn:hover {
+      background:#0f5a2f;
+      transform:scale(1.05);
+    }
+    .share-book-btn i {
+      font-size:0.65rem;
+    }
+
+    .btn-group {
+      display:flex;
+      gap:6px;
+      margin-top:6px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .table { margin-top:6px; }
+    .row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 0; border-bottom:1px solid #f0f0f0;
+    }
+    .row:last-child { border-bottom:none; }
+    .badge {
+      background:#dff7e5; padding:6px 16px; border-radius:999px; color:#15723d;
+      font-size:0.8rem; font-weight:600;
+    }
+    .badge.pending { background:#fff2d6; color:#a8640b; }
+    .badge.approved { background:#dff7e5; color:#15723d; }
+    .badge.rejected { background:#fde8e8; color:#c62828; }
+    .badge.draft { background:#f0f0f0; color:#666; }
+
+    .chart-wrapper { 
+      display:flex; 
+      flex-direction:column; 
+      gap:8px;
+      padding-top:4px;
+    }
+    .chart {
+      height:160px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-around;
+      gap:12px;
+      padding-top:8px;
+      margin-top:4px;
+    }
+    .bar-item {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      flex:1;
+      gap:6px;
+    }
+    .bar {
+      width:100%;
+      max-width:45px;
+      background:linear-gradient(180deg,#8e6cff,#6a34ff);
+      border-radius:20px 20px 0 0;
+      min-height:8px;
+      transition:0.3s;
+      position:relative;
+      cursor:pointer;
+    }
+    .bar:hover { 
+      opacity:0.85; 
+      transform:scaleY(1.03); 
+      transform-origin:bottom; 
+    }
+    .bar-label {
+      font-size:0.6rem;
+      color:#6b6b80;
+      text-align:center;
+      font-weight:500;
+      line-height:1.2;
+      margin-top:2px;
+    }
+    .bar-value {
+      font-size:0.55rem;
+      color:#4b2aad;
+      font-weight:600;
+      text-align:center;
+      background:rgba(106,52,255,0.08);
+      padding:1px 6px;
+      border-radius:8px;
+    }
+    .chart-days {
+      display:flex;
+      justify-content:space-around;
+      font-size:0.65rem;
+      color:#6b6b80;
+      padding-top:4px;
+    }
+    .chart-days span {
+      flex:1;
+      text-align:center;
+    }
+
+    .sales-list { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+    .sale-item {
+      padding:16px 18px; border:1px solid #eee; border-radius:18px;
+      display:flex; align-items:center; gap:14px; background:#fbfafd;
+      font-weight:500; transition:0.2s; cursor:pointer;
+    }
+    .sale-item i { color:#6a34ff; font-size:1.2rem; }
+    .sale-item:hover { border-color:#c6b8e6; background:#f6f2ff; }
+
+    .page-header {
+      margin-bottom: 20px;
+    }
+    .page-header h2 {
+      font-size:1.8rem;
+      font-weight:700;
+      margin-bottom: 4px;
+    }
+    .page-header p {
+      color:#5f5b70;
+      margin-top: 2px;
+    }
+
+    .settings-group {
+      margin-bottom:20px;
+    }
+    .settings-group label {
+      display:block;
+      font-weight:500;
+      margin-bottom:6px;
+      color:#333;
+    }
+    .settings-group input, .settings-group select, .settings-group textarea {
+      width:100%;
+      padding:12px 16px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:0.95rem;
+      transition:0.3s;
+      font-family:inherit;
+    }
+    .settings-group input:focus, .settings-group select:focus, .settings-group textarea:focus {
+      outline:none;
+      border-color:#6a34ff;
+      box-shadow:0 0 0 3px rgba(106,52,255,0.1);
+    }
+    .settings-group .hint {
+      font-size:0.8rem;
+      color:#888;
+      margin-top:4px;
+    }
+
+    .modal-overlay {
+      display:none;
+      position:fixed;
+      top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5);
+      z-index:1000;
+      backdrop-filter:blur(4px);
+      align-items:center;
+      justify-content:center;
+    }
+    .modal-overlay.show {
+      display:flex;
+    }
+    .modal {
+      background:white;
+      width:95%;
+      max-width:850px;
+      max-height:92vh;
+      border-radius:28px;
+      padding:32px 36px;
+      overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      position:relative;
+      animation:modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(0.95) translateY(20px); }
+      to { opacity:1; transform:scale(1) translateY(0); }
+    }
+    .modal::-webkit-scrollbar { width:6px; }
+    .modal::-webkit-scrollbar-track { background:#f0f0f0; border-radius:10px; }
+    .modal::-webkit-scrollbar-thumb { background:#c5c5d0; border-radius:10px; }
+    .modal::-webkit-scrollbar-thumb:hover { background:#6a34ff; }
+
+    .modal-close {
+      position:sticky;
+      top:0;
+      float:right;
+      background:none;
+      border:none;
+      font-size:1.8rem;
+      color:#999;
+      cursor:pointer;
+      padding:0 8px;
+      transition:0.2s;
+      z-index:10;
+    }
+    .modal-close:hover { color:#b33; transform:rotate(90deg); }
+    .modal h2 {
+      font-size:1.8rem;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .modal .modal-sub {
+      color:#888;
+      margin-bottom:24px;
+    }
+    .modal .form-row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .modal .form-group {
+      margin-bottom:14px;
+    }
+    .modal .form-group label {
+      display:block;
+      font-weight:500;
+      margin-bottom:4px;
+      font-size:0.85rem;
+      color:#333;
+    }
+    .modal .form-group label .required {
+      color:#b33;
+    }
+    .modal .form-group input,
+    .modal .form-group textarea,
+    .modal .form-group select {
+      width:100%;
+      padding:10px 14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:0.9rem;
+      transition:0.3s;
+      font-family:inherit;
+    }
+    .modal .form-group input:focus,
+    .modal .form-group textarea:focus,
+    .modal .form-group select:focus {
+      outline:none;
+      border-color:#6a34ff;
+      box-shadow:0 0 0 3px rgba(106,52,255,0.1);
+    }
+    .modal .form-group textarea {
+      resize:vertical;
+      min-height:60px;
+    }
+    .modal .form-group .file-input-wrapper {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .modal .form-group .file-input-wrapper input[type="file"] {
+      flex:1;
+      min-width:120px;
+      padding:8px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:0.85rem;
+    }
+    .modal .form-group .file-input-wrapper .current-file {
+      font-size:0.75rem;
+      color:#15723d;
+      background:#dff7e5;
+      padding:4px 12px;
+      border-radius:20px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:200px;
+    }
+    .modal .form-group .file-input-wrapper .current-file.no-file {
+      color:#888;
+      background:#f0f0f0;
+    }
+    .modal .form-group .file-hint {
+      font-size:0.7rem;
+      color:#888;
+      margin-top:4px;
+    }
+    .modal .form-actions {
+      display:flex;
+      gap:12px;
+      margin-top:24px;
+      padding-top:20px;
+      border-top:1px solid #eee;
+      flex-wrap:wrap;
+    }
+    .modal .form-actions .btn-save {
+      background:#6a34ff;
+      color:white;
+      border:none;
+      padding:12px 36px;
+      border-radius:40px;
+      font-weight:600;
+      font-size:0.95rem;
+      cursor:pointer;
+      transition:0.2s;
+      flex:1;
+      min-width:140px;
+    }
+    .modal .form-actions .btn-save:hover { background:#5428d9; transform:translateY(-2px); }
+    .modal .form-actions .btn-save:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+    .modal .form-actions .btn-cancel {
+      background:#f0f0f0;
+      color:#444;
+      border:none;
+      padding:12px 28px;
+      border-radius:40px;
+      font-weight:500;
+      font-size:0.95rem;
+      cursor:pointer;
+      transition:0.2s;
+    }
+    .modal .form-actions .btn-cancel:hover { background:#e0e0e0; }
+    .modal .form-actions .btn-delete {
+      background:#fee;
+      color:#b33;
+      border:1px solid #fcc;
+      padding:12px 28px;
+      border-radius:40px;
+      font-weight:500;
+      font-size:0.95rem;
+      cursor:pointer;
+      transition:0.2s;
+      margin-left:auto;
+    }
+    .modal .form-actions .btn-delete:hover { background:#fdd; border-color:#b33; }
+
+    /* Downloads section in modal */
+    .modal .downloads-group {
+      background:#f8f5f0;
+      border-radius:16px;
+      padding:0.8rem 1rem;
+      border:1px solid #ede7df;
+      margin-bottom:14px;
+    }
+    .modal .downloads-group .downloads-title {
+      font-weight:600;
+      color:#1d1833;
+      margin-bottom:0.6rem;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:0.85rem;
+    }
+    .modal .downloads-group .downloads-title i {
+      color:#6a34ff;
+    }
+    .modal .downloads-group .downloads-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.6rem;
+      align-items:center;
+    }
+    .modal .downloads-group .downloads-row .form-group {
+      flex:1 1 120px;
+      margin-bottom:0;
+    }
+    .modal .downloads-group .downloads-row .form-group select,
+    .modal .downloads-group .downloads-row .form-group input {
+      padding:0.5rem 0.8rem;
+    }
+    .modal .downloads-group .downloads-hint {
+      font-size:0.65rem;
+      color:#8a7b6a;
+      padding-left:4px;
+      margin-top:4px;
+    }
+    .modal .downloads-group .downloads-hint .min-downloads {
+      color:#6a34ff;
+      font-weight:600;
+    }
+    .modal .custom-download-input {
+      display:none;
+    }
+    .modal .custom-download-input.visible {
+      display:block;
+      margin-top:0.4rem;
+    }
+    .modal .custom-download-input input {
+      width:100%;
+      max-width:150px;
+      padding:0.5rem 0.8rem;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:0.88rem;
+      background:#fcf9f6;
+      transition:0.2s;
+    }
+    .modal .custom-download-input input:focus {
+      outline:2px solid #6a34ff;
+      border-color:transparent;
+      background:#ffffff;
+    }
+
+    header {
+      background: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ede7df;
+    }
+    nav {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8rem;
+      width: 100%;
+      height: 100%;
+      gap: 1.5rem;
+    }
+    .logo-header {
+      display: flex;
+      align-items: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #4b2aad;
+      text-decoration: none;
+      gap: 0.6rem;
+      flex-shrink: 0;
+      padding-left: 3rem;
+      margin-right: auto;
+    }
+    .nav-logo-img {
+      display: inline-block !important;
+      width: 40px;
+      height: 40px;
+      border-radius: 0 !important;
+      object-fit: contain;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: #4b2aad;
+    }
+    .logo-highlight {
+      color: #fff;
+      text-shadow: 0 0 2px #4b2aad, 0 0 4px #4b2aad, 0 0 6px #4b2aad;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-shrink: 0;
+      padding-right: 3rem;
+      margin-left: auto;
+    }
+    .btn-store {
+      padding: 0.4rem 1.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: 0.3s;
+      white-space: nowrap;
+      background: #4b2aad;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-store:hover { background:#3a1f8a; transform:translateY(-2px); }
+    .btn-logout {
+      padding: 0.4rem 1.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: 0.3s;
+      white-space: nowrap;
+      background: transparent;
+      color: #6f6252;
+      border: 1px solid #ede7df;
+      cursor: pointer;
+    }
+    .btn-logout:hover { background:#fef0f0; color:#b33; border-color:#b33; }
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: #2d2a24;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+    }
+    .menu-toggle:hover { background:#f5f1eb; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 70px);
+      background: rgba(0,0,0,0.3);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.show { display: block; }
+    .sidebar.mobile-open { left: 0; }
+
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #6a45d1;
+      background: #e0d6cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #6f6252;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .wishlist-badge {
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      padding: 1px 7px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-left: auto;
+    }
+    .message-badge {
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      padding: 1px 7px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-left: auto;
+    }
+
+    .message-item {
+      display: flex;
+      flex-direction: column;
+      padding: 16px 18px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: 0.2s;
+      cursor: default;
+    }
+    .message-item:hover { background:#faf9ff; }
+    .message-item:last-child { border-bottom:none; }
+    .message-item .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .message-item .message-sender {
+      font-weight: 600;
+      color: #2d2a24;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .message-item .message-sender i { color:#6a34ff; font-size:0.85rem; }
+    .message-item .message-sender .sender-email { font-weight:400; font-size:0.8rem; color:#888; }
+    .message-item .message-subject { font-weight:500; color:#1d1833; margin-bottom:2px; }
+    .message-item .message-body { color:#5f5b70; font-size:0.9rem; line-height:1.5; margin-top:2px; }
+    .message-item .message-meta { display:flex; gap:16px; margin-top:6px; font-size:0.75rem; color:#999; }
+    .message-item .message-meta i { margin-right:3px; }
+    .message-item .badge-unread { background:#e74c3c; color:white; padding:1px 10px; border-radius:999px; font-size:0.6rem; font-weight:600; }
+    .message-item .badge-read { background:#dff7e5; color:#15723d; padding:1px 10px; border-radius:999px; font-size:0.6rem; font-weight:600; }
+    .message-item .btn-mark-read { background:none; border:none; color:#6a34ff; font-size:0.7rem; cursor:pointer; padding:2px 8px; border-radius:4px; transition:0.2s; }
+    .message-item .btn-mark-read:hover { background:#f0eaff; text-decoration:underline; }
+
+    .toast {
+      position:fixed;
+      bottom:30px;
+      right:30px;
+      padding:16px 28px;
+      border-radius:16px;
+      background:#1d1833;
+      color:white;
+      font-weight:500;
+      box-shadow:0 8px 30px rgba(0,0,0,0.2);
+      transform:translateY(100px);
+      opacity:0;
+      transition:all 0.4s ease;
+      z-index:2000;
+      max-width:400px;
+    }
+    .toast.show {
+      transform:translateY(0);
+      opacity:1;
+    }
+    .toast.success { background:#15723d; }
+    .toast.error { background:#b33; }
+    .toast.info { background:#6a34ff; }
+
+    @media (max-width:1100px) {
+      .dashboard { grid-template-columns:1fr; }
+      .grid { grid-template-columns:1fr; }
+      .content { padding:24px 20px; }
+      nav { padding: 0 4rem !important; }
+      .logo-header { padding-left: 1rem !important; }
+      .nav-right { padding-right: 1rem !important; }
+      .page-grid { grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); }
+      .modal .form-row { grid-template-columns:1fr; }
+    }
+    @media (max-width:700px) {
+      .stats { grid-template-columns:1fr 1fr; }
+      .topbar h1 { font-size:1.6rem; }
+      .action-btn { padding:0 18px; height:44px; font-size:0.85rem; }
+      .stat .value { font-size:1.6rem; }
+      nav { padding: 0 1.5rem !important; gap: 0.8rem !important; }
+      .logo-header { font-size: 1.1rem !important; padding-left: 0 !important; }
+      .logo-text { font-size: 1.1rem !important; }
+      .nav-logo-img { width: 28px !important; height: 28px !important; }
+      .btn-store, .btn-logout { font-size: 0.7rem !important; padding: 0.25rem 0.7rem !important; }
+      .nav-right { padding-right: 0 !important; gap: 0.4rem !important; }
+      .profile-avatar { width: 28px !important; height: 28px !important; font-size: 1rem !important; }
+      .page-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); }
+      .modal { padding:24px 20px; }
+      .modal .form-actions { flex-direction:column; }
+      .modal .form-actions .btn-delete { margin-left:0; }
+    }
+    @media (max-width:480px) {
+      .stats { grid-template-columns:1fr; }
+      .topbar { flex-direction:column; align-items:flex-start; }
+      .user { width:100%; justify-content:space-between; }
+      .page-grid { grid-template-columns:1fr 1fr; }
+      header { height: 50px !important; }
+      nav { padding: 0 0.8rem !important; gap: 0.5rem !important; }
+      .logo-header { font-size: 0.9rem !important; gap: 0.3rem !important; padding-left: 0 !important; }
+      .logo-text { font-size: 0.9rem !important; }
+      .nav-logo-img { width: 22px !important; height: 22px !important; }
+      .btn-store, .btn-logout { font-size: 0.6rem !important; padding: 0.2rem 0.5rem !important; border-radius: 4px !important; }
+      .nav-right { padding-right: 0 !important; gap: 0.3rem !important; }
+      .profile-avatar { width: 22px !important; height: 22px !important; font-size: 0.8rem !important; }
+      .page-card .book-title { font-size:0.8rem !important; }
+      .page-card .book-price { font-size:0.7rem !important; }
+      .modal { padding:18px 14px; }
+    }
+    @media (max-width: 920px) {
+      .menu-toggle { display: flex !important; align-items: center; justify-content: center; }
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: -320px;
+        width: 300px;
+        height: calc(100vh - 70px);
+        border-radius: 0;
+        z-index: 100;
+        overflow-y: auto;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.15);
+        transition: left 0.3s ease;
+        padding: 1.5rem 1.2rem;
+        display: block !important;
+      }
+      .sidebar.mobile-open {
+        left: 0;
+      }
+      .sidebar-overlay.show { display: block; }
+    }
+    @media (max-width: 380px) {
+      .page-grid { grid-template-columns:1fr 1fr; gap:12px; }
+      .page-card .book-title { font-size:0.9rem !important; }
+      .page-card .book-price { font-size:0.9rem !important; }
+      .topbar-left h1 {font-size: 21px;}
+    }
+    .logo {display:none;}
+
+    /* Hide only the Sales Overview panel (the first panel in the right column) */
+#page-dashboard .grid > div:last-child .panel:first-child {
+    display: none !important;
+}
+
+/* Hide the Total Views card */
+#page-analytics .page-card:first-child {
+    display: none !important;
+}
+
+/* Hide the Total Views stat card on dashboard */
+#statsContainer .stat:last-child {
+    display: none !important;
+}
+  
+
+                    .platform-badge.reads { 
+                        background: linear-gradient(135deg, #d4a574, #c9944d); 
+                    }
+                    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <nav>
+    <a href="/" class="logo-header">
+      <img src="../images/logokk.png" alt="Volant Reads Logo" class="nav-logo-img" onerror="this.style.display='none'">
+      <span class="logo-text"><span class="logo-highlight">Volant</span> Reads</span>
+    </a>
+    <div class="nav-right" id="navRight">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <button class="btn-logout" id="signOutBtn" title="Sign out"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+      <a href="/" class="btn-store"><i class="fas fa-store"></i> Store</a>
+    </div>
+  </nav>
+</header>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-circle">V</div>
+      <h2>VOLANT</h2>
+    </div>
+    <nav class="nav">
+      <a class="active" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a data-page="mybooks"><i class="fas fa-book-open"></i> My Books</a>
+      <a data-page="sales"><i class="fas fa-chart-simple"></i> Sales</a>
+      <a data-page="analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+      <a data-page="wishlist"><i class="fas fa-heart"></i> Wishlist <span class="wishlist-badge" id="wishlistNavBadge">0</span></a>
+      <a data-page="messages"><i class="fas fa-comment-dots"></i> Messages <span class="message-badge" id="messageNavBadge">0</span></a>
+      <a data-page="settings"><i class="fas fa-gear"></i> Settings</a>
+    </nav>
+    <div class="card-side">
+      <h3>Create. Publish. Sell.</h3>
+      <p>Your marketplace dashboard. Track sales, manage books, and grow your author business.</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="greeting">Welcome back 👋</h1>
+        <p id="subGreeting">Manage your books, track sales, and grow your audience.</p>
+      </div>
+      <div class="user">
+        <div class="avatar" id="userAvatar"></div>
+        <a href="/submit" class="action-btn" id="mainActionBtn"><i class="fas fa-upload"></i> Upload Book</a>
+      </div>
+    </div>
+
+    <!-- ===== PAGE SECTIONS ===== -->
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page-section active" id="page-dashboard">
+      <div class="stats" id="statsContainer"></div>
+      <div class="grid">
+        <div>
+          <div class="panel">
+            <div class="section-title">
+              <h2>📚 My Books</h2>
+              <a id="manageBooksLink">Manage →</a>
+            </div>
+            <div class="table" id="myBooksTable"></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="section-title">
+              <h2>📊 Sales Overview</h2>
+              <span style="color:#777; font-size:0.85rem;" id="salesPeriod">Last 7 days</span>
+            </div>
+            <div class="chart-wrapper">
+              <div class="chart" id="salesChart"></div>
+              <div class="chart-days" id="chartDays">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+              </div>
+            </div>
+          </div>
+        
+          <div class="panel" style="margin-top:24px;">
+            <div class="section-title">
+              <h2>⬇️ Recent Sales</h2>
+              <a id="salesLink">See all →</a>
+            </div>
+            <div class="sales-list" id="recentSales"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY BOOKS PAGE -->
+    <div class="page-section" id="page-mybooks">
+      <div class="page-header">
+        <h2>📚 My Books</h2>
+        <p>Manage all your published and draft books. Click <strong>"Update"</strong> to edit details or <strong>"Share"</strong> to copy the book link.</p>
+      </div>
+      <div class="page-grid" id="myBooksGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- SALES PAGE -->
+    <div class="page-section" id="page-sales">
+      <div class="page-header">
+        <h2>📊 Sales</h2>
+        <p>Track your book sales and revenue.</p>
+      </div>
+      <div class="stats" id="salesStats"></div>
+      <div class="panel" style="margin-top:20px;">
+        <h3 style="margin-bottom:16px;">Sales History</h3>
+        <div id="salesHistory"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div class="page-section" id="page-analytics">
+      <div class="page-header">
+        <h2>📈 Analytics</h2>
+        <p>Deep insights into your books' performance.</p>
+      </div>
+      <div class="page-grid" id="analyticsGrid">
+        <!-- populated by JS -->
+      </div>
+      <div class="panel" style="margin-top:20px;">
+        <h3 style="margin-bottom:16px;">Sales Performance</h3>
+        <div class="chart" id="analyticsChart" style="height:180px;"></div>
+      </div>
+    </div>
+
+    <!-- WISHLIST PAGE -->
+    <div class="page-section" id="page-wishlist">
+      <div class="page-header">
+        <h2>❤️ Wishlist</h2>
+        <p>Books readers have saved for later.</p>
+      </div>
+      <div class="page-grid" id="wishlistGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- MESSAGES PAGE -->
+    <div class="page-section" id="page-messages">
+      <div class="page-header">
+        <h2>💬 Messages</h2>
+        <p>Communicate with readers and other authors.</p>
+      </div>
+      <div class="panel">
+        <div id="messagesList">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page-section" id="page-settings">
+      <div class="page-header">
+        <h2>⚙️ Settings</h2>
+        <p>Manage your account and payment preferences.</p>
+      </div>
+      <div class="panel">
+        <h3 style="margin-bottom:20px;">Profile Settings</h3>
+        <div class="settings-group">
+          <label>Display Name</label>
+          <input type="text" id="settingsName" />
+        </div>
+        <div class="settings-group">
+          <label>Email Address</label>
+          <input type="email" id="settingsEmail" />
+        </div>
+        <div class="settings-group">
+          <label>Bio</label>
+          <input type="text" id="settingsBio" placeholder="Tell us about yourself..." />
+        </div>
+        <hr style="margin:24px 0;border-color:#eee;" />
+        <h3 style="margin-bottom:20px;">Payment Method</h3>
+        <div class="settings-group">
+          <label>Payment Method</label>
+          <select id="settingsPayment">
+            <option value="bank">Bank Transfer</option>
+            <option value="mobile" selected>Mobile Money</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Account Details</label>
+          <input type="text" id="settingsAccount" placeholder="Enter your account details" />
+          <div class="hint">Your mobile money number or bank account.</div>
+        </div>
+        <button class="action-btn" id="saveSettingsBtn" style="width:100%;justify-content:center;margin-top:10px;">
+          <i class="fas fa-save"></i> Save Settings
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- UPDATE BOOK MODAL -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal">
+    <button class="modal-close" id="modalCloseBtn">&times;</button>
+    <h2 id="modalTitle">📝 Update Book</h2>
+    <p class="modal-sub" id="modalSub">Edit your book details below. Fields marked <span style="color:#b33;">*</span> are required.</p>
+    
+    <form id="updateBookForm">
+      <input type="hidden" id="updateBookId" />
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Author Name <span class="required">*</span></label>
+          <input type="text" id="updateAuthorName" placeholder="Author name" required />
+        </div>
+        <div class="form-group">
+          <label>Book Title <span class="required">*</span></label>
+          <input type="text" id="updateBookTitle" placeholder="Book title" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Subtitle</label>
+        <input type="text" id="updateBookSubtitle" placeholder="Subtitle (optional)" />
+      </div>
+
+      <div class="form-group">
+        <label>Author Bio <span class="required">*</span></label>
+        <textarea id="updateAuthorBio" rows="2" placeholder="Brief author bio" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Synopsis / Description <span class="required">*</span></label>
+        <textarea id="updateBookSynopsis" rows="3" placeholder="Book description" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>ISBN</label>
+          <input type="text" id="updateIsbn" placeholder="978-3-16-148410-0" />
+        </div>
+        <div class="form-group">
+          <label>Publishing Date <span class="required">*</span></label>
+          <input type="date" id="updatePublishDate" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Genre <span class="required">*</span></label>
+          <select id="updateGenre" required>
+            <option value="">Select genre</option>
+            <option value="Poetry">Poetry</option>
+            <option value="Fiction">Fiction</option>
+            <option value="Non-fiction">Non-fiction</option>
+            <option value="Science Fiction">Science Fiction</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Mystery">Mystery</option>
+            <option value="Thriller">Thriller</option>
+            <option value="Romance">Romance</option>
+            <option value="Historical">Historical</option>
+            <option value="Biography">Biography</option>
+            <option value="Self-Help">Self-Help</option>
+            <option value="Young Adult">Young Adult</option>
+            <option value="Children's">Children's</option>
+            <option value="Horror">Horror</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Language <span class="required">*</span></label>
+          <select id="updateLanguage" required>
+            <option value="">Select language</option>
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Russian">Russian</option>
+            <option value="Italian">Italian</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Number of Pages <span class="required">*</span></label>
+          <input type="number" id="updatePageCount" placeholder="e.g. 320" min="1" required />
+        </div>
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" id="updateEmail" placeholder="your-email@gmail.com" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Currency</label>
+          <select id="updateCurrency">
+            <option value="GHS">₵ GHS</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="GBP">£ GBP</option>
+            <option value="CAD">C$ CAD</option>
+            <option value="AUD">A$ AUD</option>
+            <option value="NGN">₦ NGN</option>
+            <option value="KES">KSh KES</option>
+            <option value="ZAR">R ZAR</option>
+            <option value="INR">₹ INR</option>
+            <option value="JPY">¥ JPY</option>
+            <option value="CNY">¥ CNY</option>
+            <option value="BRL">R$ BRL</option>
+            <option value="MXN">$ MXN</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price <span class="required">*</span></label>
+          <input type="number" id="updatePrice" placeholder="0.00" step="0.01" min="0" required />
+        </div>
+      </div>
+
+      <!-- ===== DOWNLOADS SECTION IN MODAL ===== -->
+      <div class="downloads-group">
+        <div class="downloads-title">
+          <i class="fas fa-download"></i> Download Limit Per Buyer <span class="required">*</span>
+        </div>
+        <div class="downloads-row">
+          <div class="form-group">
+            <label for="updateDownloadsSelect"><i class="fas fa-list"></i> Select option</label>
+            <select id="updateDownloadsSelect">
+              <option value="5">5 downloads (Default)</option>
+              <option value="3">3 downloads</option>
+              <option value="10">10 downloads</option>
+              <option value="unlimited">Unlimited</option>
+              <option value="custom">Custom (enter below)</option>
+            </select>
+          </div>
+          <div class="form-group custom-download-input" id="updateCustomDownloadContainer">
+            <label for="updateCustomDownloads"><i class="fas fa-pencil-alt"></i> Custom number</label>
+            <input type="number" id="updateCustomDownloads" placeholder="Enter number" min="3" />
+          </div>
+        </div>
+        <div class="downloads-hint">
+          <i class="fas fa-info-circle"></i> 
+          <span class="min-downloads">Minimum is 3 downloads</span> — you can set any number or choose Unlimited.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Keywords <span class="required">*</span> (comma separated, min 3)</label>
+        <input type="text" id="updateKeywords" placeholder="e.g. poetry, love, nature" required />
+        <div class="hint">Enter at least 3 keywords separated by commas.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Cover Image</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="updateCoverImage" accept="image/*" />
+          <span class="current-file" id="updateCoverCurrent">Current cover saved</span>
+        </div>
+        <div class="file-hint">Upload a new cover image to replace the current one. Max 5MB.</div>
+      </div>
+
+      <div class="form-group">
+        <label>PDF File</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="updatePdfFile" accept=".pdf" />
+          <span class="current-file" id="updatePdfCurrent">Current PDF saved</span>
+        </div>
+        <div class="file-hint">Upload a new PDF to replace the current one. Max 15MB.</div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-save" id="updateBookBtn"><i class="fas fa-save"></i> Update Book</button>
+        <button type="button" class="btn-cancel" id="cancelUpdateBtn">Cancel</button>
+        <button type="button" class="btn-delete" id="deleteBookBtn"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+    }
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs, 
+    doc, 
+    getDoc, 
+    updateDoc,
+    deleteDoc,
+    serverTimestamp
+  } from "firebase/firestore";
+  import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+
+// Disable all console logs in production
+console.log = function() {};
+console.error = function() {};
+console.warn = function() {};
+console.info = function() {};
+console.debug = function() {};
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // Cloudinary config
+  const CLOUDINARY_CONFIG = {
+    cloudName: 'dzoq4pgjn',
+    uploadPreset: 'volant_books',
+    fallbackPreset: 'profile_pics',
+    folder: 'volant-reads'
+  };
+
+  // DOM refs
+  const greeting = document.getElementById('greeting');
+  const subGreeting = document.getElementById('subGreeting');
+  const userAvatar = document.getElementById('userAvatar');
+  const statsContainer = document.getElementById('statsContainer');
+  const myBooksTable = document.getElementById('myBooksTable');
+  const salesChart = document.getElementById('salesChart');
+  const recentSales = document.getElementById('recentSales');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const messagesList = document.getElementById('messagesList');
+  const settingsName = document.getElementById('settingsName');
+  const settingsEmail = document.getElementById('settingsEmail');
+  const settingsBio = document.getElementById('settingsBio');
+  const settingsAccount = document.getElementById('settingsAccount');
+  const wishlistNavBadge = document.getElementById('wishlistNavBadge');
+  const messageNavBadge = document.getElementById('messageNavBadge');
+  const myBooksGrid = document.getElementById('myBooksGrid');
+  const chartDays = document.getElementById('chartDays');
+
+  // Modal refs
+  const updateModal = document.getElementById('updateModal');
+  const updateForm = document.getElementById('updateBookForm');
+  const updateBookId = document.getElementById('updateBookId');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const cancelUpdateBtn = document.getElementById('cancelUpdateBtn');
+  const deleteBookBtn = document.getElementById('deleteBookBtn');
+  const updateBookBtn = document.getElementById('updateBookBtn');
+
+  // Update form fields
+  const updateAuthorName = document.getElementById('updateAuthorName');
+  const updateBookTitle = document.getElementById('updateBookTitle');
+  const updateBookSubtitle = document.getElementById('updateBookSubtitle');
+  const updateAuthorBio = document.getElementById('updateAuthorBio');
+  const updateBookSynopsis = document.getElementById('updateBookSynopsis');
+  const updateIsbn = document.getElementById('updateIsbn');
+  const updatePublishDate = document.getElementById('updatePublishDate');
+  const updateGenre = document.getElementById('updateGenre');
+  const updateLanguage = document.getElementById('updateLanguage');
+  const updatePageCount = document.getElementById('updatePageCount');
+  const updateEmail = document.getElementById('updateEmail');
+  const updateCurrency = document.getElementById('updateCurrency');
+  const updatePrice = document.getElementById('updatePrice');
+  const updateKeywords = document.getElementById('updateKeywords');
+  const updateCoverImage = document.getElementById('updateCoverImage');
+  const updatePdfFile = document.getElementById('updatePdfFile');
+  const updateCoverCurrent = document.getElementById('updateCoverCurrent');
+  const updatePdfCurrent = document.getElementById('updatePdfCurrent');
+
+  // Downloads update fields
+  const updateDownloadsSelect = document.getElementById('updateDownloadsSelect');
+  const updateCustomDownloadsInput = document.getElementById('updateCustomDownloads');
+  const updateCustomDownloadContainer = document.getElementById('updateCustomDownloadContainer');
+
+  let currentUser = null;
+  let authorBooks = [];
+  let userDisplayName = '';
+  let wishlistItems = [];
+  let userMessages = [];
+  let unreadCount = 0;
+  let updatingBookId = null;
+
+  // Toast
+  function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  // Cloudinary Upload
+  function uploadToCloudinary(file, resourceType = 'auto', onProgress) {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const preset = CLOUDINARY_CONFIG.uploadPreset || CLOUDINARY_CONFIG.fallbackPreset;
+      formData.append('upload_preset', preset);
+      if (CLOUDINARY_CONFIG.folder) formData.append('folder', CLOUDINARY_CONFIG.folder);
+      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${resourceType === 'raw' ? 'raw' : 'image'}/upload`;
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable && onProgress) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          onProgress(pct);
+        }
+      });
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          try { const data = JSON.parse(xhr.responseText); resolve(data.secure_url); }
+          catch (_) { reject(new Error('Invalid response')); }
+        } else {
+          try { const err = JSON.parse(xhr.responseText); reject(new Error(err.error?.message || `Upload failed: ${xhr.status}`)); }
+          catch (_) { reject(new Error(`Upload failed: ${xhr.status}`)); }
+        }
+      };
+      xhr.onerror = function() { reject(new Error('Network error')); };
+      xhr.send(formData);
+    });
+  }
+
+  async function uploadFile(file, resourceType) {
+    if (!file) return null;
+    const url = await uploadToCloudinary(file, resourceType, (pct) => {
+      if (pct % 20 === 0 || pct === 100) {
+        showToast(`Uploading ${resourceType === 'raw' ? 'PDF' : 'cover'}... ${pct}%`, 'info');
+      }
+    });
+    return url;
+  }
+
+  // ===== DOWNLOADS HELPERS =====
+  function toggleUpdateCustomDownloadInput() {
+    const selected = updateDownloadsSelect.value;
+    if (selected === 'custom') {
+      updateCustomDownloadContainer.classList.add('visible');
+      updateCustomDownloadsInput.setAttribute('required', 'required');
+      updateCustomDownloadsInput.min = 3;
+    } else {
+      updateCustomDownloadContainer.classList.remove('visible');
+      updateCustomDownloadsInput.removeAttribute('required');
+      updateCustomDownloadsInput.value = '';
+    }
+  }
+
+  function getUpdateDownloadsValue() {
+    const selected = updateDownloadsSelect.value;
+    if (selected === 'custom') {
+      const val = parseInt(updateCustomDownloadsInput.value);
+      if (isNaN(val) || val < 3) {
+        return null;
+      }
+      return val;
+    } else if (selected === 'unlimited') {
+      return 'unlimited';
+    } else {
+      return parseInt(selected);
+    }
+  }
+
+  function setUpdateDownloadsValue(value) {
+    if (value === 'unlimited') {
+      updateDownloadsSelect.value = 'unlimited';
+      toggleUpdateCustomDownloadInput();
+      return;
+    }
+    const numValue = parseInt(value);
+    if (isNaN(numValue)) {
+      updateDownloadsSelect.value = '5';
+      toggleUpdateCustomDownloadInput();
+      return;
+    }
+    // Check if it matches one of the preset options
+    const presets = ['3', '5', '10'];
+    if (presets.includes(String(numValue))) {
+      updateDownloadsSelect.value = String(numValue);
+      toggleUpdateCustomDownloadInput();
+    } else {
+      // It's a custom number
+      updateDownloadsSelect.value = 'custom';
+      toggleUpdateCustomDownloadInput();
+      updateCustomDownloadsInput.value = numValue;
+    }
+  }
+
+  // ===== GET DAILY SALES DATA =====
+  async function getDailySalesData(books) {
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const today = new Date();
+    const days = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      days.push(d);
+    }
+
+    const dailySales = [];
+    
+    for (const day of days) {
+      const dateStr = day.toISOString().split('T')[0];
+      let totalSales = 0;
+      
+      try {
+        const q = query(collection(db, "dailyDownloads"), where("date", "==", dateStr));
+        const snapshot = await getDocs(q);
+        const authorBookIds = new Set(books.map(b => b.id));
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (authorBookIds.has(data.bookId)) {
+            totalSales += data.downloads || 0;
+          }
+        });
+      } catch (err) {
+        console.warn('Error fetching daily sales:', err);
+      }
+      
+      dailySales.push({
+        date: dateStr,
+        dayName: dayNames[days.indexOf(day)],
+        sales: totalSales
+      });
+    }
+    
+    return dailySales;
+  }
+
+  // ===== RENDER CHART WITH REAL DAILY SALES =====
+  async function renderChart(books) {
+    const dailySales = await getDailySalesData(books);
+    const maxSales = Math.max(...dailySales.map(d => d.sales), 1);
+    
+    salesChart.innerHTML = '';
+    dailySales.forEach((dayData) => {
+      const barItem = document.createElement('div');
+      barItem.className = 'bar-item';
+      
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      const height = Math.max(8, (dayData.sales / maxSales) * 100);
+      bar.style.height = height + '%';
+      bar.title = `${dayData.dayName} (${dayData.date}): ${dayData.sales} sales`;
+      
+      const value = document.createElement('div');
+      value.className = 'bar-value';
+      value.textContent = dayData.sales > 0 ? dayData.sales : '';
+      
+      const label = document.createElement('div');
+      label.className = 'bar-label';
+      label.textContent = dayData.dayName;
+      
+      barItem.appendChild(bar);
+      barItem.appendChild(value);
+      barItem.appendChild(label);
+      salesChart.appendChild(barItem);
+    });
+  }
+
+  function formatCurrency(amount) {
+    return 'GHS ' + Number(amount).toFixed(0);
+  }
+
+  function showPage(pageId) {
+    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+    const navLink = document.querySelector(`.nav a[data-page="${pageId}"]`);
+    if (navLink) navLink.classList.add('active');
+  }
+
+  function getInitials(name) {
+    if (!name || name === 'Anonymous') return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function colorFromName(name) {
+    if (!name) return 'hsl(0, 60%, 45%)';
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 65%, 50%)`;
+  }
+
+  // ===== SHARE BOOK FUNCTION =====
+  function shareBook(bookId, bookTitle) {
+    const bookUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.html', 'details.html')}?id=${bookId}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(bookUrl).then(() => {
+        showToast(`✅ Link copied! Share "${bookTitle}" with others.`, 'success');
+      }).catch(() => {
+        promptCopy(bookUrl, bookTitle);
+      });
+    } else {
+      promptCopy(bookUrl, bookTitle);
+    }
+  }
+
+  function promptCopy(bookUrl, bookTitle) {
+    const tempInput = document.createElement('input');
+    tempInput.style.position = 'fixed';
+    tempInput.style.opacity = '0';
+    tempInput.style.left = '-9999px';
+    tempInput.value = bookUrl;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    try {
+      document.execCommand('copy');
+      showToast(`✅ Link copied! Share "${bookTitle}" with others.`, 'success');
+    } catch (err) {
+      const userCopy = prompt(`📋 Copy this link to share "${bookTitle}":`, bookUrl);
+      if (userCopy !== null) {
+        showToast(`📋 Link ready to share!`, 'info');
+      }
+    }
+    document.body.removeChild(tempInput);
+  }
+
+// ===== CREATE BOOK CARD =====
+function createBookCard(book, showStatus = false, showSales = false) {
+  const card = document.createElement('div');
+  card.className = 'page-card';
+
+  const coverWrapper = document.createElement('div');
+  coverWrapper.className = 'cover-wrapper';
+  coverWrapper.onclick = () => {
+    window.location.href = `details.html?id=${book.id}`;
+  };
+  
+  if (book.imageUrl) {
+    const img = document.createElement('img');
+    img.src = book.imageUrl;
+    img.alt = book.title || 'Book cover';
+    img.loading = 'lazy';
+    img.onerror = function() {
+      this.style.display = 'none';
+      this.parentElement.innerHTML = `<div class="no-image"><i class="fas fa-book-open"></i></div>`;
+    };
+    coverWrapper.appendChild(img);
+  } else {
+    coverWrapper.innerHTML = `<div class="no-image"><i class="fas fa-book-open"></i></div>`;
+  }
+  card.appendChild(coverWrapper);
+
+  const body = document.createElement('div');
+  body.className = 'book-body';
+
+  const title = document.createElement('div');
+  title.className = 'book-title';
+  title.textContent = book.title || 'Untitled';
+  body.appendChild(title);
+
+  if (book.subtitle && book.subtitle.trim() !== '') {
+    const subtitle = document.createElement('div');
+    subtitle.className = 'book-subtitle';
+    subtitle.textContent = book.subtitle;
+    body.appendChild(subtitle);
+  }
+
+  const author = document.createElement('div');
+  author.className = 'book-author';
+  author.textContent = book.authorName || 'Anonymous';
+  body.appendChild(author);
+
+  const price = document.createElement('div');
+  price.className = 'book-price';
+  const currency = book.currency || 'GHS';
+  const amount = book.price || 0;
+  price.textContent = `${currency} ${amount.toFixed(2)}`;
+  body.appendChild(price);
+
+  // Show download limit if available
+  if (book.downloadLimit !== undefined) {
+    const limitDisplay = book.downloadLimit === 'unlimited' ? '♾️ Unlimited' : `${book.downloadLimit}`;
+    const salesBadge = document.createElement('span');
+    salesBadge.className = 'sales-badge';
+    salesBadge.innerHTML = `<i class="fas fa-download"></i> Limit: ${limitDisplay}`;
+    body.appendChild(salesBadge);
+  }
+
+  // ===== SHOW STATUS BADGE - FIXED FOR ALL STATUSES =====
+  if (showStatus && book.status) {
+    const statusBadge = document.createElement('span');
+    // Map status to display text
+    const statusLabels = {
+      'pending': '⏳ Pending Review',
+      'approved': '✅ Published',
+      'rejected': '❌ Not Accepted',
+      'draft': '📄 Draft'
+    };
+    const statusText = statusLabels[book.status] || book.status.charAt(0).toUpperCase() + book.status.slice(1);
+    statusBadge.className = `badge-status ${book.status}`;
+    statusBadge.textContent = statusText;
+    body.appendChild(statusBadge);
+  }
+
+  // Show sales info if requested
+  if (showSales && book.downloads > 0) {
+    const salesInfo = document.createElement('span');
+    salesInfo.className = 'revenue-badge';
+    salesInfo.innerHTML = `<i class="fas fa-shopping-cart"></i> ${book.downloads} sales · ${formatCurrency((book.downloads || 0) * (book.price || 0))}`;
+    body.appendChild(salesInfo);
+  }
+
+  // Button group for actions
+  const btnGroup = document.createElement('div');
+  btnGroup.className = 'btn-group';
+
+  const updateBtn = document.createElement('button');
+  updateBtn.className = 'update-book-btn';
+  updateBtn.innerHTML = '<i class="fas fa-edit"></i> Update';
+  updateBtn.title = 'Edit this book';
+  updateBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openUpdateModal(book.id);
+  });
+  btnGroup.appendChild(updateBtn);
+
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'share-book-btn';
+  shareBtn.innerHTML = '<i class="fas fa-link"></i> Share';
+  shareBtn.title = 'Copy book link to share';
+  shareBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    shareBook(book.id, book.title || 'Untitled');
+  });
+  btnGroup.appendChild(shareBtn);
+
+  body.appendChild(btnGroup);
+  card.appendChild(body);
+  return card;
+}
+
+  // ===== OPEN UPDATE MODAL =====
+  function openUpdateModal(bookId) {
+    const book = authorBooks.find(b => b.id === bookId);
+    if (!book) {
+      showToast('❌ Book not found', 'error');
+      return;
+    }
+
+    getDoc(doc(db, "books", bookId)).then(docSnap => {
+      if (!docSnap.exists()) {
+        showToast('❌ Book not found', 'error');
+        return;
+      }
+      
+      const data = docSnap.data();
+      updatingBookId = bookId;
+      updateBookId.value = bookId;
+      document.getElementById('modalTitle').textContent = `📝 Update: ${data.title || 'Untitled'}`;
+      
+      updateAuthorName.value = data.authorName || '';
+      updateBookTitle.value = data.title || '';
+      updateBookSubtitle.value = data.subtitle || '';
+      updateAuthorBio.value = data.authorBio || '';
+      updateBookSynopsis.value = data.synopsis || '';
+      updateIsbn.value = data.isbn || '';
+      updatePublishDate.value = data.publishDate || '';
+      updateGenre.value = data.genre || '';
+      updateLanguage.value = data.language || '';
+      updatePageCount.value = data.pageCount || '';
+      updateEmail.value = data.email || '';
+      updateCurrency.value = data.pricing?.currency || 'GHS';
+      updatePrice.value = data.pricing?.amount || '';
+      updateKeywords.value = (data.keywords || []).join(', ');
+      
+      // Set download limit value - use downloadLimit field, fallback to downloads
+      const downloadLimit = data.downloadLimit || data.downloads || 5;
+      setUpdateDownloadsValue(downloadLimit);
+      
+      updateCoverCurrent.textContent = data.imageUrl ? '✅ Current cover uploaded' : 'No cover';
+      updateCoverCurrent.className = data.imageUrl ? 'current-file' : 'current-file no-file';
+      updatePdfCurrent.textContent = data.pdfUrl ? '✅ Current PDF uploaded' : 'No PDF';
+      updatePdfCurrent.className = data.pdfUrl ? 'current-file' : 'current-file no-file';
+      
+      updateCoverImage.value = '';
+      updatePdfFile.value = '';
+
+      updateModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }).catch(err => {
+      showToast('❌ Error loading book: ' + err.message, 'error');
+    });
+  }
+
+  // ===== CLOSE MODAL =====
+  function closeModal() {
+    updateModal.classList.remove('show');
+    document.body.style.overflow = '';
+    updatingBookId = null;
+  }
+
+  // ===== UPDATE BOOK =====
+  async function updateBook() {
+    const bookId = updateBookId.value;
+    if (!bookId) {
+      showToast('❌ No book selected', 'error');
+      return;
+    }
+
+    const authorName = updateAuthorName.value.trim();
+    const title = updateBookTitle.value.trim();
+    const authorBio = updateAuthorBio.value.trim();
+    const synopsis = updateBookSynopsis.value.trim();
+    const publishDate = updatePublishDate.value;
+    const genre = updateGenre.value;
+    const language = updateLanguage.value;
+    const pageCount = parseInt(updatePageCount.value);
+    const email = updateEmail.value.trim();
+    const price = parseFloat(updatePrice.value);
+    const currency = updateCurrency.value;
+    const keywordsStr = updateKeywords.value.trim();
+
+    if (!authorName) { showToast('❌ Author name is required', 'error'); return; }
+    if (!title) { showToast('❌ Book title is required', 'error'); return; }
+    if (!authorBio) { showToast('❌ Author bio is required', 'error'); return; }
+    if (!synopsis) { showToast('❌ Synopsis is required', 'error'); return; }
+    if (!publishDate) { showToast('❌ Publishing date is required', 'error'); return; }
+    if (!genre) { showToast('❌ Genre is required', 'error'); return; }
+    if (!language) { showToast('❌ Language is required', 'error'); return; }
+    if (!pageCount || pageCount < 1) { showToast('❌ Valid page count is required', 'error'); return; }
+    if (!email || !email.includes('@')) { showToast('❌ Valid email is required', 'error'); return; }
+    if (isNaN(price) || price < 0) { showToast('❌ Valid price is required', 'error'); return; }
+
+    // Validate download limit
+    const downloadLimitValue = getUpdateDownloadsValue();
+    if (downloadLimitValue === null) {
+      showToast('❌ Please enter a valid number of downloads (minimum 3).', 'error');
+      updateCustomDownloadsInput.focus();
+      return;
+    }
+
+    const keywords = keywordsStr.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    if (keywords.length < 3) {
+      showToast('❌ Please enter at least 3 keywords separated by commas', 'error');
+      return;
+    }
+
+    updateBookBtn.disabled = true;
+    updateBookBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+    try {
+      let imageUrl = null;
+      let pdfUrl = null;
+
+      if (updateCoverImage.files.length > 0) {
+        const file = updateCoverImage.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+          showToast('❌ Cover image must be less than 5MB', 'error');
+          updateBookBtn.disabled = false;
+          updateBookBtn.innerHTML = '<i class="fas fa-save"></i> Update Book';
+          return;
+        }
+        imageUrl = await uploadFile(file, 'image');
+      }
+
+      if (updatePdfFile.files.length > 0) {
+        const file = updatePdfFile.files[0];
+        if (file.size > 15 * 1024 * 1024) {
+          showToast('❌ PDF must be less than 15MB', 'error');
+          updateBookBtn.disabled = false;
+          updateBookBtn.innerHTML = '<i class="fas fa-save"></i> Update Book';
+          return;
+        }
+        pdfUrl = await uploadFile(file, 'raw');
+      }
+
+      const updateData = {
+        authorName,
+        title,
+        subtitle: updateBookSubtitle.value.trim() || '',
+        authorBio,
+        synopsis,
+        isbn: updateIsbn.value.trim() || '',
+        publishDate,
+        genre,
+        language,
+        pageCount,
+        email,
+        pricing: { currency, amount: price },
+        keywords,
+        // NEW: Separate fields - downloadLimit is the author-set limit, downloads is the total count
+        downloadLimit: downloadLimitValue,  // ← Author-set limit per buyer
+        updatedAt: serverTimestamp()
+      };
+
+      if (imageUrl) updateData.imageUrl = imageUrl;
+      if (pdfUrl) updateData.pdfUrl = pdfUrl;
+
+      await updateDoc(doc(db, "books", bookId), updateData);
+
+      const bookIndex = authorBooks.findIndex(b => b.id === bookId);
+      if (bookIndex !== -1) {
+        authorBooks[bookIndex] = { ...authorBooks[bookIndex], ...updateData };
+        if (imageUrl) authorBooks[bookIndex].imageUrl = imageUrl;
+        if (pdfUrl) authorBooks[bookIndex].pdfUrl = pdfUrl;
+      }
+
+      closeModal();
+      renderAll();
+      showToast('✅ Book updated successfully!', 'success');
+
+    } catch (err) {
+      showToast('❌ Error updating book: ' + err.message, 'error');
+    } finally {
+      updateBookBtn.disabled = false;
+      updateBookBtn.innerHTML = '<i class="fas fa-save"></i> Update Book';
+    }
+  }
+
+  // ===== DELETE BOOK =====
+  async function deleteBook() {
+    const bookId = updateBookId.value;
+    if (!bookId) return;
+
+    if (!confirm('⚠️ Are you sure you want to delete this book? This action cannot be undone.')) return;
+
+    try {
+      await deleteDoc(doc(db, "books", bookId));
+      authorBooks = authorBooks.filter(b => b.id !== bookId);
+      closeModal();
+      renderAll();
+      showToast('🗑️ Book deleted successfully', 'info');
+    } catch (err) {
+      showToast('❌ Error deleting book: ' + err.message, 'error');
+    }
+  }
+
+  // ===== MESSAGES FUNCTIONS =====
+  async function getUserMessages(userId) {
+    try {
+      const q1 = query(collection(db, "messages"), where("toUserId", "==", userId));
+      const q2 = query(collection(db, "messages"), where("authorId", "==", userId));
+      
+      const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+      
+      const messages = [];
+      const existingIds = new Set();
+      
+      snapshot1.forEach(doc => {
+        const data = doc.data();
+        existingIds.add(doc.id);
+        messages.push({ id: doc.id, ...data, createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt) || new Date() });
+      });
+      
+      snapshot2.forEach(doc => {
+        if (!existingIds.has(doc.id)) {
+          const data = doc.data();
+          messages.push({ id: doc.id, ...data, createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt) || new Date() });
+        }
+      });
+      
+      messages.sort((a, b) => b.createdAt - a.createdAt);
+      return messages;
+    } catch (err) {
+      console.warn('Error getting messages:', err);
+      return [];
+    }
+  }
+
+  async function markMessageAsRead(messageId) {
+    try {
+      await updateDoc(doc(db, "messages", messageId), { read: true, status: 'read' });
+      return true;
+    } catch (err) {
+      console.error('Error marking message as read:', err);
+      return false;
+    }
+  }
+
+  async function loadMessages(userId) {
+    userMessages = await getUserMessages(userId);
+    unreadCount = userMessages.filter(m => m.read === false || m.status === 'unread').length;
+    messageNavBadge.textContent = unreadCount;
+    renderMessages();
+  }
+
+  function renderMessages() {
+    if (userMessages.length === 0) {
+      messagesList.innerHTML = `<div class="row" style="padding:30px 0; justify-content:center;"><span style="color:#888; font-size:1rem;">📭 No messages yet</span></div>`;
+      return;
+    }
+
+    let html = '';
+    userMessages.forEach(msg => {
+      const isUnread = msg.read === false || msg.status === 'unread';
+      const senderName = msg.fromUserName || msg.senderName || msg.fromUserId || 'Anonymous';
+      const senderEmail = msg.fromUserEmail || msg.senderEmail || '';
+      const subject = msg.subject || 'No subject';
+      const message = msg.message || msg.content || '';
+      const bookTitle = msg.bookTitle || '';
+      const createdAt = msg.createdAt ? new Date(msg.createdAt).toLocaleString() : 'Recently';
+      const mailtoLink = senderEmail ? `mailto:${senderEmail}?subject=Re: ${encodeURIComponent(subject)}` : '#';
+      
+      html += `
+        <div class="message-item ${isUnread ? 'unread' : ''}" data-message-id="${msg.id}">
+          <div class="message-header">
+            <div class="message-sender">
+              <i class="fas fa-user-circle"></i>
+              ${senderName}
+              ${senderEmail ? `<span class="sender-email"><a href="${mailtoLink}" style="color:#6a34ff;text-decoration:underline;font-weight:500;" target="_blank"><i class="fas fa-envelope"></i> ${senderEmail}</a></span>` : ''}
+              ${isUnread ? '<span class="badge-unread">Unread</span>' : '<span class="badge-read">Read</span>'}
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:#999;">${createdAt}</span>
+              ${isUnread ? `<button class="btn-mark-read" data-message-id="${msg.id}">Mark as read</button>` : ''}
+            </div>
+          </div>
+          ${bookTitle ? `<div class="message-subject">📚 Book: ${bookTitle}</div>` : ''}
+          ${subject ? `<div class="message-subject">📝 Subject: ${subject}</div>` : ''}
+          <div class="message-body">${message}</div>
+          <div class="message-meta">
+            <span><i class="fas fa-envelope"></i> ${senderEmail ? `<a href="${mailtoLink}" style="color:#6a34ff;text-decoration:underline;" target="_blank">${senderEmail}</a>` : 'No email provided'}</span>
+            ${msg.bookId ? `<span><i class="fas fa-book"></i> Book ID: ${msg.bookId}</span>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    messagesList.innerHTML = html;
+
+    document.querySelectorAll('.btn-mark-read').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const messageId = this.dataset.messageId;
+        const success = await markMessageAsRead(messageId);
+        if (success) {
+          const msg = userMessages.find(m => m.id === messageId);
+          if (msg) { msg.read = true; msg.status = 'read'; }
+          await loadMessages(currentUser.uid);
+          showToast('✅ Message marked as read', 'success');
+        } else {
+          showToast('❌ Error marking message as read', 'error');
+        }
+      });
+    });
+  }
+
+  // ===== WISHLIST FUNCTIONS =====
+  async function getUserWishlist(userId) {
+    try {
+      const q = query(collection(db, "wishlists"), where("userId", "==", userId));
+      const snapshot = await getDocs(q);
+      const items = [];
+      snapshot.forEach(doc => { items.push({ id: doc.id, ...doc.data() }); });
+      return items;
+    } catch (err) {
+      console.warn('Error getting wishlist:', err);
+      return [];
+    }
+  }
+
+  async function loadWishlist(userId) {
+    wishlistItems = await getUserWishlist(userId);
+    wishlistNavBadge.textContent = wishlistItems.length;
+    renderWishlistPage();
+  }
+
+  // ===== RENDER FUNCTIONS =====
+  function renderStats(books) {
+    const published = books.filter(b => b.status === 'approved');
+    const totalBooks = books.length;
+    // Use downloads for total sales count (total downloads ever)
+    const totalSales = published.reduce((sum, b) => sum + (b.downloads || 0), 0);
+    const totalRevenue = published.reduce((sum, b) => sum + ((b.downloads || 0) * (b.price || 0)), 0);
+    const avgPrice = published.length > 0 ? (published.reduce((sum, b) => sum + (b.price || 0), 0) / published.length).toFixed(0) : 0;
+    const totalViews = books.reduce((sum, b) => sum + (b.views || 0), 0);
+
+    statsContainer.innerHTML = `
+      <div class="stat"><h4>Total Books</h4><div class="value">${totalBooks}</div></div>
+      <div class="stat"><h4>Total Sales</h4><div class="value">${totalSales}</div></div>
+      <div class="stat"><h4>Total Revenue</h4><div class="value">${formatCurrency(totalRevenue)}</div></div>
+      <div class="stat"><h4>Avg. Price</h4><div class="value">${formatCurrency(avgPrice)}</div></div>
+      <div class="stat"><h4>Total Views</h4><div class="value">${totalViews}</div></div>
+    `;
+  }
+
+  function renderMyBooks(books) {
+  if (books.length === 0) {
+    myBooksTable.innerHTML = `<p style="padding:20px 0; color:#888;">You haven't added any books yet.</p>`;
+    return;
+  }
+  myBooksTable.innerHTML = books.slice(0, 5).map(b => {
+    const limitDisplay = b.downloadLimit === 'unlimited' ? '♾️ Unlimited' : (b.downloadLimit || 5);
+    const revenue = (b.downloads || 0) * (b.price || 0);
+    // Status labels and classes
+    const statusLabels = {
+      'pending': '⏳ Pending',
+      'approved': '✅ Published',
+      'rejected': '❌ Rejected',
+      'draft': '📄 Draft'
+    };
+    const statusLabel = statusLabels[b.status] || b.status || 'Draft';
+    const statusClass = b.status || 'draft';
+    return `
+      <div class="row" style="cursor:pointer;" data-id="${b.id}">
+        <span>${b.title || 'Untitled'} <span style="font-size:0.7rem;color:#888;margin-left:8px;">📥 Limit: ${limitDisplay} · ${formatCurrency(revenue)}</span></span>
+        <span class="badge ${statusClass}">${statusLabel}</span>
+      </div>
+    `;
+  }).join('');
+  myBooksTable.querySelectorAll('.row').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.id;
+      window.location.href = `details.html?id=${id}`;
+    });
+  });
+}
+
+  function renderRecentSales(books) {
+    const sold = books.filter(b => b.downloads > 0).sort((a,b) => b.downloads - a.downloads);
+    if (sold.length === 0) {
+      recentSales.innerHTML = `<p style="color:#888; padding:10px 0;">No sales yet.</p>`;
+      return;
+    }
+    recentSales.innerHTML = sold.slice(0, 4).map(b => `
+      <div class="sale-item" data-id="${b.id}">
+        <i class="fas fa-shopping-cart"></i> ${b.title || 'Untitled'} 
+        <span style="font-size:0.7rem;color:#888;margin-left:auto;">${b.downloads} sales · ${formatCurrency((b.downloads || 0) * (b.price || 0))}</span>
+      </div>
+    `).join('');
+    recentSales.querySelectorAll('.sale-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        window.location.href = `details.html?id=${id}`;
+      });
+    });
+  }
+
+  function renderMyBooksPage(books) {
+    if (books.length === 0) {
+      myBooksGrid.innerHTML = `<p style="color:#888; grid-column:1/-1; padding:20px 0;">You haven't published any books yet.</p>`;
+      return;
+    }
+    myBooksGrid.innerHTML = '';
+    books.forEach(book => {
+      const card = createBookCard(book, true, true);
+      myBooksGrid.appendChild(card);
+    });
+  }
+
+  function renderSalesPage(books) {
+    const published = books.filter(b => b.status === 'approved');
+    const totalSales = published.reduce((sum, b) => sum + (b.downloads || 0), 0);
+    const totalRevenue = published.reduce((sum, b) => sum + ((b.downloads || 0) * (b.price || 0)), 0);
+    const totalViews = published.reduce((sum, b) => sum + (b.views || 0), 0);
+    const conversion = totalViews > 0 ? ((totalSales / totalViews) * 100).toFixed(1) : 0;
+    
+    document.getElementById('salesStats').innerHTML = `
+      <div class="stat"><h4>Total Sales</h4><div class="value">${totalSales}</div></div>
+      <div class="stat"><h4>Total Revenue</h4><div class="value">${formatCurrency(totalRevenue)}</div></div>
+      <div class="stat"><h4>Total Views</h4><div class="value">${totalViews}</div></div>
+      <div class="stat"><h4>Conversion Rate</h4><div class="value">${conversion}%</div></div>
+    `;
+
+    const history = document.getElementById('salesHistory');
+    if (published.length === 0) {
+      history.innerHTML = `<p style="color:#888; padding:20px 0;">No sales data available.</p>`;
+      return;
+    }
+    history.innerHTML = published.map(b => {
+      const limitDisplay = b.downloadLimit === 'unlimited' ? '♾️ Unlimited' : (b.downloadLimit || 5);
+      return `
+        <div class="row">
+          <span><strong>${b.title || 'Untitled'}</strong> <span style="font-size:0.7rem;color:#888;">(📥 Limit: ${limitDisplay} · ${b.downloads || 0} downloads)</span></span>
+          <span>${formatCurrency((b.downloads || 0) * (b.price || 0))}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderAnalyticsPage(books) {
+    const published = books.filter(b => b.status === 'approved');
+    const totalViews = books.reduce((sum, b) => sum + (b.views || 0), 0);
+    const totalSales = published.reduce((sum, b) => sum + (b.downloads || 0), 0);
+    const totalRevenue = published.reduce((sum, b) => sum + ((b.downloads || 0) * (b.price || 0)), 0);
+    const avgPrice = published.length > 0 ? (published.reduce((sum, b) => sum + (b.price || 0), 0) / published.length).toFixed(0) : 0;
+    const conversion = totalViews > 0 ? ((totalSales / totalViews) * 100).toFixed(1) : 0;
+
+    document.getElementById('analyticsGrid').innerHTML = `
+      <div class="page-card" style="background:white;padding:24px;border-radius:20px;border:1px solid #eee;">
+        <div style="font-size:2rem;color:#6a34ff;margin-bottom:12px;"><i class="fas fa-eye"></i></div>
+        <h3>Total Views</h3>
+        <p style="font-size:1.8rem;font-weight:700;">${totalViews}</p>
+      </div>
+      <div class="page-card" style="background:white;padding:24px;border-radius:20px;border:1px solid #eee;">
+        <div style="font-size:2rem;color:#6a34ff;margin-bottom:12px;"><i class="fas fa-shopping-cart"></i></div>
+        <h3>Total Sales</h3>
+        <p style="font-size:1.8rem;font-weight:700;">${totalSales}</p>
+      </div>
+      <div class="page-card" style="background:white;padding:24px;border-radius:20px;border:1px solid #eee;">
+        <div style="font-size:2rem;color:#6a34ff;margin-bottom:12px;"><i class="fas fa-coins"></i></div>
+        <h3>Total Revenue</h3>
+        <p style="font-size:1.8rem;font-weight:700;">${formatCurrency(totalRevenue)}</p>
+      </div>
+      <div class="page-card" style="background:white;padding:24px;border-radius:20px;border:1px solid #eee;">
+        <div style="font-size:2rem;color:#6a34ff;margin-bottom:12px;"><i class="fas fa-percent"></i></div>
+        <h3>Conversion Rate</h3>
+        <p style="font-size:1.8rem;font-weight:700;">${conversion}%</p>
+      </div>
+    `;
+
+    const chart = document.getElementById('analyticsChart');
+    const salesData = published.map(b => b.downloads || 0);
+    const maxSales = Math.max(...salesData, 1);
+    
+    chart.innerHTML = '';
+    salesData.slice(0, 7).forEach((sales, index) => {
+      const barItem = document.createElement('div');
+      barItem.className = 'bar-item';
+      
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      const height = Math.max(8, (sales / maxSales) * 100);
+      bar.style.height = height + '%';
+      bar.title = `${published[index]?.title || 'Book'}: ${sales} sales`;
+      
+      const value = document.createElement('div');
+      value.className = 'bar-value';
+      value.textContent = sales > 0 ? sales : '';
+      
+      const label = document.createElement('div');
+      label.className = 'bar-label';
+      label.textContent = published[index]?.title?.substring(0, 8) || 'Book';
+      
+      barItem.appendChild(bar);
+      barItem.appendChild(value);
+      barItem.appendChild(label);
+      chart.appendChild(barItem);
+    });
+  }
+
+  function renderWishlistPage() {
+    const grid = document.getElementById('wishlistGrid');
+    if (wishlistItems.length === 0) {
+      grid.innerHTML = `<p style="color:#888; grid-column:1/-1; padding:20px 0;">No one has saved your books to their wishlist yet.</p>`;
+      return;
+    }
+    grid.innerHTML = '';
+    wishlistItems.forEach(item => {
+      const card = createBookCard({
+        id: item.bookId,
+        title: item.title,
+        subtitle: item.subtitle || '',
+        authorName: item.author,
+        imageUrl: item.imageUrl,
+        price: item.price,
+        currency: item.currency,
+        status: 'wishlist'
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // ===== RENDER ALL (async) =====
+  async function renderAll() {
+    renderStats(authorBooks);
+    renderMyBooks(authorBooks);
+    await renderChart(authorBooks);
+    renderRecentSales(authorBooks);
+    renderMyBooksPage(authorBooks);
+    renderSalesPage(authorBooks);
+    renderAnalyticsPage(authorBooks);
+    renderWishlistPage();
+    renderMessages();
+  }
+
+  // ===== USER UI =====
+  async function updateUserUI(user) {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      let username = '';
+      let bio = '';
+      let photoURL = '';
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        username = userData.username || user.displayName || user.email?.split('@')[0] || 'Author';
+        bio = userData.bio || '';
+        photoURL = userData.photoURL || userData.cachedAvatarURL || '';
+      } else {
+        username = user.displayName || user.email?.split('@')[0] || 'Author';
+      }
+      
+      userDisplayName = username;
+      greeting.textContent = `Welcome back, ${username} 👋`;
+      subGreeting.textContent = 'Manage your books, track sales, and grow your audience.';
+      
+      settingsName.value = username;
+      settingsEmail.value = user.email || '';
+      settingsBio.value = bio || '';
+      
+      if (photoURL) {
+        userAvatar.style.backgroundImage = `url(${photoURL})`;
+        userAvatar.style.backgroundSize = 'cover';
+        userAvatar.style.backgroundPosition = 'center';
+        userAvatar.textContent = '';
+        return;
+      }
+      
+      const initials = getInitials(username);
+      const bgColor = colorFromName(username);
+      
+      const avatarUrl = await generateAndUploadAvatar(initials, bgColor, user.uid);
+      if (avatarUrl) {
+        userAvatar.style.backgroundImage = `url(${avatarUrl})`;
+        userAvatar.style.backgroundSize = 'cover';
+        userAvatar.style.backgroundPosition = 'center';
+        userAvatar.textContent = '';
+      } else {
+        userAvatar.style.backgroundImage = `linear-gradient(135deg, ${bgColor}, ${bgColor}dd)`;
+        userAvatar.style.display = 'flex';
+        userAvatar.style.alignItems = 'center';
+        userAvatar.style.justifyContent = 'center';
+        userAvatar.style.color = 'white';
+        userAvatar.style.fontSize = '20px';
+        userAvatar.style.fontWeight = 'bold';
+        userAvatar.textContent = initials;
+      }
+    } catch (err) {
+      console.warn('Error fetching user data:', err);
+      const fallbackName = user.displayName || user.email?.split('@')[0] || 'Author';
+      userDisplayName = fallbackName;
+      greeting.textContent = `Welcome back, ${fallbackName} 👋`;
+    }
+  }
+
+  async function generateAndUploadAvatar(initials, bgColor, userId) {
+    try {
+      const cloudName = 'dzoq4pgjn';
+      if (!cloudName) return null;
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 180;
+      canvas.height = 180;
+      const ctx = canvas.getContext('2d');
+      
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 80px "Playfair Display", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(initials, canvas.width / 2, canvas.height / 2);
+      
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const formData = new FormData();
+      formData.append('file', blob);
+      formData.append('upload_preset', 'profile_pics');
+      
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const imageUrl = data.secure_url;
+        await updateDoc(doc(db, 'users', userId), { cachedAvatarURL: imageUrl });
+        return imageUrl;
+      }
+    } catch (err) {
+      console.warn('Avatar generation failed:', err);
+    }
+    return null;
+  }
+
+ // ===== LOAD DATA =====
+async function loadAuthorData(user) {
+  try {
+    let allBooksData = [];
+    
+    // Get user profile data
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data.username) userDisplayName = data.username;
+        if (data.bio) settingsBio.value = data.bio;
+        if (data.paymentMethod) document.getElementById('settingsPayment').value = data.paymentMethod;
+        if (data.accountDetails) settingsAccount.value = data.accountDetails;
+      }
+    } catch (_) {}
+
+    // ===== FIX: Query by submittedBy (user UID) =====
+    console.log('🔍 Looking for books with submittedBy:', user.uid);
+    
+    try {
+      const q = query(collection(db, "books"), where("submittedBy", "==", user.uid));
+      const snapshot = await getDocs(q);
+      console.log('📊 Books found with submittedBy:', snapshot.size);
+      snapshot.forEach(doc => {
+        allBooksData.push({ id: doc.id, ...doc.data() });
+      });
+    } catch (e) {
+      console.log('⚠️ submittedBy query failed:', e.message);
+    }
+
+    // ===== FALLBACK: Also try submittedByUsername =====
+    if (allBooksData.length === 0) {
+      console.log('🔄 Trying submittedByUsername...');
+      try {
+        const q = query(collection(db, "books"), where("submittedByUsername", "==", userDisplayName || user.email?.split('@')[0]));
+        const snapshot = await getDocs(q);
+        console.log('📊 Books found with submittedByUsername:', snapshot.size);
+        snapshot.forEach(doc => {
+          if (!allBooksData.some(b => b.id === doc.id)) {
+            allBooksData.push({ id: doc.id, ...doc.data() });
+          }
+        });
+      } catch (e) {
+        console.log('⚠️ submittedByUsername query failed:', e.message);
+      }
+    }
+
+    // ===== Process results =====
+    console.log('📚 Total books found:', allBooksData.length);
+    
+    authorBooks = [];
+    allBooksData.forEach(data => {
+      console.log('📖 Processing book:', data.title, 'Status:', data.status);
+      authorBooks.push({
+        id: data.id,
+        title: data.title || 'Untitled',
+        subtitle: data.subtitle || '',
+        authorName: data.authorName || 'Anonymous',
+        imageUrl: data.imageUrl || '',
+        pdfUrl: data.pdfUrl || '',
+        price: data.pricing?.amount || 0,
+        currency: data.pricing?.currency || 'GHS',
+        status: data.status || 'draft',
+        downloads: data.downloads || 0,
+        downloadLimit: data.downloadLimit || data.downloads || 5,
+        views: data.views || 0,
+        rating: data.rating || 0,
+        approvedAt: data.approvedAt || data.createdAt || null,
+      });
+    });
+
+    authorBooks.sort((a, b) => {
+      const da = a.approvedAt?.toDate?.() || new Date(a.approvedAt) || new Date(0);
+      const db2 = b.approvedAt?.toDate?.() || new Date(b.approvedAt) || new Date(0);
+      return db2 - da;
+    });
+
+    console.log('✅ Final author books count:', authorBooks.length);
+    if (authorBooks.length > 0) {
+      console.log('📊 Book statuses:', authorBooks.map(b => `${b.title}: ${b.status}`).join(', '));
+    }
+
+    await loadWishlist(user.uid);
+    await loadMessages(user.uid);
+    await renderAll();
+    
+  } catch (err) {
+    console.error("❌ Error loading data:", err);
+    showToast('Error loading your books: ' + err.message, 'error');
+  }
+}
+  // ===== SIDEBAR TOGGLE =====
+  function toggleSidebar() {
+    sidebar.classList.toggle('mobile-open');
+    sidebarOverlay.classList.toggle('show');
+    document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+  }
+
+  // ===== EVENT LISTENERS =====
+  document.getElementById('menuToggle').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSidebar();
+  });
+
+  sidebarOverlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      toggleSidebar();
+    }
+  });
+
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 920) {
+      sidebar.classList.remove('mobile-open');
+      sidebarOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.querySelectorAll('.nav a').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const page = this.dataset.page;
+      if (page) {
+        showPage(page);
+        if (window.innerWidth <= 920) {
+          toggleSidebar();
+        }
+      }
+    });
+  });
+
+  document.getElementById('manageBooksLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    showPage('mybooks');
+  });
+  document.getElementById('salesLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    showPage('sales');
+  });
+  document.getElementById('exploreBtn')?.addEventListener('click', () => {
+    window.location.href = "/dashboard";
+  });
+
+  document.getElementById('saveSettingsBtn')?.addEventListener('click', async () => {
+    if (!currentUser) return;
+    try {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        username: settingsName.value,
+        bio: settingsBio.value,
+        paymentMethod: document.getElementById('settingsPayment').value,
+        accountDetails: settingsAccount.value
+      });
+      userDisplayName = settingsName.value;
+      greeting.textContent = `Welcome back, ${userDisplayName} 👋`;
+      showToast('✅ Settings saved successfully!', 'success');
+    } catch (err) {
+      showToast('❌ Error saving settings: ' + err.message, 'error');
+    }
+  });
+
+  document.getElementById('signOutBtn')?.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/dashboard";
+    } catch (e) {
+      showToast('Error signing out.', 'error');
+    }
+  });
+
+  // Modal events
+  modalCloseBtn?.addEventListener('click', closeModal);
+  cancelUpdateBtn?.addEventListener('click', closeModal);
+  updateModal?.addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  updateForm?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    updateBook();
+  });
+
+  deleteBookBtn?.addEventListener('click', deleteBook);
+
+  // Downloads toggle event
+  updateDownloadsSelect?.addEventListener('change', toggleUpdateCustomDownloadInput);
+
+  // ===== AUTH =====
+  // Simple auth state handler - no redirect loops
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // User is signed in
+        currentUser = user;
+        await updateUserUI(user);
+        await loadAuthorData(user);
+        showPage('dashboard');
+        // Clear any redirect flags
+        sessionStorage.removeItem('auth_redirect_attempted');
+    } else {
+        // User is signed out - redirect to login only if not already there
+        if (!window.location.pathname.includes('universal-login') && 
+            !window.location.pathname.includes('verify-email')) {
+            const currentPage = window.location.pathname + window.location.search;
+            window.location.href = '../shared/universal-login.html?platform=reads&redirect=' + 
+                                  encodeURIComponent(currentPage);
+        }
+    }
+});
+</script>
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+<script src="../shared/return-url-handler.js"></script>
+</body>
+</html>

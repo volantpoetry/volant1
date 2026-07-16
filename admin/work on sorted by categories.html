@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poems by Tags - Volant Poetry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #faf7f2;
+            color: #2c2c2c;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Tags Cloud */
+        .tags-cloud {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .tags-cloud h2 {
+            font-size: 1.5rem;
+            color: #4b2aad;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .tags-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tag-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 30px;
+            background: white;
+            color: #555;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tag-btn:hover {
+            border-color: #4b2aad;
+            color: #4b2aad;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(75,42,173,0.15);
+        }
+
+        .tag-btn.active {
+            background: #4b2aad;
+            border-color: #4b2aad;
+            color: white;
+        }
+
+        .tag-btn .count {
+            background: #f0f0f0;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 6px;
+        }
+
+        .tag-btn.active .count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        /* Selected Tag Info */
+        .selected-tag-info {
+            background: #f8f5ff;
+            border-left: 5px solid #4b2aad;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .selected-tag-info h3 {
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .selected-tag-info h3 span {
+            color: #4b2aad;
+            font-weight: 700;
+        }
+
+        .clear-tag {
+            background: none;
+            border: 1px solid #4b2aad;
+            color: #4b2aad;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .clear-tag:hover {
+            background: #4b2aad;
+            color: white;
+        }
+
+        /* Poems Grid */
+        .poems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .poem-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .poem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(75,42,173,0.15);
+            border-color: #4b2aad;
+        }
+
+        .poet-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .poet-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .poet-name {
+            font-weight: 600;
+            color: #B8860B;
+            font-size: 1rem;
+        }
+
+        .poem-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4b2aad;
+            margin-bottom: 12px;
+            font-family: 'Playfair Display', serif;
+            line-height: 1.3;
+            text-decoration: none;
+        }
+
+        .poem-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .poem-title a:hover {
+            text-decoration: underline;
+        }
+
+        .poem-preview {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            flex: 1;
+            display: -webkit-box;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .poem-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .poem-tag {
+            background: #f0eaff;
+            color: #4b2aad;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .poem-tag:hover {
+            background: #4b2aad;
+            color: white;
+        }
+
+        .poem-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .read-more {
+            color: #4b2aad;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        .no-poems {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 16px;
+            color: #888;
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4b2aad;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .poems-grid { grid-template-columns: 1fr; }
+            .container { padding: 15px; }
+            .tags-wrapper { gap: 8px; }
+            .tag-btn { padding: 6px 12px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📑 Poems by Tags</h1>
+        <p class="subtitle">Browse poems organized by categories and themes</p>
+    </header>
+
+    <div class="container">
+        <!-- Tags Cloud -->
+        <div class="tags-cloud">
+            <h2>Popular Tags</h2>
+            <div class="tags-wrapper" id="tagsContainer">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Selected Tag Info (hidden by default) -->
+        <div class="selected-tag-info" id="selectedTagInfo" style="display: none;">
+            <h3>Showing poems tagged: <span id="selectedTagName"></span></h3>
+            <button class="clear-tag" id="clearTagBtn">✕ Clear Filter</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats" id="stats">
+            Loading poems...
+        </div>
+
+        <!-- Poems Grid -->
+        <div class="poems-grid" id="poemsGrid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading poems...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+            authDomain: "silent-depth.firebaseapp.com",
+            projectId: "silent-depth",
+            storageBucket: "silent-depth.appspot.com",
+            messagingSenderId: "78008755450",
+            appId: "1:78008755450:web:3fd0f0f298a08820935543"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State
+        let allPoems = [];
+        let allTags = new Map(); // tag -> count
+        let selectedTag = null;
+
+        // DOM Elements
+        const poemsGrid = document.getElementById('poemsGrid');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const statsDiv = document.getElementById('stats');
+        const selectedTagInfo = document.getElementById('selectedTagInfo');
+        const selectedTagName = document.getElementById('selectedTagName');
+        const clearTagBtn = document.getElementById('clearTagBtn');
+
+        // Helper: Get initials for avatar
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        // Fetch all poems from multiple collections
+        async function fetchAllPoems() {
+            try {
+                const poems = [];
+                const collections = ['recentPoems', 'featuredPoems', 'classicPoems'];
+                
+                for (const collectionName of collections) {
+                    const snapshot = await getDocs(collection(db, collectionName));
+                    
+                    for (const docSnap of snapshot.docs) {
+                        const data = docSnap.data();
+                        
+                        // Get poet name
+                        let poetName = data.author || data.submittedBy || data.authorName || 'Anonymous';
+                        
+                        if (data.userId || data.authorId) {
+                            const userId = data.userId || data.authorId;
+                            try {
+                                const userDoc = await getDoc(doc(db, 'users', userId));
+                                if (userDoc.exists()) {
+                                    poetName = userDoc.data().username || poetName;
+                                }
+                            } catch (err) {
+                                console.warn('Failed to fetch poet name');
+                            }
+                        }
+                        
+                        // Get categories/tags
+                        const tags = [];
+                        if (Array.isArray(data.categories)) {
+                            tags.push(...data.categories.filter(c => c && c.trim()));
+                        } else if (data.category) {
+                            tags.push(data.category);
+                        } else if (data.tags && Array.isArray(data.tags)) {
+                            tags.push(...data.tags);
+                        }
+                        
+                        // Update tags count
+                        tags.forEach(tag => {
+                            const normalizedTag = tag.trim();
+                            allTags.set(normalizedTag, (allTags.get(normalizedTag) || 0) + 1);
+                        });
+                        
+                        // Create slug
+                        const slug = data.slug || 
+                            (data.title ? data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : docSnap.id);
+                        
+                        poems.push({
+                            id: docSnap.id,
+                            title: data.title || 'Untitled',
+                            content: data.content || '',
+                            poet: poetName,
+                            tags: tags,
+                            collection: collectionName,
+                            slug: slug,
+                            likes: data.likes || 0,
+                            url: `poem.html?collection=${collectionName}&slug=${encodeURIComponent(slug)}`
+                        });
+                    }
+                }
+                
+                allPoems = poems;
+                
+                // Update UI
+                renderTags();
+                renderPoems();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error fetching poems:', error);
+                poemsGrid.innerHTML = '<div class="no-poems">❌ Error loading poems. Please refresh.</div>';
+            }
+        }
+
+        // Render tags cloud
+        function renderTags() {
+            if (allTags.size === 0) {
+                tagsContainer.innerHTML = '<p>No tags found</p>';
+                return;
+            }
+            
+            // Sort tags alphabetically
+            const sortedTags = Array.from(allTags.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+            
+            tagsContainer.innerHTML = sortedTags.map(([tag, count]) => `
+                <button class="tag-btn ${selectedTag === tag ? 'active' : ''}" onclick="window.selectTag('${tag.replace(/'/g, "\\'")}')">
+                    ${tag}
+                    <span class="count">${count}</span>
+                </button>
+            `).join('');
+            
+            // Also add "All" button
+            const allBtn = document.createElement('button');
+            allBtn.className = `tag-btn ${!selectedTag ? 'active' : ''}`;
+            allBtn.onclick = () => window.clearTag();
+            allBtn.innerHTML = 'All Poems <span class="count">' + allPoems.length + '</span>';
+            tagsContainer.prepend(allBtn);
+        }
+
+        // Render poems based on selected tag
+        function renderPoems() {
+            if (allPoems.length === 0) {
+                poemsGrid.innerHTML = '<div class="no-poems">No poems found</div>';
+                return;
+            }
+            
+            // Filter poems by selected tag
+            let filteredPoems = allPoems;
+            if (selectedTag) {
+                filteredPoems = allPoems.filter(poem => 
+                    poem.tags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
+                );
+            }
+            
+            // Sort poems by title
+            filteredPoems.sort((a, b) => a.title.localeCompare(b.title));
+            
+            if (filteredPoems.length === 0) {
+                poemsGrid.innerHTML = `<div class="no-poems">No poems found with tag "${selectedTag}"</div>`;
+                return;
+            }
+            
+            // Show/hide selected tag info
+            if (selectedTag) {
+                selectedTagName.textContent = selectedTag;
+                selectedTagInfo.style.display = 'flex';
+            } else {
+                selectedTagInfo.style.display = 'none';
+            }
+            
+            // Render poems
+            poemsGrid.innerHTML = filteredPoems.map(poem => `
+                <div class="poem-card">
+                    <div class="poet-info">
+                        <div class="poet-avatar">${getInitials(poem.poet)}</div>
+                        <span class="poet-name">${poem.poet}</span>
+                    </div>
+                    
+                    <h3 class="poem-title">
+                        <a href="${poem.url}" target="_blank">${poem.title}</a>
+                    </h3>
+                    
+                    <div class="poem-preview">
+                        ${poem.content.split('\n').slice(0, 3).join(' ').substring(0, 150)}...
+                    </div>
+                    
+                    ${poem.tags.length > 0 ? `
+                        <div class="poem-tags">
+                            ${poem.tags.map(tag => 
+                                `<button class="poem-tag" onclick="window.selectTag('${tag.replace(/'/g, "\\'")}')">${tag}</button>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="poem-meta">
+                        <span>❤️ ${poem.likes}</span>
+                        <a href="${poem.url}" class="read-more" target="_blank">Read Full Poem →</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalPoems = allPoems.length;
+            const totalTags = allTags.size;
+            const poemsWithTags = allPoems.filter(p => p.tags.length > 0).length;
+            
+            if (selectedTag) {
+                const filteredCount = allPoems.filter(p => 
+                    p.tags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
+                ).length;
+                statsDiv.innerHTML = `📖 Showing <strong>${filteredCount}</strong> poems tagged with "<strong>${selectedTag}</strong>" • ${totalPoems} total poems • ${totalTags} tags`;
+            } else {
+                statsDiv.innerHTML = `📖 <strong>${totalPoems}</strong> poems • <strong>${totalTags}</strong> tags • <strong>${poemsWithTags}</strong> poems have tags`;
+            }
+        }
+
+        // Select tag (make global for onclick)
+        window.selectTag = (tag) => {
+            selectedTag = tag;
+            renderTags();
+            renderPoems();
+            updateStats();
+        };
+
+        // Clear tag filter
+        window.clearTag = () => {
+            selectedTag = null;
+            renderTags();
+            renderPoems();
+            updateStats();
+        };
+
+        // Clear tag button
+        clearTagBtn.addEventListener('click', window.clearTag);
+
+        // Initialize
+        fetchAllPoems();
+    </script>
+</body>
+</html>

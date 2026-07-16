@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Guidelines | Volant Poetry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+<style>
+  :root {
+    --primary: #4b2aad;
+    --primary-dark: #3a1f8a;
+    --primary-light: #6c3ddd;
+    --accent-gold: #b89b5e;
+    --accent-gold-dark: #9b7e48;
+    --bg-main: #f5f3ff;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-muted: #6b6b6b;
+    --border-light: #e8e4f0;
+    --border-gold: #d4c5a0;
+    --warning-bg: #fef5f5;
+    --warning-border: #c0392b;
+    --warning-text: #c0392b;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .page-header {
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--border-gold);
+    padding: 2.5rem 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-header .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .page-header .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .page-header .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  /* Main Container */
+  .guidelines-container {
+    max-width: 920px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+  }
+
+  /* Content Card */
+  .guidelines-card {
+    background: var(--bg-card);
+    border-radius: 0;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+  }
+
+  .guidelines-content {
+    padding: 2.5rem 3rem;
+  }
+
+  /* Intro */
+  .guidelines-intro {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .guidelines-intro strong {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* Alert / Note Box */
+  .alert-note {
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  .alert-note strong {
+    color: var(--warning-text);
+    font-weight: 600;
+  }
+
+  .alert-note .highlight {
+    color: var(--warning-text);
+    font-weight: 700;
+  }
+
+  /* Sections */
+  .guidelines-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .guidelines-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .guidelines-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    letter-spacing: -0.2px;
+  }
+
+  .guidelines-section p {
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Standard bullet points (circular dots) */
+  .guidelines-section ul {
+    margin: 0.75rem 0 0.5rem 0;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .guidelines-section li {
+    margin-bottom: 0.6rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .guidelines-section li::before {
+    content: "●";
+    color: var(--accent-gold);
+    font-size: 0.75rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Numbered list with proper numbers */
+  .numbered-list {
+    margin: 0.75rem 0 0.5rem 0;
+    list-style: none;
+    padding-left: 0;
+    counter-reset: step-counter;
+  }
+
+  .numbered-list li {
+    margin-bottom: 0.6rem;
+    padding-left: 1.8rem;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    counter-increment: step-counter;
+  }
+
+  .numbered-list li::before {
+    content: counter(step-counter) ".";
+    color: var(--primary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Nested list (inside numbered items) */
+  .numbered-list ul {
+    margin: 0.5rem 0 0.25rem 0;
+    list-style: none;
+    padding-left: 1.5rem;
+  }
+
+  .numbered-list ul li {
+    padding-left: 1.5rem;
+    counter-increment: none;
+  }
+
+  .numbered-list ul li::before {
+    content: "●";
+    color: var(--accent-gold);
+    font-size: 0.75rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Nested list inside regular ul */
+  .nested-list {
+    margin: 0.5rem 0 0.25rem 1rem;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .nested-list li {
+    padding-left: 1.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .nested-list li::before {
+    content: "○";
+    color: var(--accent-gold-dark);
+    font-size: 0.7rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Highlight styles */
+  .highlight {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .warning-text {
+    color: var(--warning-text);
+    font-weight: 600;
+  }
+
+  .collaborator-note {
+    background: rgba(184, 155, 94, 0.08);
+    border-left: 4px solid var(--accent-gold);
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0 0 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      padding: 1.8rem 1rem 1.2rem;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+    }
+
+    .guidelines-content {
+      padding: 1.5rem;
+    }
+
+    .guidelines-section h2 {
+      font-size: 1.3rem;
+    }
+
+    .guidelines-section li {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 550px) {
+    .guidelines-container {
+      padding: 0 1rem;
+      margin: 1.5rem auto;
+    }
+
+    .guidelines-content {
+      padding: 1.25rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+    }
+
+    .guidelines-section h2 {
+      font-size: 1.2rem;
+    }
+
+    .guidelines-section li {
+      font-size: 0.85rem;
+      padding-left: 1.25rem;
+    }
+
+    .numbered-list li {
+      padding-left: 1.5rem;
+    }
+
+    .alert-note {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media print {
+    .page-header {
+      background: none;
+      border: none;
+    }
+    .guidelines-card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+    body {
+      background: white;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Submission Guidelines</h1>
+</div>
+
+<div class="guidelines-container">
+  <div class="guidelines-card">
+    <div class="guidelines-content">
+      <div class="guidelines-intro">
+        Welcome to <strong>Volant Poetry</strong>. We are honored to share your unique voice with our community. To ensure quality and authenticity, please follow these guidelines carefully when submitting your poems.
+      </div>
+
+      <div class="alert-note">
+        <strong><span class="highlight">Important Notice</span></strong><br>
+        Only poems written by the author themselves are allowed. <strong class="warning-text">No AI generated poems</strong> will be accepted. Violating these rules will result in <strong>3 warnings</strong>; after the third warning, your account will be terminated.
+      </div>
+
+      <div class="guidelines-section">
+        <h2>General Guidelines</h2>
+        <ul>
+          <li>All submissions must be your original work.</li>
+          <li>Ensure your poem is free of plagiarism or copied content.</li>
+          <li>Poems can be of any style or length, but clarity and readability are encouraged.</li>
+          <li>Each user may submit multiple poems, but each must be unique.</li>
+        </ul>
+      </div>
+
+      <div class="guidelines-section">
+        <h2>Collaborators & Co Authors</h2>
+        <ul>
+          <li>You may invite other Volant Poetry users to collaborate on a poem.</li>
+          <li>When submitting a collaborative poem, you can select one or more collaborators from the platform.</li>
+          <li>All collaborators will be credited on the poem page and in search results.</li>
+          <li>Each collaborator must have an active Volant Poetry account.</li>
+          <li>Collaborators cannot edit a poem after submission unless the original author.</li>
+          <li>For poems with multiple authors, all listed collaborators must have contributed meaningfully to the work.</li>
+        </ul>
+        <div class="collaborator-note">
+          <strong>How collaborator selection works:</strong> On the submission form, you will find a "Select Collaborators" field where you can search for and add usernames of other Volant Poetry members. Collaborators will receive a notification and the poem will appear on their profile as a co authored piece.
+        </div>
+      </div>
+
+      <div class="guidelines-section">
+        <h2>Community Respect</h2>
+        <ul>
+          <li>Respect other poets and readers; no hate speech or harmful content.</li>
+          <li>Maintain a constructive and encouraging tone.</li>
+          <li>Content violating these rules may be removed without notice. Repeat violations may result in warnings and eventual account termination.</li>
+        </ul>
+      </div>
+
+      <div class="guidelines-section">
+        <h2>How to Submit Your Poem</h2>
+        <p>Before submitting, make sure you are <strong>signed in</strong> to your Volant Poetry account. Once signed in, follow these steps:</p>
+        <ol class="numbered-list">
+          <li>Locate the <strong>Submit</strong> tab in the main navigation, or go to your <strong>Profile Page</strong> and find the <strong>Submit</strong> option under <strong>Volant Quick</strong>.</li>
+          <li>Click <strong>Submit</strong> to open the submission form.</li>
+          <li>Fill out the form with the following details:
+            <ul class="nested-list">
+              <li><strong>Title:</strong> The title of your poem.</li>
+              <li><strong>Content:</strong> The body of your poem.</li>
+              <li><strong>Categories:</strong> Select relevant categories for your poem.</li>
+              <li><strong>Collaborators:</strong> Search and select other Volant Poetry users who co authored this poem with you.</li>
+            </ul>
+          </li>
+          <li>Once all fields are complete, click <strong>Submit</strong> to send your poem for review.</li>
+        </ol>
+      </div>
+
+      <div class="guidelines-intro" style="margin-top: 1.5rem; margin-bottom: 0;">
+        By submitting your poem, you confirm that it is your original work and that you comply with our guidelines. Thank you for helping us maintain a genuine, creative, and safe space for poetry lovers.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="page-footer" style="background:#1a1714; color:#e8e0d8; padding:2rem 1.5rem; text-align:center; margin-top:2rem; border-top:1px solid rgba(255,255,255,0.06);">
+  <div style="max-width:920px; margin:0 auto;">
+    <!-- Footer Links Row -->
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px 20px; margin-bottom:10px;">
+      <a href="/shared/terms" style="color:#c4b8aa; text-decoration:none; font-size:0.8rem;">Terms</a>
+      <a href="/shared/contact" style="color:#c4b8aa; text-decoration:none; font-size:0.8rem;">Contact</a>
+      <a href="/" style="color:#c4b8aa; text-decoration:none; font-size:0.8rem;">📚 Bookstore</a>
+    <a href="/" style="color:#b76e4b; text-decoration:none; font-size:0.8rem; font-weight:600;">🏛️ Volant Foundry</a>
+    </div>
+    
+    <!-- Platform Badge -->
+    <div style="margin:6px 0;">
+      <span style="background:rgba(183,110,75,0.12); padding:3px 16px; border-radius:20px; font-size:0.7rem; color:#b76e4b; font-weight:500; display:inline-block;">
+        Part of the Volant Foundry Platform
+      </span>
+    </div>
+    
+    <!-- Copyright -->
+    <div style="font-size:0.75rem; color:#6a5f55; margin-top:6px;">
+      &copy; 2026 <strong style="color:#c4b8aa;">Volant Poetry</strong>. All Rights Reserved.
+    </div>
+  </div>
+</footer>
+
+<!-- ===== MOBILE RESPONSIVE STYLES ===== -->
+<style>
+  /* Mobile responsive for footer links */
+  @media (max-width: 480px) {
+    footer .footer-links-row {
+      gap: 4px 10px !important;
+    }
+    footer .footer-links-row a {
+      font-size: 0.65rem !important;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+    }
+    footer .footer-links-row a:last-child {
+      color: #b76e4b !important;
+      background: rgba(183,110,75,0.1);
+    }
+  }
+
+  @media (max-width: 380px) {
+    footer .footer-links-row a {
+      font-size: 0.55rem !important;
+      padding: 2px 6px;
+    }
+    footer .footer-links-row {
+      gap: 3px 6px !important;
+    }
+  }
+</style>
+
+<script src="return-url-handler.js"></script>
+</body>
+</html>

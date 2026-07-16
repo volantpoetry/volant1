@@ -1,0 +1,276 @@
+/* === ABOUT PAGE === */
+.about-section {
+  padding: 60px 20px;
+  background: #fafafa;
+}
+
+.about-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+/* Force text first on big screens */
+.about-text {
+  flex: 1;
+  min-width: 280px;
+  order: 1;
+    text-align: left;
+}
+
+.about-image {
+  flex: 1;
+  text-align: center;
+  min-width: 250px;
+  order: 2;
+}
+
+/* On smaller screens, swap order */
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about-image {
+    order: 1; /* image comes first */
+  }
+
+  .about-text {
+    order: 2; /* text follows */
+  }
+  
+}
+
+.about-text h2 {
+    font-size: 1.4rem;
+        text-align: center;
+  }
+  
+.about-image img {
+  max-width: 320px;
+  width: 100%;
+  border-radius: 12px;
+  border: 4px solid #f2f2f2; /* soft light frame */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* gentle depth */
+  margin: 0 auto 20px;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  background-color: #fff; /* gives clean framed look */
+}
+
+.about-image {
+  flex: 1;
+  text-align: center;
+  min-width: 250px;
+  order: 2;
+  padding: 10px;
+}
+
+
+.about-container {
+  display: flex;
+  align-items: flex-start; /* not center vertically */
+  justify-content: center;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+
+/* Added styling for name + pen name under the image */
+.about-image .author-info {
+  text-align: center;
+  color: #333;
+}
+
+.about-image .author-info h3 {
+  margin: 10px 0 5px;
+  font-size: 1.2rem;
+}
+
+.about-image .author-info p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Mission & Vision */
+.mission-section {
+  background: #fff;
+  padding: 60px 20px;
+}
+
+.mission-container {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mission-block {
+  flex: 1;
+  min-width: 280px;
+  padding: 25px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.mission-block:hover {
+  transform: translateY(-5px);
+}
+
+.mission-block h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.mission-block p {
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .about-text h2 {
+    font-size: 1.4rem;
+        text-align: center;
+  }
+  
+  .about-image img {
+    max-width: 200px;
+  }
+
+  .mission-block h3 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.mission-block p {
+  color: #555;
+  line-height: 1.6;
+    text-align: center;
+}
+
+}
+
+/* === PLATFORM SECTION === */
+.platform-section {
+  background: #fdfdfd;
+  padding: 60px 20px;
+}
+
+.platform-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.platform-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.platform-container p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #555;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* Hover effect for subtle interaction */
+.platform-container:hover {
+  transform: scale(1.01);
+  transition: transform 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .platform-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .platform-container p {
+    font-size: 1rem;
+      text-align: left;
+  }
+}
+
+/* === Dedication Section === */
+.dedication-section {
+  background: #fefefe;
+  padding: 60px 20px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.dedication-container {
+  max-width: 800px;
+  margin: 0 auto;
+  
+}
+
+.dedication-section h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.dedication-section p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.dedication-sign {
+  margin-top: 20px;
+  font-style: italic;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dedication-section h2 {
+    font-size: 1.4rem;
+  }
+  .dedication-section p {
+    font-size: 1rem;
+      text-align: left;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .nav-logo-img {
+    width: 30px;  /* smaller logo image */
+  }
+
+  .logo-text {
+    font-size: 1rem; /* smaller text */
+  }
+
+  .logo {
+    margin-left: 10px; /* optional, keep it from touching the edge */
+  }
+}

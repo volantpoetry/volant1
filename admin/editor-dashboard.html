@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow">
+<title>Editorial Dashboard | Volant Poetry</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+ <!-- Styles & Icons -->
+  <link rel="stylesheet" href="../style.css" />
+ <!-- Favicons -->
+<link rel="icon" type="image/png" href="../images/volant-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-favicon.png">
+
+<style>
+:root {
+  --accent:#4b2aad; --danger:#c70000; --ok:#0d8b3e; --muted:#666; --card:#fff;
+  --pending: #f6c34a; --received: #3aa0ff; --approved: #3cc07b; --rejected: #ff6b6b;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Inter,sans-serif;background:#f5f5f5;color:#111;}
+header{background:#111;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+header h1{margin:0;font-size:18px;}
+.admin-info{font-size:13px;opacity:.9;}
+.wrap{max-width:1100px;margin:22px auto;padding:0 16px;}
+.card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:12px;}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.controls input,.controls select{padding:8px 10px;border-radius:8px;border:1px solid #ddd;font-size:14px;}
+.controls button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;}
+.submission-grid{display:flex;flex-direction:column;gap:12px;}
+.submission-row{border:1px solid #e8e8e8;padding:12px;border-radius:8px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;background:#fff;flex-wrap:wrap;}
+.meta{width:62%;}
+.meta h3{margin:0 0 6px 0;font-size:16px;}
+.meta p{margin:4px 0;color:var(--muted);font-size:14px;}
+.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.btn{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+.btn-approve{background:var(--ok);color:#fff;}
+.btn-reject{background:var(--danger);color:#fff;}
+.btn-view{background:#eee;color:#111;}
+.small{font-size:13px;color:#666;}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px;color:#111;}
+.badge.pending{background:var(--pending);}
+.badge.received{background:var(--received);color:#fff;}
+.badge.approved{background:var(--approved);color:#fff;}
+.badge.rejected{background:var(--rejected);color:#fff;}
+input[type="checkbox"]{width:16px;height:16px;cursor:pointer;}
+
+/* Modal (same as before) */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:2000;}
+.modal{width:92%;max-width:1000px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.25);max-height:88vh;overflow:auto;}
+.modal .row{display:flex;gap:12px;margin-bottom:10px;}
+.modal textarea{width:100%;min-height:220px;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:15px;resize:vertical;}
+.modal input,.modal select{padding:8px 10px;border-radius:8px;border:1px solid #ddd;}
+.modal .footer{display:flex;justify-content:space-between;gap:12px;margin-top:12px;}
+.field-inline{display:flex;gap:8px;align-items:center;}
+.timeline{background:#fafafa;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:8px;}
+.timeline div{font-size:13px;color:#444;margin:6px 0;}
+.editor-assignment{display:flex;gap:8px;align-items:center;margin-top:8px;}
+@media(max-width:768px){
+  .submission-row{flex-direction:column;}
+  .meta{width:100%;}
+  .actions{justify-content:flex-start;flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Enhanced Editorial Dashboard</h1>
+<div class="admin-info" id="adminInfo">Checking admin…</div>
+</header>
+
+<main class="wrap">
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <strong>Live Editorial Submissions</strong>
+      <div class="small">Approve, edit, assign, or reject submissions quickly. Supports batch actions.</div>
+    </div>
+    <div class="small">Realtime</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="controls card">
+  <input id="filterUsername" placeholder="Filter by submitter username" />
+  <input id="filterCategory" placeholder="Filter by category" />
+  <input id="filterFrom" type="date" title="From date" />
+  <input id="filterTo" type="date" title="To date" />
+  <button id="clearFilters">Clear</button>
+</div>
+
+<!-- Batch actions -->
+<div class="controls card">
+  <button id="batchApprove" class="btn btn-approve">Approve Selected</button>
+  <button id="batchReject" class="btn btn-reject">Reject Selected</button>
+  <button id="batchReceived" class="btn" style="background:#007bff;color:#fff">Mark Received Selected</button>
+</div>
+
+<!-- Submissions list -->
+<div id="submissions" class="submission-grid"></div>
+</main>
+
+<!-- Modal -->
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <h2 id="modalTitle" style="margin:0">Title</h2>
+        <div class="small" id="modalMeta">Submitted by • date</div>
+      </div>
+      <div id="modalStatusWrap"></div>
+    </div>
+    <label class="small">Edit Content</label>
+    <textarea id="modalContent"></textarea>
+
+    <label class="small" style="margin-top:10px">Editor Notes</label>
+    <textarea id="modalNotes" placeholder="Leave notes for the user or for the record..."></textarea>
+
+    <div class="editor-assignment">
+      <label class="small" style="min-width:90px">Assign to editor</label>
+      <select id="assignEditorSelect">
+        <option value="">— choose editor —</option>
+      </select>
+      <button class="btn" id="btnAssignEditor" style="background:#2b6ed6;color:#fff">Assign</button>
+    </div>
+
+    <div class="timeline" id="modalTimeline"></div>
+
+    <div class="footer">
+      <div>
+        <button class="btn" id="btnMarkReceived" style="background:#007bff;color:#fff">Mark as Received</button>
+        <button class="btn" id="btnSaveEdits">Save Edits</button>
+        <button class="btn btn-approve" id="btnApproveFromModal">Approve</button>
+        <button class="btn btn-reject" id="btnRejectFromModal">Reject</button>
+      </div>
+      <div>
+        <button class="btn" id="btnCloseModal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc,
+  deleteDoc, updateDoc, serverTimestamp, onSnapshot, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const submissionsEl = document.getElementById('submissions');
+const adminInfoEl = document.getElementById('adminInfo');
+const filterUsernameEl = document.getElementById('filterUsername');
+const filterCategoryEl = document.getElementById('filterCategory');
+const filterFromEl = document.getElementById('filterFrom');
+const filterToEl = document.getElementById('filterTo');
+const clearFiltersBtn = document.getElementById('clearFilters');
+
+const batchApproveBtn = document.getElementById('batchApprove');
+const batchRejectBtn = document.getElementById('batchReject');
+const batchReceivedBtn = document.getElementById('batchReceived');
+
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalTitle = document.getElementById('modalTitle');
+const modalMeta = document.getElementById('modalMeta');
+const modalContent = document.getElementById('modalContent');
+const modalNotes = document.getElementById('modalNotes');
+const modalStatusWrap = document.getElementById('modalStatusWrap');
+const modalTimeline = document.getElementById('modalTimeline');
+
+const assignEditorSelect = document.getElementById('assignEditorSelect');
+const btnAssignEditor = document.getElementById('btnAssignEditor');
+const btnSaveEdits = document.getElementById('btnSaveEdits');
+const btnApproveFromModal = document.getElementById('btnApproveFromModal');
+const btnRejectFromModal = document.getElementById('btnRejectFromModal');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnMarkReceived = document.getElementById('btnMarkReceived');
+
+let liveUnsubscribe = null;
+let liveData = [];
+let currentUser = null;
+let currentEditingDoc = null;
+let editorsCache = [];
+
+// ---------- ADMIN CHECK ----------
+onAuthStateChanged(auth, async (user) => {
+  if(!user){ alert('Please sign in'); window.location.href='/admin-login'; return; }
+  currentUser = user;
+  const adminSnap = await getDoc(doc(db, 'admins', user.uid));
+  const editorSnap = await getDoc(doc(db, 'editors', user.uid));
+  if(!adminSnap.exists() && !editorSnap.exists()){
+    alert('Access denied'); window.location.href='/'; return;
+  }
+  adminInfoEl.textContent = `${user.displayName || 'Admin'} • ${user.email || ''}`;
+  await loadEditorsList();
+  startLive();
+});
+
+// ---------- LOAD EDITORS ----------
+async function loadEditorsList(){
+  editorsCache = [];
+  assignEditorSelect.innerHTML = '<option value="">— choose editor —</option>';
+  const snap = await getDocs(collection(db, 'editors'));
+  snap.forEach(d => {
+    const dt = d.data();
+    const name = dt.username || dt.displayName || dt.name || dt.email || d.id;
+    editorsCache.push({id:d.id,name,email:dt.email||''});
+    const opt = document.createElement('option'); opt.value=d.id; opt.textContent=name+(dt.email?` • ${dt.email}`:''); assignEditorSelect.appendChild(opt);
+  });
+}
+
+// ---------- LIVE SNAPSHOT ----------
+function startLive(){
+  if(liveUnsubscribe) liveUnsubscribe();
+  const q = query(collection(db,'editorialSubmissions'),orderBy('timestamp','desc'));
+  liveUnsubscribe = onSnapshot(q,snapshot=>{
+    liveData = snapshot.docs.map(d=>({id:d.id,data:d.data()}));
+    renderList();
+  });
+}
+
+// ---------- FILTERS ----------
+filterUsernameEl.addEventListener('input', renderList);
+filterCategoryEl.addEventListener('input', renderList);
+filterFromEl.addEventListener('change', renderList);
+filterToEl.addEventListener('change', renderList);
+clearFiltersBtn.addEventListener('click', ()=>{ filterUsernameEl.value=''; filterCategoryEl.value=''; filterFromEl.value=''; filterToEl.value=''; renderList(); });
+
+// ---------- BATCH ACTIONS ----------
+batchApproveBtn.addEventListener('click',()=>batchAction('approve'));
+batchRejectBtn.addEventListener('click',()=>batchAction('reject'));
+batchReceivedBtn.addEventListener('click',()=>batchAction('received'));
+
+async function batchAction(action){
+  const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+  if(!checkedBoxes.length){ alert('Select at least one submission.'); return; }
+  if(!confirm(`Confirm ${action} for ${checkedBoxes.length} submissions?`)) return;
+  for(const cb of checkedBoxes){
+    const id = cb.dataset.id;
+    const item = liveData.find(d=>d.id===id);
+    if(!item) continue;
+    switch(action){
+      case 'approve': await approveAndMove(id,item.data); break;
+      case 'reject': await rejectSubmission(id); break;
+      case 'received': await markReceived(id,item.data); break;
+    }
+  }
+  renderList();
+}
+
+// ---------- RENDER LIST ----------
+async function renderList(){
+  submissionsEl.innerHTML='';
+  const usernameFilter = (filterUsernameEl.value||'').toLowerCase();
+  const categoryFilter = (filterCategoryEl.value||'').toLowerCase();
+  const fromDate = filterFromEl.value?new Date(filterFromEl.value):null;
+  const toDate = filterToEl.value?new Date(filterToEl.value):null;
+  if(toDate) toDate.setHours(23,59,59,999);
+  if(!liveData.length){ submissionsEl.innerHTML='<div class="card">No submissions yet.</div>'; return; }
+  for(const item of liveData){
+    const data = item.data,id=item.id;
+    let submitterName = data.username||data.submittedBy||'';
+    if(usernameFilter && !submitterName.toLowerCase().includes(usernameFilter)) continue;
+    if(categoryFilter && !(data.categories||[]).map(c=>c.toLowerCase()).some(c=>c.includes(categoryFilter))) continue;
+    if((fromDate||toDate) && data.timestamp){
+      const tsDate = data.timestamp.toDate?data.timestamp.toDate():new Date(data.timestamp);
+      if(fromDate && tsDate<fromDate) continue;
+      if(toDate && tsDate>toDate) continue;
+    }
+    const row = document.createElement('div'); row.className='submission-row';
+    // checkbox
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.className='row-checkbox'; cb.dataset.id=id;
+    row.appendChild(cb);
+    const meta = document.createElement('div'); meta.className='meta';
+    const excerpt = (data.content||'').slice(0,300);
+    const timeText = data.timestamp? (data.timestamp.toDate?data.timestamp.toDate().toLocaleString():new Date(data.timestamp).toLocaleString()):'-';
+    const status = (data.status||'pending').toLowerCase();
+    let badgeHtml = `<span class="badge ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</span>`;
+    meta.innerHTML=`
+      <h3>${escapeHtml(data.title||'Untitled')} ${badgeHtml}</h3>
+      <p class="small"><strong>By:</strong> ${escapeHtml(submitterName)} • ${escapeHtml(String(data.userId||''))}</p>
+      <p class="small"><strong>Submitted:</strong> ${timeText}</p>
+      <p style="margin-top:8px;">${escapeHtml(excerpt)}${(data.content||'').length>300?'…':''}</p>
+    `;
+    row.appendChild(meta);
+    const actions = document.createElement('div'); actions.className='actions';
+    const btnView = document.createElement('button'); btnView.className='btn btn-view'; btnView.textContent='View'; btnView.onclick=()=>openModal(id,data,submitterName);
+    const btnApprove = document.createElement('button'); btnApprove.className='btn btn-approve'; btnApprove.textContent='Approve'; btnApprove.onclick=()=>approveAndMove(id,data);
+    const btnReject = document.createElement('button'); btnReject.className='btn btn-reject'; btnReject.textContent='Reject'; btnReject.onclick=()=>rejectSubmission(id);
+    const btnReceived = document.createElement('button'); btnReceived.className='btn'; btnReceived.textContent='Mark Received'; btnReceived.style.background='#007bff'; btnReceived.style.color='#fff'; btnReceived.onclick=()=>markReceived(id,data);
+    actions.appendChild(btnView); actions.appendChild(btnApprove); actions.appendChild(btnReject); actions.appendChild(btnReceived);
+    row.appendChild(actions);
+    submissionsEl.appendChild(row);
+  }
+}
+
+// ---------- UTILS ----------
+function escapeHtml(str){ if(!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ---------- MODAL ----------
+function openModal(id,data,submitterName=''){ currentEditingDoc={id,data}; modalTitle.textContent=data.title||'Untitled'; modalMeta.textContent=`By ${submitterName} • ${data.userId||''}`; modalContent.value=data.content||''; modalNotes.value=data.note||''; modalStatusWrap.innerHTML=`<span class="badge ${data.status||'pending'}">${(data.status||'Pending').charAt(0).toUpperCase()+(data.status||'pending').slice(1)}</span>`; buildTimeline(data); modalBackdrop.style.display='flex'; }
+
+
+btnCloseModal.addEventListener('click', ()=>{ modalBackdrop.style.display='none'; currentEditingDoc=null; });
+
+// ---------- MODAL ACTIONS ----------
+btnSaveEdits.addEventListener('click', async ()=>{
+  if(!currentEditingDoc) return;
+  const docRef = doc(db,'editorialSubmissions',currentEditingDoc.id);
+  await updateDoc(docRef,{
+    content: modalContent.value,
+    note: modalNotes.value,
+    updatedAt: serverTimestamp()
+  });
+  alert('Edits saved.');
+  modalBackdrop.style.display='none';
+});
+
+btnMarkReceived.addEventListener('click', async ()=>{
+  if(!currentEditingDoc) return;
+  await markReceived(currentEditingDoc.id,currentEditingDoc.data);
+  modalBackdrop.style.display='none';
+});
+
+btnApproveFromModal.addEventListener('click', async ()=>{
+  if(!currentEditingDoc) return;
+  await approveAndMove(currentEditingDoc.id,currentEditingDoc.data);
+  modalBackdrop.style.display='none';
+});
+
+btnRejectFromModal.addEventListener('click', async ()=>{
+  if(!currentEditingDoc) return;
+  await rejectSubmission(currentEditingDoc.id);
+  modalBackdrop.style.display='none';
+});
+
+// ---------- TIMELINE ----------
+function buildTimeline(data){
+  const events = [];
+  if(data.timestamp) events.push(`Submitted: ${data.timestamp.toDate?data.timestamp.toDate().toLocaleString():new Date(data.timestamp).toLocaleString()}`);
+  if(data.receivedAt) events.push(`Received: ${data.receivedAt.toDate?data.receivedAt.toDate().toLocaleString():new Date(data.receivedAt).toLocaleString()}`);
+  if(data.assignedAt) events.push(`Assigned to editor: ${data.assignedTo} at ${data.assignedAt.toDate?data.assignedAt.toDate().toLocaleString():new Date(data.assignedAt).toLocaleString()}`);
+  if(data.approvedAt) events.push(`Approved: ${data.approvedAt.toDate?data.approvedAt.toDate().toLocaleString():new Date(data.approvedAt).toLocaleString()}`);
+  if(data.rejectedAt) events.push(`Rejected: ${data.rejectedAt.toDate?data.rejectedAt.toDate().toLocaleString():new Date(data.rejectedAt).toLocaleString()}`);
+  modalTimeline.innerHTML = events.map(e=>`<div>${escapeHtml(e)}</div>`).join('');
+}
+
+// ---------- FIRESTORE OPERATIONS ----------
+async function markReceived(id,data){
+  const docRef = doc(db,'editorialSubmissions',id);
+  await updateDoc(docRef,{
+    status:'received',
+    receivedAt: serverTimestamp()
+  });
+  alert('Marked as received.');
+}
+
+async function approveAndMove(id,data){
+  const approvedData = {
+    ...data,
+    status:'approved',
+    approvedAt: serverTimestamp()
+  };
+  await setDoc(doc(db,'editedWorks',id),approvedData);
+  await deleteDoc(doc(db,'editorialSubmissions',id));
+  alert('Submission approved and moved to Edited Works.');
+}
+
+async function rejectSubmission(id){
+  const docRef = doc(db,'editorialSubmissions',id);
+  const snap = await getDoc(docRef);
+  if(!snap.exists()) return;
+  const data = snap.data();
+  await setDoc(doc(db,'rejectedSubmissions',id),{...data,rejectedAt:serverTimestamp()});
+  await deleteDoc(docRef);
+  alert('Submission rejected.');
+}
+
+// ---------- ASSIGN EDITOR ----------
+btnAssignEditor.addEventListener('click', async ()=>{
+  if(!currentEditingDoc) return;
+  const editorId = assignEditorSelect.value;
+  if(!editorId){ alert('Choose an editor.'); return; }
+  const docRef = doc(db,'editorialSubmissions',currentEditingDoc.id);
+  await updateDoc(docRef,{
+    assignedTo: editorId,
+    assignedBy: currentUser.uid,
+    assignedAt: serverTimestamp()
+  });
+  alert('Editor assigned.');
+  // Optionally notify editor via messages/{editorId}/inbox
+  modalBackdrop.style.display='none';
+});
+
+</script>
+</body>
+</html>

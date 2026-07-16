@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>All Poems Data</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #fafafa;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    table.poems-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    table.poems-table th,
+    table.poems-table td {
+      padding: 10px;
+      border: 1px solid #eee;
+      text-align: left;
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    .comment-box {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+
+    .comment-item {
+      padding: 6px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .delete-btn {
+      padding: 4px 8px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+  </style>
+
+  <script type="module">
+    import { 
+      initializeApp 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import { 
+      getFirestore, collection, getDocs, doc, getDoc, deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById("poems-table-body");
+
+    async function deletePoem(poemId) {
+      if (!confirm("Delete this poem?")) return;
+
+      await deleteDoc(doc(db, "recentPoems", poemId));
+      alert("Poem deleted");
+      loadPoems();
+    }
+
+    async function deleteComment(poemId, commentId) {
+      if (!confirm("Delete this comment?")) return;
+
+      await deleteDoc(doc(db, "recentPoems", poemId, "comments", commentId));
+      alert("Comment deleted");
+      loadPoems();
+    }
+
+    async function loadPoems() {
+      tableBody.innerHTML = "";
+
+      try {
+        const poemsCol = collection(db, "recentPoems");
+        const poemsSnap = await getDocs(poemsCol);
+
+        for (const poemDoc of poemsSnap.docs) {
+          const poem = poemDoc.data();
+          const poemId = poemDoc.id;
+
+          const commentsCol = collection(db, "recentPoems", poemId, "comments");
+          const commentsSnap = await getDocs(commentsCol);
+
+          let commentsHTML = "";
+
+          for (const cDoc of commentsSnap.docs) {
+            const cData = cDoc.data();
+            const commentId = cDoc.id;
+
+            // fetch username
+            let username = "Anonymous";
+            if (cData.userId) {
+              const userSnap = await getDoc(doc(db, "users", cData.userId));
+              if (userSnap.exists()) username = userSnap.data().username || "Anonymous";
+            }
+
+            commentsHTML += `
+              <div class="comment-item">
+                <strong>${username}</strong><br>
+                ${cData.text || ""}<br><br>
+                <button class="delete-btn" onclick="deleteComment('${poemId}','${commentId}')">Delete</button>
+              </div>
+            `;
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${poem.title || "Untitled"}</strong><br>
+              <button class="delete-btn" onclick="deletePoem('${poemId}')">Delete Poem</button>
+            </td>
+            <td>${poem.likes || 0}</td>
+            <td>${commentsSnap.size}</td>
+            <td>
+              <div class="comment-box">
+                ${commentsHTML || "No comments"}
+              </div>
+            </td>
+          `;
+
+          tableBody.appendChild(tr);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    window.deletePoem = deletePoem;
+    window.deleteComment = deleteComment;
+
+    window.addEventListener("DOMContentLoaded", loadPoems);
+  </script>
+
+  <link rel="icon" type="png" href="../images/logo.png" />
+
+</head>
+<body>
+
+  <div class="header">
+    <h1>All Poems Data</h1>
+    <input type="text" id="poems-search" placeholder="Search poems...">
+  </div>
+
+  <table class="poems-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Likes</th>
+        <th>Comments</th>
+        <th>Users & Comments</th>
+      </tr>
+    </thead>
+    <tbody id="poems-table-body"></tbody>
+  </table>
+
+</body>
+</html>

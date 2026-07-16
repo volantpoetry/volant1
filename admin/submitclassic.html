@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Submit Classic Poem | Volant Poetry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="../images/volant-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-favicon.png">
+ <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f7f5ff;
+      padding: 20px;
+    }
+    h1 {
+      color: #4b2aad;
+    }
+    form {
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #4b2aad;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover {
+      background: #6a42d1;
+    }
+    .success {
+      color: green;
+      margin-top: 15px;
+    }
+    .error {
+      color: red;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Submit a Classic Poem</h1>
+<form id="poemForm">
+  <label for="title">Poem Title</label>
+  <input type="text" id="title" placeholder="Enter poem title" required>
+
+  <label for="content">Poem Content</label>
+  <textarea id="content" rows="8" placeholder="Enter poem content" required></textarea>
+
+  <label for="author">Author Name</label>
+  <input type="text" id="author" placeholder="Enter author name" required>
+
+  <button type="submit">Submit Poem</button>
+
+  <div class="success" id="successMsg"></div>
+  <div class="error" id="errorMsg"></div>
+</form>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("poemForm");
+  const successMsg = document.getElementById("successMsg");
+  const errorMsg = document.getElementById("errorMsg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    successMsg.textContent = "";
+    errorMsg.textContent = "";
+
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+    const authorName = document.getElementById("author").value.trim();
+
+    if (!title || !content || !authorName) {
+      errorMsg.textContent = "All fields are required.";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "classicPoems"), {
+        title,
+        content,
+        authorName,
+        createdAt: new Date()
+      });
+      successMsg.textContent = "Poem submitted successfully!";
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      errorMsg.textContent = "Error submitting poem: " + err.message;
+    }
+  });
+</script>
+
+</body>
+</html>

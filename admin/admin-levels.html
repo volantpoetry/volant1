@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin - Dynamic Levels</title>
+<style>
+body { font-family: Arial, sans-serif; padding:20px; background:#f4f4f4; }
+input, button { padding:6px 10px; margin:4px; border-radius:4px; border:1px solid #ccc; }
+button { cursor:pointer; background:#5a3cb3; color:white; border:none; }
+button.delete { background:#c0392b; }
+ul { padding-left:20px; }
+.level-item { margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<h2>Create / Manage Levels</h2>
+
+<input type="number" id="levelNumberInput" placeholder="Level Number" min="1">
+<input type="text" id="levelNameInput" placeholder="Level Name">
+<input type="number" id="criteriaPoems" placeholder="Min Poems Submitted" min="0">
+<input type="number" id="criteriaLikes" placeholder="Min Likes Received" min="0">
+<input type="number" id="criteriaCommentsMade" placeholder="Min Comments Made" min="0">
+<input type="number" id="criteriaCommentsReceived" placeholder="Min Comments Received" min="0">
+<button id="createLevelBtn">Create Level</button>
+
+<h3>Existing Levels</h3>
+<ul id="levelsList"></ul>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const levelNumberInput = document.getElementById("levelNumberInput");
+const levelNameInput = document.getElementById("levelNameInput");
+const criteriaPoems = document.getElementById("criteriaPoems");
+const criteriaLikes = document.getElementById("criteriaLikes");
+const criteriaCommentsMade = document.getElementById("criteriaCommentsMade");
+const criteriaCommentsReceived = document.getElementById("criteriaCommentsReceived");
+const createLevelBtn = document.getElementById("createLevelBtn");
+const levelsList = document.getElementById("levelsList");
+
+let editingLevelId = null;
+
+// --- Create / Update Level ---
+createLevelBtn.addEventListener("click", async () => {
+  const levelNumber = parseInt(levelNumberInput.value);
+  const levelName = levelNameInput.value.trim();
+  if (!levelNumber || !levelName) return alert("Enter level number and name");
+
+  const criteria = {
+    poemsSubmitted: parseInt(criteriaPoems.value) || 0,
+    likesReceived: parseInt(criteriaLikes.value) || 0,
+    commentsMade: parseInt(criteriaCommentsMade.value) || 0,
+    commentsReceived: parseInt(criteriaCommentsReceived.value) || 0
+  };
+
+  try {
+    if (editingLevelId) {
+      // Update existing level
+      const levelRef = doc(db, "levels", editingLevelId);
+      await updateDoc(levelRef, { level: levelNumber, name: levelName, criteria });
+      alert("Level updated!");
+      editingLevelId = null;
+      createLevelBtn.textContent = "Create Level";
+    } else {
+      // Create new level
+      await addDoc(collection(db, "levels"), {
+        level: levelNumber,
+        name: levelName,
+        criteria,
+        active: true,
+        createdAt: new Date()
+      });
+      alert("Level created!");
+    }
+
+    // Clear form
+    levelNumberInput.value = "";
+    levelNameInput.value = "";
+    criteriaPoems.value = "";
+    criteriaLikes.value = "";
+    criteriaCommentsMade.value = "";
+    criteriaCommentsReceived.value = "";
+    loadLevels();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save level");
+  }
+});
+
+// --- Load Existing Levels ---
+async function loadLevels() {
+  const levelsSnap = await getDocs(collection(db, "levels"));
+  levelsList.innerHTML = '';
+  if (levelsSnap.empty) {
+    levelsList.innerHTML = "<li>No levels created yet</li>";
+    return;
+  }
+
+  levelsSnap.forEach(docSnap => {
+    const data = docSnap.data();
+    const criteria = data.criteria || {};
+    const li = document.createElement("li");
+    li.classList.add("level-item");
+    li.innerHTML = `
+      <strong>Level ${data.level}:</strong> ${data.name} - Criteria:
+      Poems: ${criteria.poemsSubmitted || 0}, Likes: ${criteria.likesReceived || 0},
+      Comments Made: ${criteria.commentsMade || 0}, Comments Received: ${criteria.commentsReceived || 0}
+      ${data.active ? "(Active)" : "(Inactive)"}
+      <button class="edit-btn">Edit</button>
+      <button class="delete-btn delete">Delete</button>
+    `;
+    levelsList.appendChild(li);
+
+    // Edit
+    li.querySelector(".edit-btn").addEventListener("click", () => {
+      editingLevelId = docSnap.id;
+      levelNumberInput.value = data.level;
+      levelNameInput.value = data.name;
+      criteriaPoems.value = criteria.poemsSubmitted || 0;
+      criteriaLikes.value = criteria.likesReceived || 0;
+      criteriaCommentsMade.value = criteria.commentsMade || 0;
+      criteriaCommentsReceived.value = criteria.commentsReceived || 0;
+      createLevelBtn.textContent = "Update Level";
+    });
+
+    // Delete
+    li.querySelector(".delete-btn").addEventListener("click", async () => {
+      if (!confirm("Delete this level?")) return;
+      try {
+        await deleteDoc(doc(db, "levels", docSnap.id));
+        alert("Level deleted!");
+        loadLevels();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete level");
+      }
+    });
+  });
+}
+
+// Initial load
+loadLevels();
+</script>
+</body>
+</html>

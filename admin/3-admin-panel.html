@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>3rd Admin Panel | Volant Poetry</title>
+<link rel="stylesheet" href="../admin/admin.css">
+<style>
+  /* Navbar */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #222;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1600;
+  }
+  .navbar .logo { font-weight: bold; font-size: 1.5rem; }
+  .navbar .menu-toggle {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+  }
+  .navbar .nav-links a { color: #fff; text-decoration: none; margin-left: 20px; }
+  .navbar .nav-links a.active { text-decoration: underline; }
+
+  /* Main layout */
+  .main-container { display: flex; margin-top: 60px; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: #333;
+    color: #fff;
+    padding: 20px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+  .sidebar h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #555; padding-bottom: 5px; }
+  .sidebar a { display: block; color: #fff; text-decoration: none; padding: 6px 0; transition: all 0.2s; }
+  .sidebar a:hover { background: #444; padding-left: 5px; }
+
+  /* Content */
+  .content {
+    flex: 1;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .column {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .column:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+  .column h4 { margin-top: 0; font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+  .column a {
+    display: block; text-decoration: none; color: #222; background: #f0f0f0;
+    margin-bottom: 10px; padding: 10px 15px; border-radius: 8px; transition: all 0.2s; font-weight: 500;
+  }
+  .column a:hover { background: #333; color: #fff; transform: translateX(5px); box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+
+  /* Left Sidebar toggle button */
+  #sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 10px;
+    z-index: 1700;
+    font-size: 2rem;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* Overlay for sidebar */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: rgba(0,0,0,0.3);
+    z-index: 1500;
+  }
+  .overlay.show { display: block; }
+
+  /* Responsive */
+  @media (max-width: 1024px) { .content { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) {
+    .content { grid-template-columns: 1fr; }
+
+    /* Left toggle visible */
+    #sidebar-toggle { display: block; }
+
+    /* Sidebar hidden by default on small screens */
+    .sidebar { 
+      position: fixed; top: 60px; left: 0; height: calc(100% - 60px); 
+      transform: translateX(-100%); z-index: 1600; 
+    }
+    .sidebar.show { transform: translateX(0); }
+
+    /* Navbar toggle visible */
+    .navbar .menu-toggle { display: block; }
+    .navbar .nav-links {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px; right: 0;
+      background: #222;
+      padding: 15px;
+      border-radius: 0 0 0 10px;
+    }
+    .navbar .nav-links.show { display: flex; }
+  }
+  
+</style>
+  <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">Volant Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="/admin">1st Admin Panel</a>
+    <a href="/" class="active">2rd Admin Panel</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<!-- Sidebar toggle for mobile -->
+<button id="sidebar-toggle">☰</button>
+<div id="overlay" class="overlay"></div>
+
+<div class="main-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>Menu</h3>
+    <a href="#">Overview</a>
+    <a href="#">Manage Posts</a>
+    <a href="#">Comments</a>
+    <a href="#">Analytics</a>
+    <a href="#">Reports</a>
+    <a href="#">System Settings</a>
+    <a href="#">Help</a>
+  </aside>
+
+  <!-- Content Columns -->
+  <div class="content">
+    <div class="column">
+      <h4>Column 1</h4>
+           <a href="/dashboard">General Dashboard</a>
+        <a href="/poemcount">Total No. of Poems</a>
+      <a href="/manage">Manage Poems</a>
+            <a href="/addcategories">Add PoemsCategories</a>
+        <a href="/manage-poems-cate">Remove Poems Categories</a>
+         <a href="/manage-categories">Manage Entire Categories</a>
+      <a href="/store/dashboard">No of Likes & Comments</a>
+      <a href="/Manage-Likes">Clear Likes</a>
+        <a href="/comment-manage">Clear Comments</a>
+         <a href="/assign-images">Assign Images</a>
+      <a href="/all-users">Users & Delete</a>
+           <a href="/administrators">Admins</a>
+               <a href="/admin-achievements">Achievements Edit</a>
+    </div>
+    <div class="column">
+      <h4>Column 2</h4>
+  <a href="/submitclassic">Submit Classic Poems</a>
+      <a href="/editClassicPoems">Edit Classic Poems</a>
+      <a href="/Select-Poem-of-the-Week">Select Poem of the Week</a>
+            <a href="/admin-achievements">Manage Achievemnts</a>
+      <a href="/admin-levels">Manage Poets Levels</a>
+    </div>
+    <div class="column">
+      <h4>Column 3</h4>
+        <a href="/poemdraft">Drafts</a>
+      <a href="../messages">Messages & Manage</a>
+       <a href="/admin-mailing">Subscribers</a>
+              <a href="/messages_from_users">Messages From Users</a>
+    </div>
+    <div class="column">
+      <h4>Column 4</h4>
+          <a href="../shared/universal-signup">Users Sign Up</a>
+   <a href="../shared/universal-login">Users Login</a>
+      <a href="/admin-signup">Admin Sign Up</a>
+      <a href="/admin-login">Admin Login</a>
+     <a href="../store/approvals">Admin Approve</a>
+   
+    </div>
+  </div>
+</div>
+
+  <script type="module" src="adminAuth.js"></script>
+<script>
+  // Navbar toggle
+  const navToggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  navToggle.addEventListener("click", () => navLinks.classList.toggle("show"));
+
+  // Sidebar toggle with overlay
+  const sidebarToggle = document.getElementById("sidebar-toggle");
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.getElementById("overlay");
+
+  sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+    overlay.classList.toggle("show");
+  });
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("show");
+    overlay.classList.remove("show");
+  });
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.firebasestorage.app",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543",
+  measurementId: "G-WSWDCB7KD8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Admin authentication check
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    if (adminDoc.exists()) {
+      // Admin logged in → show dashboard
+      document.getElementById("admin-dashboard").style.display = "block";
+    } else {
+      // Not an admin → redirect
+      window.location.href = "/admin-login";
+    }
+  } else {
+    // Not logged in → redirect
+    window.location.href = "/admin-login";
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Editorial Submission | Volant Poetry</title>
+ <!-- Styles & Icons -->
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../images/logo.png" />
+  <link rel="apple-touch-icon" href="../images/logo.png" />
+
+<style>
+  body { 
+    font-family: Inter, sans-serif; 
+    padding: 20px;
+    background: #fafafa;
+  }
+  h1 { text-align: center; margin-bottom: 20px; }
+  form {
+    background: white;
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  input, textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Submit Work for Editorial Review</h1>
+
+<form id="editorialForm">
+
+  <label>Title</label>
+  <input type="text" id="title" required>
+
+  <label>Your Writing</label>
+  <textarea id="content" rows="10" required></textarea>
+
+  <label>Optional Note to Editor</label>
+  <textarea id="note" rows="4" placeholder="Tell the editor what you want..."></textarea>
+
+  <button type="submit">Submit for Editing</button>
+
+</form>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, addDoc, collection, serverTimestamp, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ---------------- FIREBASE CONFIG ----------------
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+// Init
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUsername = "Anonymous";
+
+// ---------------- AUTH STATE ----------------
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please log in to submit your work for editing!");
+    window.location.href = `universal-login.html?platform=poetry&redirect=${encodeURIComponent(window.location.href)}`;
+    return;
+  }
+
+  try {
+    // Fetch username from Firestore
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (userDoc.exists()) {
+      currentUsername = userDoc.data().username || "Anonymous";
+    } else if (user.displayName) {
+      currentUsername = user.displayName;
+    } else {
+      currentUsername = user.email.split("@")[0];
+    }
+
+  } catch (err) {
+    console.error("Username fetch error:", err);
+  }
+});
+
+// ---------------- SUBMIT EDITORIAL REQUEST ----------------
+document.getElementById("editorialForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const note = document.getElementById("note").value.trim();
+
+  try {
+    await addDoc(collection(db, "editorialSubmissions"), {
+      userId: auth.currentUser.uid,
+      username: currentUsername,
+      submittedBy: currentUsername,
+      title,
+      content,
+      note: note || "",
+      timestamp: serverTimestamp(),
+      status: "pending"
+    });
+
+    alert("Your work has been submitted for editorial review!");
+    document.getElementById("editorialForm").reset();
+
+  } catch (err) {
+    alert("Error submitting: " + err.message);
+  }
+});
+</script>
+
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="../shared/universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="../shared/universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Verified Badges | Admin Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f6f5fc 0%, #f0eef9 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #1a1e2b;
+      margin-bottom: 10px;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+
+    .info {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+
+    button {
+      background: #4b2aad;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    button:hover {
+      background: #3a1f8a;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .log {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      display: none;
+    }
+
+    .log.show {
+      display: block;
+    }
+
+    .log-entry {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .log-entry.success {
+      color: #155724;
+    }
+
+    .log-entry.error {
+      color: #721c24;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4b2aad;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Update Verified Badges</h1>
+    <p>This tool will add <code>isVerified: true</code> to all users who have already verified their email.</p>
+
+    <div class="warning">
+      ⚠️ <strong>Warning:</strong> This should only be run once to update existing users.
+      <br>New users will automatically get the field when they verify.
+    </div>
+
+    <div class="info">
+      ℹ️ <strong>What this does:</strong><br>
+      - Scans all users in Firestore<br>
+      - Checks if they have <code>emailVerified: true</code><br>
+      - Adds <code>isVerified: true</code> to their profile<br>
+      - This enables the verified badge to appear
+    </div>
+
+    <div id="statusMessage" class="status"></div>
+    <div id="logContainer" class="log"></div>
+
+    <button id="updateBtn">🚀 Start Update</button>
+    <button id="checkBtn" style="background: #666;">🔍 Check Only (Preview)</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      updateDoc, 
+      doc,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let isAdmin = false;
+
+    function showStatus(message, type = 'info') {
+      const statusEl = document.getElementById('statusMessage');
+      statusEl.textContent = message;
+      statusEl.className = `status show ${type}`;
+    }
+
+    function addLog(message, type = 'info') {
+      const logContainer = document.getElementById('logContainer');
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry ${type}`;
+      logEntry.textContent = message;
+      logContainer.appendChild(logEntry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function clearLogs() {
+      const logContainer = document.getElementById('logContainer');
+      logContainer.innerHTML = '';
+    }
+
+    async function checkAndUpdateUsers(shouldUpdate = false) {
+      const updateBtn = document.getElementById('updateBtn');
+      const checkBtn = document.getElementById('checkBtn');
+      
+      updateBtn.disabled = true;
+      checkBtn.disabled = true;
+      
+      clearLogs();
+      document.getElementById('logContainer').classList.add('show');
+      
+      if (shouldUpdate) {
+        showStatus('🔄 Updating users... This may take a moment.', 'info');
+      } else {
+        showStatus('🔍 Scanning users... (Preview mode - no changes will be made)', 'info');
+      }
+      
+      try {
+        const usersRef = collection(db, "users");
+        const snapshot = await getDocs(usersRef);
+        
+        addLog(`📊 Found ${snapshot.size} total users in database`, 'info');
+        
+        let updatedCount = 0;
+        let alreadyVerifiedCount = 0;
+        let notVerifiedCount = 0;
+        let errorCount = 0;
+        
+        // Use batch for better performance if updating
+        let batch = null;
+        if (shouldUpdate) {
+          batch = writeBatch(db);
+        }
+        
+        for (const userDoc of snapshot.docs) {
+          const userData = userDoc.data();
+          const emailVerified = userData.emailVerified === true;
+          const hasIsVerified = userData.isVerified === true;
+          
+          if (emailVerified && !hasIsVerified) {
+            addLog(`✅ User: ${userData.username || userDoc.id} - Email verified, needs isVerified field`, 'success');
+            
+            if (shouldUpdate) {
+              try {
+                const userRef = doc(db, "users", userDoc.id);
+                batch.update(userRef, { isVerified: true });
+                updatedCount++;
+              } catch (err) {
+                addLog(`❌ Error updating ${userDoc.id}: ${err.message}`, 'error');
+                errorCount++;
+              }
+            } else {
+              updatedCount++;
+            }
+          } else if (emailVerified && hasIsVerified) {
+            addLog(`✓ User: ${userData.username || userDoc.id} - Already has isVerified: true`, 'info');
+            alreadyVerifiedCount++;
+          } else {
+            addLog(`○ User: ${userData.username || userDoc.id} - Email not verified yet`, 'info');
+            notVerifiedCount++;
+          }
+        }
+        
+        // Commit the batch if updating
+        if (shouldUpdate && batch) {
+          await batch.commit();
+          showStatus(`✅ Update complete! ${updatedCount} users updated, ${alreadyVerifiedCount} already had badge, ${notVerifiedCount} not verified`, 'success');
+        } else if (!shouldUpdate) {
+          showStatus(`🔍 Preview complete! Found ${updatedCount} users who need isVerified field added.`, 'info');
+        }
+        
+        addLog(`\n📈 SUMMARY:`, 'info');
+        addLog(`   • Users needing isVerified: ${updatedCount}`, updatedCount > 0 ? 'success' : 'info');
+        addLog(`   • Already have isVerified: ${alreadyVerifiedCount}`, 'info');
+        addLog(`   • Email not verified: ${notVerifiedCount}`, 'info');
+        if (errorCount > 0) {
+          addLog(`   • Errors: ${errorCount}`, 'error');
+        }
+        
+        if (shouldUpdate && updatedCount === 0) {
+          addLog(`✨ No updates needed! All verified users already have the isVerified field.`, 'success');
+        }
+        
+      } catch (err) {
+        console.error("Error:", err);
+        showStatus(`❌ Error: ${err.message}`, 'error');
+        addLog(`❌ Fatal error: ${err.message}`, 'error');
+      } finally {
+        updateBtn.disabled = false;
+        checkBtn.disabled = false;
+      }
+    }
+
+    // Check if user is logged in (basic protection)
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Optional: Check if user is admin (you can add admin check here)
+        isAdmin = true;
+        showStatus('✅ Logged in. Ready to run update.', 'success');
+        
+        // Auto-run preview on load
+        setTimeout(() => checkAndUpdateUsers(false), 500);
+      } else {
+        showStatus('⚠️ Please log in as admin to run this tool', 'error');
+      }
+    });
+
+    document.getElementById('updateBtn').addEventListener('click', async () => {
+      if (!isAdmin) {
+        showStatus('❌ Please log in first', 'error');
+        return;
+      }
+      
+      if (confirm('⚠️ WARNING: This will add isVerified: true to all users who have verified their email.\n\nAre you sure you want to proceed?')) {
+        await checkAndUpdateUsers(true);
+      }
+    });
+    
+    document.getElementById('checkBtn').addEventListener('click', async () => {
+      if (!isAdmin) {
+        showStatus('❌ Please log in first', 'error');
+        return;
+      }
+      await checkAndUpdateUsers(false);
+    });
+  </script>
+</body>
+</html>

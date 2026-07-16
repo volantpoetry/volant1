@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manage Poem Categories | Volant Poetry</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fafafa;
+  padding: 20px;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.poem-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.poem-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  margin: 3px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.remove-btn {
+  background: none;
+  border: none;
+  color: red;
+  margin-left: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.remove-btn:hover {
+  color: darkred;
+}
+</style>
+<link rel="icon" type="image/png" href="../images/logo.png" />
+</head>
+<body>
+
+<h2>Manage Poem Categories</h2>
+<div id="poems-container">Loading poems...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const container = document.getElementById("poems-container");
+
+// 🧠 Load all poems with categories
+async function loadPoems() {
+  container.innerHTML = "<p>Loading poems...</p>";
+
+  try {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    container.innerHTML = "";
+
+    if (snapshot.empty) {
+      container.innerHTML = "<p>No poems found.</p>";
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const poemDiv = document.createElement("div");
+      poemDiv.className = "poem-card";
+
+      poemDiv.innerHTML = `
+        <h3>${data.title || "(Untitled)"}</h3>
+        <div class="categories-list">
+          ${data.categories && data.categories.length
+            ? data.categories.map(cat => `
+              <span class="category-tag">${cat}
+                <button class="remove-btn" data-id="${docSnap.id}" data-cat="${cat}">❌</button>
+              </span>
+            `).join("")
+            : "<em>No categories</em>"
+          }
+        </div>
+      `;
+      container.appendChild(poemDiv);
+    });
+
+    // 🗑️ Handle remove clicks
+    container.querySelectorAll(".remove-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const poemId = btn.getAttribute("data-id");
+        const catToRemove = btn.getAttribute("data-cat");
+        if (!confirm(`Remove "${catToRemove}" from this poem?`)) return;
+
+        const poemRef = doc(db, "recentPoems", poemId);
+        const poemData = (await (await getDocs(collection(db, "recentPoems"))).docs.find(d => d.id === poemId))?.data();
+        if (!poemData) return;
+
+        const newCategories = (poemData.categories || []).filter(c => c !== catToRemove);
+        await updateDoc(poemRef, { categories: newCategories });
+        alert(`Category "${catToRemove}" removed.`);
+        loadPoems(); // reload UI
+      });
+    });
+
+  } catch (err) {
+    console.error("Error loading poems:", err);
+    container.innerHTML = "<p>Error loading poems.</p>";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadPoems);
+</script>
+
+</body>
+</html>

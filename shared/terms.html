@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Terms & Conditions | Volant Foundry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../images/volant-foundry-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-foundry-favicon.png">
+<style>
+  :root {
+    --primary: #4b2aad;
+    --primary-dark: #3a1f8a;
+    --primary-light: #6c3ddd;
+    --accent-gold: #b89b5e;
+    --accent-gold-dark: #9b7e48;
+    --bg-main: #f5f3ff;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-muted: #6b6b6b;
+    --border-light: #e8e4f0;
+    --border-gold: #d4c5a0;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+
+  .page-header {
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--border-gold);
+    padding: 2.5rem 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-header .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .page-header .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .page-header .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  /* Parent brand tag */
+  .parent-brand-tag {
+    background: linear-gradient(135deg, #2a1a4a, #4b2aad);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(75, 42, 173, 0.25);
+  }
+  .parent-brand-tag i { margin-right: 6px; color: #f5c542; }
+
+  .sub-platform-badge {
+    display: inline-block;
+    background: #f0ece6;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #4b2aad;
+    margin: 0 3px;
+    letter-spacing: 0.3px;
+  }
+  .sub-platform-badge i { margin-right: 4px; color: #b76e4b; }
+
+  .terms-container {
+    max-width: 920px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+  }
+
+  .terms-card {
+    background: var(--bg-card);
+    border-radius: 0;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+  }
+
+  .terms-content {
+    padding: 2.5rem 3rem;
+  }
+
+  .terms-intro {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .terms-intro strong {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .terms-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .terms-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .terms-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    letter-spacing: -0.2px;
+  }
+
+  .terms-section p {
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .terms-section ul {
+    margin: 0.75rem 0 0.5rem 0;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .terms-section li {
+    margin-bottom: 0.6rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .terms-section li::before {
+    content: "●";
+    color: var(--accent-gold);
+    font-size: 0.75rem;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .highlight {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .warning {
+    color: #b33a3a;
+    font-weight: 500;
+  }
+
+  .accent-text {
+    color: var(--accent-gold-dark);
+    font-weight: 500;
+  }
+
+  .closing-note {
+    background: #faf9fe;
+    border-left: 3px solid var(--accent-gold);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .closing-note p {
+    margin: 0;
+    font-style: normal;
+  }
+
+  .page-footer {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-light);
+    padding: 1.5rem;
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .page-footer p {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .page-footer a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      padding: 1.8rem 1rem 1.2rem;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+    }
+    .terms-content {
+      padding: 1.5rem;
+    }
+    .terms-section h2 {
+      font-size: 1.3rem;
+    }
+    .terms-section li {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 550px) {
+    .terms-container {
+      padding: 0 1rem;
+      margin: 1.5rem auto;
+    }
+    .terms-content {
+      padding: 1.25rem;
+    }
+    .page-header h1 {
+      font-size: 1.75rem;
+    }
+    .terms-section h2 {
+      font-size: 1.2rem;
+    }
+    .terms-section li {
+      font-size: 0.85rem;
+      padding-left: 1.25rem;
+    }
+  }
+
+  @media print {
+    .page-header,
+    .page-footer {
+      background: none;
+      border: none;
+    }
+    .terms-card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+    body {
+      background: white;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="text-align: center;">
+    <span class="parent-brand-tag"><i></i> Volant Foundry</span>
+  </div>
+  <h1>Terms & Conditions</h1>
+  <div class="breadcrumb">
+    <a href="/">Home</a> / <a href="/about">About</a> / Terms & Conditions
+  </div>
+</div>
+
+<div class="terms-container">
+  <div class="terms-card">
+    <div class="terms-content">
+      <div class="terms-intro">
+        Welcome to <strong>Volant Foundry</strong> — the parent platform behind 
+        <span class="sub-platform-badge"><i>📖</i> Volant Poetry</span> 
+        <span class="sub-platform-badge"><i>📚</i> Volant Reads</span> 
+        and all our creative platforms. By accessing or using any of our platforms, including submitting poems, publishing books, commenting, or engaging with the community — you agree to be bound by these Terms &amp; Conditions. Please read them carefully.
+      </div>
+
+      <div class="terms-section">
+        <h2>1. Account Registration & Responsibilities</h2>
+        <p>To participate fully in the Volant Foundry community across any platform, you must create an account with accurate and current information.</p>
+        <ul>
+          <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+          <li><span class="highlight">One account per person.</span> Duplicate accounts are prohibited and will result in immediate termination.</li>
+          <li>All activity conducted through your account is your responsibility.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>2. Poetry Submission Guidelines (Volant Poetry)</h2>
+        <p>Volant Poetry celebrates original human creativity. All submitted work must adhere to the following standards:</p>
+        <ul>
+          <li>All poems must be your <span class="highlight">original work</span>. Plagiarism is strictly forbidden.</li>
+          <li><span class="warning">AI generated content is not permitted.</span> We celebrate authentic human expression.</li>
+          <li>You retain full ownership of your poems. By submitting, you grant Volant Foundry a non-exclusive license to display your work on the platform.</li>
+          <li>You may publish your poems elsewhere on other websites, in print, or in anthologies.</li>
+          <li>Content that is harassing, defamatory, obscene, or otherwise harmful is prohibited and will be removed.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>3. Community Conduct</h2>
+        <ul>
+          <li>Treat all members with respect. Harassment, threats, hate speech, or personal attacks will not be tolerated.</li>
+          <li>Provide constructive feedback. Encourage fellow creators rather than diminishing their work.</li>
+          <li>Do not manipulate engagement metrics including likes, comments, or poem rankings through artificial means.</li>
+          <li>Report violations to the Volant Foundry team rather than engaging in conflict.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>4. Platform Use & Intellectual Property</h2>
+        <ul>
+          <li>The Volant Foundry name, logo, and design are our intellectual property. You may not copy or reproduce them without permission.</li>
+          <li>Automated scripts, bots, or any activity that disrupts platform performance is prohibited.</li>
+          <li>We reserve the right to remove any content that violates these terms, with or without notice.</li>
+          <li>Volant Foundry is not responsible for the content of user submitted poems, books, or comments.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>5. Volant Reads — Publishing & Sales</h2>
+        <p><strong>Volant Reads</strong> is a literary marketplace that empowers independent authors by providing a platform to sell their works while retaining ownership and receiving the majority of sales revenue. The following terms apply to all authors and readers using the Volant Reads platform:</p>
+        <ul>
+          <li><span class="highlight">Authors who publish through Volant Reads receive 90% of net revenue</span> from sales of their works. Net revenue is calculated after payment processing fees, taxes, refunds, and chargebacks.</li>
+          <li><span class="highlight">Payouts are issued monthly</span> to authors based on sales recorded during each monthly period.</li>
+          <li><span class="accent-text">Authors retain full ownership and copyright</span> of their works. Volant Reads is granted permission to display and sell the works.</li>
+          <li><span class="warning">Users may not redistribute purchased ebooks</span> — digital books are for personal use only.</li>
+          <li>Volant Reads may remove content that violates its policies, including but not limited to plagiarized, harmful, or prohibited material.</li>
+          <li>By using Volant Reads, users agree to these terms and acknowledge that continued use constitutes acceptance of any updates.</li>
+        </ul>
+        <p style="margin-top: 0.75rem; font-size: 0.95rem; color: var(--text-muted);">
+          <i style="color: var(--accent-gold-dark);">📌</i> 
+          <em>For more details on author commissions, pricing, and payments, please visit the <a href="/publish" style="color: var(--primary); text-decoration: underline;">Publish With Us</a> page.</em>
+        </p>
+      </div>
+
+      <div class="terms-section">
+        <h2>6. Violations & Enforcement</h2>
+        <ul>
+          <li>First time violations typically result in a warning and content removal.</li>
+          <li>Repeated violations, duplicate accounts, or severe offenses including harassment and plagiarism will lead to <span class="warning">immediate account termination</span> without prior notice.</li>
+          <li>Banned users may not create new accounts to circumvent enforcement.</li>
+          <li>We reserve the right to suspend access to any user at our discretion.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>7. Limitation of Liability</h2>
+        <p>Volant Foundry and its platforms are provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the platform, including but not limited to data loss, service interruptions, or disputes between users.</p>
+      </div>
+
+      <div class="terms-section">
+        <h2>8. Changes to These Terms</h2>
+        <p>We may update these Terms periodically to reflect changes in our practices or legal requirements. Continued use of Volant Foundry platforms after changes are posted constitutes acceptance of the revised Terms. Material changes will be announced via email or platform notification.</p>
+      </div>
+
+      <div class="closing-note">
+        <p>By participating in Volant Foundry and its platforms — Volant Poetry and Volant Reads — you help sustain a respectful, authentic, and inspiring space for poets, authors, and readers alike. Thank you for being part of our creative community.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <p>© 2026 Volant Foundry. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/contact">Contact</a></p>
+</footer>
+
+</body>
+</html>

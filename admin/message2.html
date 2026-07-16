@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex, nofollow">
+<title>Admin - Edited Work Conversations</title>
+ <!-- Styles & Icons -->
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../images/logo.png" />
+  <link rel="apple-touch-icon" href="../images/logo.png" />
+
+<style>
+body { font-family: Inter, sans-serif; background: #f7f7f7; padding: 20px; margin: 0; }
+h1 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+.card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);}
+.row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.author { font-weight: bold; font-size: 15px; }
+.time { font-size: 13px; color: #777; }
+.title { font-size: 16px; margin: 4px 0; font-weight: 600; }
+.content, .editor-notes { white-space: pre-line; font-size: 15px; line-height: 1.45; margin-top: 8px; }
+.editor-notes { background: #f2f2f2; padding: 8px; border-radius: 6px; font-style: italic; }
+
+.reply-form { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.reply-form textarea { width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; resize: vertical; }
+.reply-form button { align-self: flex-end; padding: 6px 12px; border-radius: 6px; background: #4b2aad; color: white; border: none; cursor: pointer; }
+
+.thread { margin-top: 10px; max-height: 300px; overflow-y: auto; display: flex; flex-direction: column-reverse; }
+.thread .reply { display: flex; flex-direction: column; margin-bottom: 6px; max-width: 70%; padding: 6px 10px; border-radius: 10px; }
+.thread .reply.user { background: #f2f2f2; align-self: flex-start; }
+.thread .reply.admin { background: #4b2aad; color: white; align-self: flex-end; }
+.thread .reply .from { font-weight: 600; margin-bottom: 2px; }
+.thread .reply .timestamp { font-size: 12px; color: #555; margin-left: 6px; }
+</style>
+</head>
+
+<body>
+
+<h1>Admin - Edited Work Conversations</h1>
+
+<div id="worksBox"><div class="card">Loading works...</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore(app);
+
+const worksBox = document.getElementById("worksBox");
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if(!user){
+    worksBox.innerHTML = `<div class="card">Please log in to see all works.</div>`;
+    return;
+  }
+  currentUser = user;
+  loadEditedWorks();
+});
+
+function loadEditedWorks(){
+  const q = query(collection(db,'editedWorks'), orderBy('approvedAt','desc'));
+  onSnapshot(q, snapshot=>{
+    worksBox.innerHTML = '';
+    if(snapshot.empty){
+      worksBox.innerHTML = `<div class="card">No edited works found.</div>`;
+      return;
+    }
+
+    snapshot.forEach(docItem=>{
+      const w = docItem.data();
+      const workId = docItem.id;
+      const time = w.approvedAt?.toDate?.().toLocaleString() || 'Unknown';
+      const author = w.username || w.submittedBy || 'Unknown';
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="row">
+          <div class="author">${escapeHtml(author)}</div>
+          <div class="time">${time}</div>
+        </div>
+        <div class="title">${escapeHtml(w.title || "Untitled")}</div>
+        <div class="content">${escapeHtml(w.content || "")}</div>
+        ${w.note ? `<div class="editor-notes">Editor Notes: ${escapeHtml(w.note)}</div>` : ""}
+        <div class="thread" id="thread-${workId}"><div class="reply">Loading conversation...</div></div>
+        <div class="reply-form">
+          <textarea placeholder="Write a reply..."></textarea>
+          <button>Send Reply</button>
+        </div>
+      `;
+      worksBox.appendChild(card);
+
+      const threadDiv = card.querySelector(`#thread-${workId}`);
+      const replyTextarea = card.querySelector('textarea');
+      const replyBtn = card.querySelector('button');
+
+      const threadQuery = query(collection(db, `editedWorks/${workId}/messages`), orderBy('timestamp','desc'));
+      onSnapshot(threadQuery, snap=>{
+        threadDiv.innerHTML = '';
+        if(snap.empty){
+          threadDiv.innerHTML = `<div class="reply">No replies yet.</div>`;
+          return;
+        }
+        snap.forEach(d=>{
+          const msg = d.data();
+          const sender = msg.fromName || 'Unknown';
+          const msgTime = msg.timestamp?.toDate?.().toLocaleString() || 'Unknown';
+          const isAdmin = msg.fromId === currentUser.uid; // admin messages on right
+          threadDiv.innerHTML += `
+            <div class="reply ${isAdmin ? 'admin' : 'user'}">
+              <div class="from">${escapeHtml(sender)}:</div>
+              <div>${escapeHtml(msg.message)}</div>
+              <div class="timestamp">${msgTime}</div>
+            </div>
+          `;
+        });
+      });
+
+      replyBtn.addEventListener('click', async ()=>{
+        const text = replyTextarea.value.trim();
+        if(!text) return alert('Enter a reply.');
+        await addDoc(collection(db, `editedWorks/${workId}/messages`), {
+          fromId: currentUser.uid,
+          fromName: currentUser.displayName || currentUser.email || 'Admin',
+          message: text,
+          timestamp: serverTimestamp()
+        });
+        replyTextarea.value = '';
+      });
+
+    });
+  });
+}
+
+function escapeHtml(str){
+  return String(str || "").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+
+</body>
+</html>

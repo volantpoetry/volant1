@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poetry Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .admin-header h1 {
+            font-size: 1.8rem;
+            color: #e94560;
+        }
+
+        .admin-header h1 i {
+            margin-right: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            background: #e94560;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: #533483;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e94560;
+        }
+
+        .controls-bar {
+            background: #16213e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            background: #0f3460;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .search-box input::placeholder {
+            color: #aaa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c7354f;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b02a37;
+        }
+
+        .btn-secondary {
+            background: #533483;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #3d2663;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #16213e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .bulk-actions-bar {
+            background: #0f3460;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .bulk-actions-bar.show {
+            display: flex;
+        }
+
+        .bulk-actions-bar span {
+            font-weight: bold;
+        }
+
+        .poems-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .poem-card {
+            background: #16213e;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid #0f3460;
+        }
+
+        .poem-card:hover {
+            border-color: #e94560;
+            transform: translateY(-2px);
+        }
+
+        .poem-card.selected {
+            border: 2px solid #e94560;
+            background: #1a2a4a;
+        }
+
+        .poem-header {
+            padding: 15px 20px;
+            background: #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .poem-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .poem-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: #aaa;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .poem-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #e94560;
+        }
+
+        .poem-content {
+            padding: 20px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .stats-inline {
+            display: flex;
+            gap: 20px;
+            padding: 10px 20px;
+            background: #0f1a2e;
+            font-size: 0.85rem;
+        }
+
+        .stats-inline span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .delete-stat-btn {
+            background: #dc3545;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        .delete-stat-btn:hover {
+            background: #b02a37;
+        }
+
+        .comments-section {
+            padding: 15px 20px;
+            background: #0f1a2e;
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .comments-header h4 {
+            color: #aaa;
+        }
+
+        .comments-list {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .comments-list.show {
+            display: block;
+        }
+
+        .comment-item {
+            background: #1a2a4a;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .comment-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #e94560;
+            font-size: 0.8rem;
+        }
+
+        .comment-time {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .delete-reply-btn {
+            background: #dc3545;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .delete-reply-btn:hover {
+            background: #b02a37;
+        }
+
+        .replies-list {
+            margin-left: 30px;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px solid #e94560;
+        }
+
+        .reply-item {
+            background: #0f3460;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #16213e;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: #0f3460;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        .comment-input-area {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #0f3460;
+        }
+
+        .comment-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            background: #0f3460;
+            color: white;
+        }
+
+        .comment-input-area button {
+            background: #e94560;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            background: #0f3460;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: #e94560;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #888;
+        }
+
+        .view-single-btn {
+            background: #533483;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        hr {
+            border-color: #0f3460;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>📜 Poetry Admin Dashboard</h1>
+            <div class="user-info">
+                <span id="admin-email">Loading...</span>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <h3>Total Poems</h3>
+                <div class="stat-number" id="total-poems">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Comments</h3>
+                <div class="stat-number" id="total-comments">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="selected-count">0</div>
+                <h3>Selected Poems</h3>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search poems by title or content...">
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="fetch-poems-btn">Fetch Poems</button>
+                <button class="btn btn-secondary" id="select-all-btn">Select All</button>
+                <button class="btn btn-secondary" id="clear-select-btn">Clear</button>
+            </div>
+        </div>
+
+        <div class="bulk-actions-bar" id="bulk-actions-bar">
+            <span>Bulk Actions:</span>
+            <button class="btn btn-warning" id="bulk-delete-replies-btn">Delete Selected Poems' Replies</button>
+            <button class="btn btn-info" id="bulk-delete-views-btn">Reset Views to 0</button>
+            <button class="btn btn-danger" id="bulk-delete-likes-btn">Reset Likes to 0</button>
+            <span style="font-size: 0.8rem; color: #ffc107;">These actions reset engagement metrics</span>
+        </div>
+
+        <div id="poems-container" class="poems-grid">
+            <div class="loading">Loading poems...</div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Single Poem View Modal -->
+    <div id="poem-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Poem Title</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="white-space: pre-wrap; line-height: 1.6;" id="modal-content"></div>
+                <div style="margin-top: 15px; color: #aaa; font-size: 0.8rem;" id="modal-meta"></div>
+            </div>
+            <div class="comment-input-area">
+                <input type="text" id="modal-comment-input" placeholder="Write a comment...">
+                <button id="modal-comment-btn">Post</button>
+            </div>
+            <div id="modal-comments-list" style="padding: 15px 20px;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, doc, updateDoc, deleteDoc,
+            query, orderBy, getDoc, addDoc, serverTimestamp, writeBatch
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+            authDomain: "silent-depth.firebaseapp.com",
+            projectId: "silent-depth",
+            storageBucket: "silent-depth.appspot.com",
+            messagingSenderId: "78008755450",
+            appId: "1:78008755450:web:3fd0f0f298a08820935543"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        let allPoems = [];
+        let filteredPoems = [];
+        let selectedPoems = new Set();
+        let currentPage = 1;
+        const POEMS_PER_PAGE = 10;
+        let currentModalPoem = null;
+
+        const poemsContainer = document.getElementById('poems-container');
+        const searchInput = document.getElementById('search-input');
+        const fetchBtn = document.getElementById('fetch-poems-btn');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const clearSelectBtn = document.getElementById('clear-select-btn');
+        const bulkActionsBar = document.getElementById('bulk-actions-bar');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const totalPoemsSpan = document.getElementById('total-poems');
+        const totalCommentsSpan = document.getElementById('total-comments');
+        const bulkDeleteRepliesBtn = document.getElementById('bulk-delete-replies-btn');
+        const bulkDeleteViewsBtn = document.getElementById('bulk-delete-views-btn');
+        const bulkDeleteLikesBtn = document.getElementById('bulk-delete-likes-btn');
+        const paginationDiv = document.getElementById('pagination');
+        const adminEmailSpan = document.getElementById('admin-email');
+
+        const modal = document.getElementById('poem-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalMeta = document.getElementById('modal-meta');
+        const modalCommentInput = document.getElementById('modal-comment-input');
+        const modalCommentBtn = document.getElementById('modal-comment-btn');
+        const modalCommentsList = document.getElementById('modal-comments-list');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function fetchPoems() {
+            poemsContainer.innerHTML = '<div class="loading">Fetching poems...</div>';
+            try {
+                const poemsRef = collection(db, "recentPoems");
+                const snapshot = await getDocs(poemsRef);
+                allPoems = [];
+                for (const docSnap of snapshot.docs) {
+                    const data = docSnap.data();
+                    allPoems.push({
+                        id: docSnap.id,
+                        title: data.title || "Untitled",
+                        content: data.content || "",
+                        author: data.author || data.authorName || "Anonymous",
+                        views: data.views || 0,
+                        likes: data.likes || 0,
+                        createdAt: data.timestamp?.toDate?.() || new Date(),
+                        userId: data.userId || data.authorId || null
+                    });
+                }
+                allPoems.sort((a, b) => b.createdAt - a.createdAt);
+                applyFilter();
+                updateStats();
+                showToast(`Loaded ${allPoems.length} poems`);
+            } catch (err) {
+                console.error("Error fetching poems:", err);
+                poemsContainer.innerHTML = '<div class="empty-state">Failed to load poems. Check console.</div>';
+                showToast("Error fetching poems", true);
+            }
+        }
+
+        function applyFilter() {
+            const searchTerm = searchInput.value.toLowerCase();
+            if (!searchTerm) {
+                filteredPoems = [...allPoems];
+            } else {
+                filteredPoems = allPoems.filter(p => 
+                    p.title.toLowerCase().includes(searchTerm) || 
+                    p.content.toLowerCase().includes(searchTerm)
+                );
+            }
+            currentPage = 1;
+            renderPoems();
+            updatePagination();
+        }
+
+        async function updateTotalCommentsCount() {
+            let total = 0;
+            for (const poem of allPoems) {
+                try {
+                    const commentsSnap = await getDocs(collection(db, "recentPoems", poem.id, "comments"));
+                    total += commentsSnap.size;
+                } catch(e) {}
+            }
+            totalCommentsSpan.textContent = total;
+        }
+
+        function updateStats() {
+            totalPoemsSpan.textContent = allPoems.length;
+            selectedCountSpan.textContent = selectedPoems.size;
+            if (selectedPoems.size > 0) {
+                bulkActionsBar.classList.add('show');
+            } else {
+                bulkActionsBar.classList.remove('show');
+            }
+            updateTotalCommentsCount();
+        }
+
+        async function deleteViewsForPoem(poemId, currentViews) {
+            if (!confirm(`Reset views from ${currentViews} to 0 for this poem?`)) return false;
+            try {
+                const poemRef = doc(db, "recentPoems", poemId);
+                await updateDoc(poemRef, { views: 0 });
+                const poem = allPoems.find(p => p.id === poemId);
+                if (poem) poem.views = 0;
+                showToast(`Views reset to 0`);
+                renderPoems();
+                return true;
+            } catch (err) {
+                showToast("Failed to reset views", true);
+                return false;
+            }
+        }
+
+        async function deleteLikesForPoem(poemId, currentLikes) {
+            if (!confirm(`Reset likes from ${currentLikes} to 0 for this poem?`)) return false;
+            try {
+                const poemRef = doc(db, "recentPoems", poemId);
+                await updateDoc(poemRef, { likes: 0, likedBy: [] });
+                const poem = allPoems.find(p => p.id === poemId);
+                if (poem) poem.likes = 0;
+                showToast(`Likes reset to 0`);
+                renderPoems();
+                return true;
+            } catch (err) {
+                showToast("Failed to reset likes", true);
+                return false;
+            }
+        }
+
+        async function bulkDeleteViews() {
+            if (selectedPoems.size === 0) {
+                showToast("No poems selected", true);
+                return;
+            }
+            if (!confirm(`Reset VIEWS to 0 for ${selectedPoems.size} selected poem(s)?`)) return;
+            
+            let successCount = 0;
+            for (const poemId of selectedPoems) {
+                try {
+                    const poemRef = doc(db, "recentPoems", poemId);
+                    await updateDoc(poemRef, { views: 0 });
+                    const poem = allPoems.find(p => p.id === poemId);
+                    if (poem) poem.views = 0;
+                    successCount++;
+                } catch (err) {
+                    console.error(`Error resetting views for ${poemId}:`, err);
+                }
+            }
+            showToast(`Reset views for ${successCount} poems`);
+            renderPoems();
+            updateStats();
+        }
+
+        async function bulkDeleteLikes() {
+            if (selectedPoems.size === 0) {
+                showToast("No poems selected", true);
+                return;
+            }
+            if (!confirm(`Reset LIKES to 0 for ${selectedPoems.size} selected poem(s)?`)) return;
+            
+            let successCount = 0;
+            for (const poemId of selectedPoems) {
+                try {
+                    const poemRef = doc(db, "recentPoems", poemId);
+                    await updateDoc(poemRef, { likes: 0, likedBy: [] });
+                    const poem = allPoems.find(p => p.id === poemId);
+                    if (poem) poem.likes = 0;
+                    successCount++;
+                } catch (err) {
+                    console.error(`Error resetting likes for ${poemId}:`, err);
+                }
+            }
+            showToast(`Reset likes for ${successCount} poems`);
+            renderPoems();
+            updateStats();
+        }
+
+        async function deleteComment(poemId, commentId) {
+            if (!confirm("Delete this comment and all its replies?")) return;
+            try {
+                const repliesRef = collection(db, "recentPoems", poemId, "comments", commentId, "replies");
+                const repliesSnap = await getDocs(repliesRef);
+                const batch = writeBatch(db);
+                repliesSnap.forEach(replyDoc => batch.delete(replyDoc.ref));
+                const commentRef = doc(db, "recentPoems", poemId, "comments", commentId);
+                batch.delete(commentRef);
+                await batch.commit();
+                
+                showToast("Comment deleted successfully");
+                await loadCommentsForPoem(poemId);
+                updateTotalCommentsCount();
+            } catch (err) {
+                console.error("Error deleting comment:", err);
+                showToast("Failed to delete comment", true);
+            }
+        }
+
+        async function deleteReply(poemId, commentId, replyId) {
+            if (!confirm("Delete this reply?")) return;
+            try {
+                const replyRef = doc(db, "recentPoems", poemId, "comments", commentId, "replies", replyId);
+                await deleteDoc(replyRef);
+                showToast("Reply deleted");
+                await loadRepliesForComment(poemId, commentId);
+                updateTotalCommentsCount();
+            } catch (err) {
+                console.error("Error deleting reply:", err);
+                showToast("Failed to delete reply", true);
+            }
+        }
+
+        async function bulkDeleteReplies() {
+            if (selectedPoems.size === 0) {
+                showToast("No poems selected", true);
+                return;
+            }
+            if (!confirm(`Delete ALL replies from ${selectedPoems.size} selected poem(s)? This cannot be undone.`)) return;
+            
+            let deletedCount = 0;
+            for (const poemId of selectedPoems) {
+                try {
+                    const commentsSnap = await getDocs(collection(db, "recentPoems", poemId, "comments"));
+                    for (const commentDoc of commentsSnap.docs) {
+                        const repliesSnap = await getDocs(collection(db, "recentPoems", poemId, "comments", commentDoc.id, "replies"));
+                        const batch = writeBatch(db);
+                        repliesSnap.forEach(replyDoc => batch.delete(replyDoc.ref));
+                        if (!repliesSnap.empty) await batch.commit();
+                        deletedCount += repliesSnap.size;
+                    }
+                } catch (err) {
+                    console.error(`Error deleting replies for poem ${poemId}:`, err);
+                }
+            }
+            showToast(`Deleted ${deletedCount} replies from ${selectedPoems.size} poems`);
+            for (const poemId of selectedPoems) {
+                await loadCommentsForPoem(poemId);
+            }
+            updateTotalCommentsCount();
+        }
+
+        async function loadCommentsForPoem(poemId) {
+            const commentsListDiv = document.getElementById(`comments-list-${poemId}`);
+            if (!commentsListDiv) return;
+            
+            try {
+                const commentsRef = collection(db, "recentPoems", poemId, "comments");
+                const commentsSnap = await getDocs(query(commentsRef, orderBy("timestamp", "desc")));
+                const commentCountSpan = document.getElementById(`comment-count-${poemId}`);
+                if (commentCountSpan) commentCountSpan.textContent = commentsSnap.size;
+                
+                if (commentsSnap.empty) {
+                    commentsListDiv.innerHTML = '<div style="padding: 10px; color: #888;">No comments yet.</div>';
+                    return;
+                }
+                
+                let html = '';
+                for (const commentDoc of commentsSnap.docs) {
+                    const comment = commentDoc.data();
+                    const commentId = commentDoc.id;
+                    const username = comment.username || "Anonymous";
+                    const commentText = comment.text || "";
+                    const timestamp = comment.timestamp?.toDate?.() || new Date();
+                    
+                    html += `
+                        <div class="comment-item" data-comment-id="${commentId}">
+                            <div style="flex:1">
+                                <div class="comment-author">${escapeHtml(username)}</div>
+                                <div class="comment-text">${escapeHtml(commentText)}</div>
+                                <div class="comment-time">${timestamp.toLocaleString()}</div>
+                                <div class="replies-list" id="replies-${poemId}-${commentId}"></div>
+                            </div>
+                            <button class="delete-reply-btn delete-comment-btn" data-poem-id="${poemId}" data-comment-id="${commentId}">Delete Comment</button>
+                        </div>
+                    `;
+                }
+                commentsListDiv.innerHTML = html;
+                
+                for (const commentDoc of commentsSnap.docs) {
+                    const commentId = commentDoc.id;
+                    await loadRepliesForComment(poemId, commentId);
+                    
+                    const deleteCommentBtn = commentsListDiv.querySelector(`.delete-comment-btn[data-comment-id="${commentId}"]`);
+                    if (deleteCommentBtn) {
+                        deleteCommentBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            await deleteComment(poemId, commentId);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading comments:", err);
+                commentsListDiv.innerHTML = '<div style="padding: 10px; color: red;">Error loading comments</div>';
+            }
+        }
+
+        async function loadRepliesForComment(poemId, commentId) {
+            const repliesContainer = document.getElementById(`replies-${poemId}-${commentId}`);
+            if (!repliesContainer) return;
+            
+            try {
+                const repliesRef = collection(db, "recentPoems", poemId, "comments", commentId, "replies");
+                const repliesSnap = await getDocs(query(repliesRef, orderBy("timestamp", "asc")));
+                
+                if (repliesSnap.empty) {
+                    repliesContainer.innerHTML = '';
+                    return;
+                }
+                
+                let repliesHtml = '<strong style="font-size: 0.75rem; color: #aaa;">Replies:</strong>';
+                for (const replyDoc of repliesSnap.docs) {
+                    const reply = replyDoc.data();
+                    const replyUsername = reply.username || "Anonymous";
+                    const replyText = reply.text || "";
+                    const replyTimestamp = reply.timestamp?.toDate?.() || new Date();
+                    const replyId = replyDoc.id;
+                    
+                    repliesHtml += `
+                        <div class="reply-item">
+                            <div style="flex:1">
+                                <span style="font-weight: bold; color: #e94560; font-size: 0.8rem;">${escapeHtml(replyUsername)}:</span>
+                                <span style="font-size: 0.85rem;">${escapeHtml(replyText)}</span>
+                                <div style="font-size: 0.7rem; color: #888;">${replyTimestamp.toLocaleString()}</div>
+                            </div>
+                            <button class="delete-reply-btn delete-reply-item" data-poem-id="${poemId}" data-comment-id="${commentId}" data-reply-id="${replyId}">Delete</button>
+                        </div>
+                    `;
+                }
+                repliesContainer.innerHTML = repliesHtml;
+                
+                repliesContainer.querySelectorAll('.delete-reply-item').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        await deleteReply(btn.dataset.poemId, btn.dataset.commentId, btn.dataset.replyId);
+                    });
+                });
+            } catch (err) {
+                console.error("Error loading replies:", err);
+            }
+        }
+
+        function renderPoems() {
+            const start = (currentPage - 1) * POEMS_PER_PAGE;
+            const pagePoems = filteredPoems.slice(start, start + POEMS_PER_PAGE);
+            
+            if (pagePoems.length === 0) {
+                poemsContainer.innerHTML = '<div class="empty-state">No poems found</div>';
+                return;
+            }
+
+            poemsContainer.innerHTML = '';
+            for (const poem of pagePoems) {
+                const card = document.createElement('div');
+                card.className = `poem-card ${selectedPoems.has(poem.id) ? 'selected' : ''}`;
+                card.dataset.id = poem.id;
+                
+                const previewContent = poem.content.length > 300 ? poem.content.substring(0, 300) + '...' : poem.content;
+                const dateStr = poem.createdAt.toLocaleDateString();
+                
+                card.innerHTML = `
+                    <div class="poem-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" class="poem-checkbox" data-id="${poem.id}" ${selectedPoems.has(poem.id) ? 'checked' : ''}>
+                            <span class="poem-title">${escapeHtml(poem.title)}</span>
+                        </div>
+                        <div class="poem-meta">
+                            <span>By ${escapeHtml(poem.author)}</span>
+                            <span>${dateStr}</span>
+                            <button class="view-single-btn" data-id="${poem.id}">View Full</button>
+                        </div>
+                    </div>
+                    <div class="poem-content">${escapeHtml(previewContent)}</div>
+                    <div class="stats-inline">
+                        <span>Views: ${poem.views} <button class="delete-stat-btn delete-views-btn" data-id="${poem.id}" data-views="${poem.views}">Reset</button></span>
+                        <span>Likes: ${poem.likes} <button class="delete-stat-btn delete-likes-btn" data-id="${poem.id}" data-likes="${poem.likes}">Reset</button></span>
+                    </div>
+                    <div class="comments-section" data-id="${poem.id}">
+                        <div class="comments-header">
+                            <h4>Comments <span id="comment-count-${poem.id}">0</span></h4>
+                            <span style="color: #e94560;">▼</span>
+                        </div>
+                        <div class="comments-list" id="comments-list-${poem.id}">
+                            <div class="loading" style="padding: 10px;">Loading comments...</div>
+                        </div>
+                    </div>
+                `;
+                
+                poemsContainer.appendChild(card);
+                
+                loadCommentsForPoem(poem.id);
+                
+                const checkbox = card.querySelector('.poem-checkbox');
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) selectedPoems.add(poem.id);
+                    else selectedPoems.delete(poem.id);
+                    updateStats();
+                    renderPoems();
+                });
+                
+                const viewBtn = card.querySelector('.view-single-btn');
+                viewBtn.addEventListener('click', () => openPoemModal(poem.id));
+                
+                const deleteViewsBtn = card.querySelector('.delete-views-btn');
+                deleteViewsBtn.addEventListener('click', async () => {
+                    await deleteViewsForPoem(poem.id, poem.views);
+                });
+                
+                const deleteLikesBtn = card.querySelector('.delete-likes-btn');
+                deleteLikesBtn.addEventListener('click', async () => {
+                    await deleteLikesForPoem(poem.id, poem.likes);
+                });
+                
+                const commentsHeader = card.querySelector('.comments-header');
+                commentsHeader.addEventListener('click', () => {
+                    const list = card.querySelector('.comments-list');
+                    list.classList.toggle('show');
+                });
+            }
+        }
+
+        async function openPoemModal(poemId) {
+            const poem = allPoems.find(p => p.id === poemId);
+            if (!poem) return;
+            currentModalPoem = poem;
+            modalTitle.textContent = poem.title;
+            modalContent.textContent = poem.content;
+            modalMeta.innerHTML = `By ${escapeHtml(poem.author)} | Views: ${poem.views} | Likes: ${poem.likes}`;
+            modal.classList.add('show');
+            await loadModalComments(poemId);
+        }
+
+        async function loadModalComments(poemId) {
+            modalCommentsList.innerHTML = '<div style="color:#888;">Loading comments...</div>';
+            try {
+                const commentsSnap = await getDocs(query(collection(db, "recentPoems", poemId, "comments"), orderBy("timestamp", "desc")));
+                if (commentsSnap.empty) {
+                    modalCommentsList.innerHTML = '<div style="color:#888; text-align:center;">No comments yet.</div>';
+                    return;
+                }
+                let html = '';
+                for (const commentDoc of commentsSnap.docs) {
+                    const comment = commentDoc.data();
+                    const username = comment.username || "Anonymous";
+                    const commentText = comment.text || "";
+                    const timestamp = comment.timestamp?.toDate?.() || new Date();
+                    html += `
+                        <div style="background:#0f3460; padding:10px; border-radius:10px; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong style="color:#e94560;">${escapeHtml(username)}</strong>
+                                <small>${timestamp.toLocaleString()}</small>
+                            </div>
+                            <div>${escapeHtml(commentText)}</div>
+                        </div>
+                    `;
+                }
+                modalCommentsList.innerHTML = html;
+            } catch (err) {
+                modalCommentsList.innerHTML = '<div style="color:red;">Error loading comments</div>';
+            }
+        }
+
+        async function postModalComment() {
+            if (!currentModalPoem) return;
+            const commentText = modalCommentInput.value.trim();
+            if (!commentText) {
+                showToast("Please enter a comment", true);
+                return;
+            }
+            const user = auth.currentUser;
+            if (!user) {
+                showToast("Please login to comment", true);
+                return;
+            }
+            try {
+                await addDoc(collection(db, "recentPoems", currentModalPoem.id, "comments"), {
+                    text: commentText,
+                    userId: user.uid,
+                    username: user.email?.split('@')[0] || "Admin",
+                    timestamp: serverTimestamp()
+                });
+                modalCommentInput.value = "";
+                showToast("Comment added");
+                await loadModalComments(currentModalPoem.id);
+                await loadCommentsForPoem(currentModalPoem.id);
+                updateTotalCommentsCount();
+            } catch (err) {
+                showToast("Failed to post comment", true);
+            }
+        }
+
+        function selectAll() {
+            filteredPoems.forEach(p => selectedPoems.add(p.id));
+            updateStats();
+            renderPoems();
+        }
+        
+        function clearSelect() {
+            selectedPoems.clear();
+            updateStats();
+            renderPoems();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredPoems.length / POEMS_PER_PAGE);
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+            paginationDiv.innerHTML = html;
+            paginationDiv.querySelectorAll('.page-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentPage = parseInt(btn.dataset.page);
+                    renderPoems();
+                    updatePagination();
+                });
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                adminEmailSpan.textContent = user.email || "Admin";
+                fetchPoems();
+            } else {
+                adminEmailSpan.textContent = "Not logged in";
+                window.location.href = "/../shared/users-login";
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = "/../shared/users-login";
+        });
+
+        searchInput.addEventListener('input', applyFilter);
+        fetchBtn.addEventListener('click', fetchPoems);
+        selectAllBtn.addEventListener('click', selectAll);
+        clearSelectBtn.addEventListener('click', clearSelect);
+        bulkDeleteRepliesBtn.addEventListener('click', bulkDeleteReplies);
+        bulkDeleteViewsBtn.addEventListener('click', bulkDeleteViews);
+        bulkDeleteLikesBtn.addEventListener('click', bulkDeleteLikes);
+        closeModalBtn.addEventListener('click', () => modal.classList.remove('show'));
+        modalCommentBtn.addEventListener('click', postModalComment);
+        modalCommentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') postModalComment();
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+    </script>
+</body>
+</html>

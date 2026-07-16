@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex, nofollow">
+<title>Edited Works | Volant Poetry</title>
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="../images/volant-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-favicon.png">
+<style>
+  body {
+    font-family: Inter, sans-serif;
+    background:#fafafa;
+    margin:0;
+    padding:20px;
+  }
+  h1 { text-align:center; margin-bottom:20px; }
+
+  .card {
+    background:white;
+    padding:15px;
+    margin-bottom:12px;
+    border-radius:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  .row-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
+  }
+
+  .small { color:#555; font-size:14px; }
+
+  .btn {
+    padding:8px 12px;
+    background:black;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+  }
+
+  .btn-disabled {
+    background:#aaa !important;
+    cursor:not-allowed;
+  }
+
+  /* Modal */
+  .modal-bg {
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+  }
+  .modal {
+    background:white;
+    max-width:700px;
+    width:92%;
+    max-height:80vh;
+    overflow:auto;
+    padding:20px;
+    border-radius:10px;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>Edited Works</h1>
+
+<div id="works"></div>
+
+<!-- Modal -->
+<div id="modalBg" class="modal-bg">
+  <div class="modal">
+    <h2 id="modalTitle"></h2>
+    <p class="small" id="modalMeta"></p>
+    <div style="margin-top:10px; white-space:pre-line;" id="modalContent"></div>
+
+    <!-- NEW Send Back Button -->
+    <button id="sendBackBtn" class="btn" style="margin-top:20px; background:#0070ff;">
+      Send Back
+    </button>
+
+    <button class="btn" id="closeModal" style="margin-top:20px; background:#333;">Close</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const worksEl = document.getElementById("works");
+
+// ---------- MODAL ----------
+const modalBg = document.getElementById("modalBg");
+const closeModal = document.getElementById("closeModal");
+const sendBackBtn = document.getElementById("sendBackBtn");
+
+const modalTitle = document.getElementById("modalTitle");
+const modalMeta = document.getElementById("modalMeta");
+const modalContent = document.getElementById("modalContent");
+
+let currentWorkId = null;
+let currentUserId = null;
+
+// Close modal
+closeModal.onclick = () => modalBg.style.display = "none";
+modalBg.onclick = (e) => { if (e.target === modalBg) modalBg.style.display = "none"; };
+
+// ---------- LISTEN TO editedWorks ----------
+const qWorks = query(collection(db, "editedWorks"), orderBy("approvedAt", "desc"));
+
+onSnapshot(qWorks, snapshot => {
+  worksEl.innerHTML = "";
+
+  if (snapshot.empty) {
+    worksEl.innerHTML = `<div class="card">No edited works yet.</div>`;
+    return;
+  }
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    const id = docSnap.id;
+
+    const approvedTime = data.approvedAt?.toDate?.() 
+        ? data.approvedAt.toDate().toLocaleString()
+        : "-";
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="row-header">
+        <strong>${escapeHtml(data.title || "Untitled")}</strong>
+        <button class="btn" data-view="${id}">View</button>
+      </div>
+      <div class="small">
+        Submitted by <b>${escapeHtml(data.username || "Unknown")}</b><br>
+        Edited by <b>${escapeHtml(data.approvedByName || "Editor")}</b><br>
+        Approved at: ${approvedTime}
+      </div>
+    `;
+
+    // Open modal
+    card.querySelector("[data-view]").onclick = () => {
+      modalTitle.textContent = data.title || "Untitled";
+      modalMeta.textContent = `
+        By ${data.username || "Unknown"} 
+        • Edited by ${data.approvedByName || "Editor"} 
+        • ${approvedTime}
+      `;
+      modalContent.textContent = data.content || "";
+      modalBg.style.display = "flex";
+
+      currentWorkId = id;
+      currentUserId = data.userId;
+
+      // If already sent → disable button
+      if (data.sentBack) {
+        sendBackBtn.textContent = "Sent";
+        sendBackBtn.classList.add("btn-disabled");
+        sendBackBtn.disabled = true;
+      } else {
+        sendBackBtn.textContent = "Send Back";
+        sendBackBtn.classList.remove("btn-disabled");
+        sendBackBtn.disabled = false;
+      }
+    };
+
+    worksEl.appendChild(card);
+  });
+});
+
+// ---------- SEND BACK TO USER ----------
+sendBackBtn.onclick = async () => {
+  if (!currentWorkId || !currentUserId) return;
+
+  await addDoc(collection(db, `messages/${currentUserId}/msgs`), {
+    from: "Volant Editors",
+    title: "Your Edited Work",
+    message: `Your work "${modalTitle.textContent}" has been returned.`,
+    timestamp: serverTimestamp(),
+    type: "edited-return"
+  });
+
+  // Update editedWorks → mark it as sent
+  await updateDoc(doc(db, "editedWorks", currentWorkId), {
+    sentBack: true,
+    sentBackAt: serverTimestamp()
+  });
+
+  // Update button UI
+  sendBackBtn.textContent = "Sent";
+  sendBackBtn.classList.add("btn-disabled");
+  sendBackBtn.disabled = true;
+
+  alert("Message sent to user.");
+};
+
+// ---------- UTIL ----------
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+</script>
+</body>
+</html>

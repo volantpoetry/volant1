@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin List (Secure)</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; background: #f9f9f9; }
+    h2 { text-align: center; }
+    table { width: 100%; max-width: 800px; margin: 20px auto; border-collapse: collapse; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #2a7ae2; color: #fff; }
+    tr:hover { background: #f1f1f1; }
+    button.action-btn { margin-right: 5px; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; }
+    .promote-btn { background: #5cb85c; color: #fff; }
+    .promote-btn:hover { background: #4cae4c; }
+    .remove-btn { background: #d9534f; color: #fff; }
+    .remove-btn:hover { background: #c9302c; }
+    .logout-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: none;
+      background: #d9534f;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .logout-btn:hover { background: #c9302c; }
+  </style>
+  <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+
+  <h2>All Admins</h2>
+  <table id="admins-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="logout-btn" id="logout">Logout</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getAuth, onAuthStateChanged, signOut 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { 
+      getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.firebasestorage.app",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543",
+      measurementId: "G-WSWDCB7KD8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const tableBody = document.querySelector("#admins-table tbody");
+    const logoutBtn = document.getElementById("logout");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "/admin-login";
+        return;
+      }
+
+      const adminRef = doc(db, "admins", user.uid);
+      const adminSnap = await getDoc(adminRef);
+
+      if (!adminSnap.exists()) {
+        alert("Access denied. Not an admin.");
+        await signOut(auth);
+        window.location.href = "/admin-login";
+        return;
+      }
+
+      const currentUserRole = adminSnap.data().role || "admin";
+
+      // Fetch all admins
+      const querySnapshot = await getDocs(collection(db, "admins"));
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const tr = document.createElement("tr");
+
+        const createdAt = data.createdAt?.toDate 
+          ? data.createdAt.toDate().toLocaleString() 
+          : "N/A";
+
+        // Actions buttons only for super-admin
+        let actions = "";
+        if (currentUserRole === "super-admin") {
+          actions = `
+            <button class="action-btn promote-btn">Make Super-Admin</button>
+            <button class="action-btn remove-btn">Remove</button>
+          `;
+        }
+
+        tr.innerHTML = `
+          <td>${data.username || "N/A"}</td>
+          <td>${data.email || "N/A"}</td>
+          <td>${data.role || "admin"}</td>
+          <td>${createdAt}</td>
+          <td>${actions}</td>
+        `;
+
+        tableBody.appendChild(tr);
+
+        // Add event listeners for actions
+        if (currentUserRole === "super-admin") {
+          const promoteBtn = tr.querySelector(".promote-btn");
+          const removeBtn = tr.querySelector(".remove-btn");
+
+          promoteBtn?.addEventListener("click", async () => {
+            if (confirm(`Promote ${data.username} to super-admin?`)) {
+              await updateDoc(doc(db, "admins", docSnap.id), { role: "super-admin" });
+              alert(`${data.username} is now a super-admin.`);
+              location.reload();
+            }
+          });
+
+          removeBtn?.addEventListener("click", async () => {
+            if (confirm(`Remove ${data.username} from admins?`)) {
+              await deleteDoc(doc(db, "admins", docSnap.id));
+              alert(`${data.username} has been removed.`);
+              tr.remove();
+            }
+          });
+        }
+      });
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "/admin-login";
+    });
+  </script>
+
+</body>
+</html>

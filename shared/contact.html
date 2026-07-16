@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Contact | Volant Foundry</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../shared/contact.css">
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="../images/volant-foundry-favicon.png">
+  <link rel="apple-touch-icon" href="../images/volant-foundry-favicon.png">
+  <link rel="author" href="https://volantpoetry.github.io/about.html">
+  <style>
+    /* Username styles */
+    .username-display, .username-sm {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, #5a3cb3, #a67c52);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.3px;
+      font-style: normal;
+      transition: all 0.3s ease;
+    }
+    .username-display:hover, .username-sm:hover {
+      background: linear-gradient(90deg, #6a45d1, #c49b63);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logout-btn {
+      display: none;
+      margin-top: 5px;
+      padding: 6px 12px;
+      background: #ff4b4b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .username-display { display: inline-block; }
+    .username-sm { display: none; }
+    #logoutBtn { display: none; }
+
+    @media (max-width: 768px) {
+      .username-display { display: none; }
+      .username-sm { display: inline-block; margin-right: 8px; }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      #username-display-sm {
+        display: inline-block;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #4b2aad;
+        cursor: pointer;
+        margin-right: 0;
+      }
+      #logout-btn {
+        display: none;
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 6px 12px;
+        background: #ff4b4b;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+      }
+      #logout-btn:hover { background: #e03b3b; }
+    }
+
+    /* --- CONTACT PAGE --- */
+    .contact-box {
+      max-width: 750px;
+      margin: 80px auto;
+      padding: 40px 50px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+    .contact-box h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #4b2aad;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .contact-box p {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .contact-box .direct-email {
+      text-align: center;
+      margin-top: 2rem;
+      font-weight: 500;
+    }
+    .contact-box .direct-email a {
+      color: #4b2aad;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    .contact-box .direct-email a:hover {
+      color: #6a45d1;
+      text-decoration: underline;
+    }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .contact-form label {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1.5px solid #ddd;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: #4b2aad;
+      box-shadow: 0 0 6px rgba(75, 42, 173, 0.2);
+      outline: none;
+    }
+    .contact-form button {
+      margin-top: 10px;
+      padding: 12px 18px;
+      background: linear-gradient(90deg, #4b2aad, #7c5ce3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+    .contact-form button:hover {
+      background: linear-gradient(90deg, #6a45d1, #9d7bf2);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .contact-box {
+        padding: 25px 20px;
+        margin: 40px 15px;
+      }
+      .contact-box h2 { font-size: 1.7rem; }
+      .contact-box p { font-size: 0.95rem; }
+    }
+    @media (max-width: 600px) {
+      .nav-logo-img { width: 30px; }
+      .logo-text { font-size: 1rem; }
+      .logo { margin-left: 10px; }
+    }
+
+    /* Sub-platform badge */
+    .sub-platform-badge {
+      display: inline-block;
+      background: #f0ece6;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4b2aad;
+      margin: 0 4px;
+      letter-spacing: 0.3px;
+    }
+    .sub-platform-badge i { margin-right: 4px; color: #b76e4b; }
+    .sub-platforms-note {
+      background: #f8f6ff;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 15px 0 5px;
+      border: 1px solid #ede7df;
+      text-align: center;
+    }
+    .sub-platforms-note p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #444;
+    }
+    .sub-platforms-note strong { color: #4b2aad; }
+  </style>
+</head>
+<body>
+<!-- Navbar -->
+<header>
+  <nav>
+    <div class="logo">
+      <img src="../images/logo.png" alt="Volant Foundry Logo" class="nav-logo-img">
+      <span class="logo-text">
+        <span class="logo-highlight">Volant</span> Foundry
+      </span>
+    </div>
+    <div class="search-container"></div>
+    <div class="nav-links" id="nav-links">
+      <span class="close-btn" id="close-btn">✕</span>
+      <a href="/">Home</a>
+      <a href="../poems">Poems</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact Us</a>
+      <a href="../user-profile">My Profile</a>
+    </div>
+    <div class="nav-right">
+      <div class="menu-toggle" id="menu-toggle">☰</div>
+    </div>
+  </nav>
+</header>
+
+<main class="intro-section">
+  <section class="contact-box">
+    <h2>Contact Us</h2>
+
+    <div class="sub-platforms-note">
+      <p>
+        <i>📌</i> <strong>For all platforms:</strong> Volant Poetry, Volant Reads, and future platforms 
+        all use this same contact form. Your message will reach the central team, and we'll route it 
+        to the appropriate platform.
+      </p>
+    </div>
+
+    <p>
+      Have ideas, feedback, or a desire to collaborate? The Volant Foundry community values your voice. 
+      Whether you're a writer, reader, or creative partner, we'd love to hear from you.
+    </p>
+    
+    <p>
+      Reach us through the form below or send a direct email — every message is appreciated and will be replied to as soon as possible.
+    </p>
+
+    <form class="contact-form" id="contactForm">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="email">Your Email</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="subject">Subject <span style="font-weight:400; color:#777;">(e.g., Volant Poetry, Volant Reads, General)</span></label>
+      <input type="text" id="subject" name="subject" placeholder="Which platform is this for?" />
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="6" required></textarea>
+
+      <button type="submit">Send Message</button>
+    </form>
+
+    <p id="submit-msg" style="color: green; margin-top: 10px;"></p>
+
+    <p class="direct-email">Or email us directly at:  
+      <a id="contact-email" href="mailto:reach.volant@gmail.com">reach.volant@gmail.com</a>
+    </p>
+
+    <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; font-size: 0.85rem; color: #888;">
+      <i>This contact form serves all platforms of Volant Foundry.</i>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <a href="../admin/admin" style="opacity:0; position:absolute; width:50px; height:5px; cursor:text;">Admin</a>
+    &copy; 2026 Volant Foundry. All Rights Reserved.
+  </div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("menu-toggle");
+  const closeBtn = document.getElementById("close-btn");
+  const navLinks = document.getElementById("nav-links");
+
+  if (toggle && navLinks) {
+    toggle.addEventListener("click", () => {
+      navLinks.classList.add("show");
+    });
+  }
+  if (closeBtn && navLinks) {
+    closeBtn.addEventListener("click", () => {
+      navLinks.classList.remove("show");
+    });
+  }
+  if (navLinks) {
+    const links = navLinks.querySelectorAll("a");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("show");
+      });
+    });
+  }
+});
+</script>
+
+<script type="module" src="../shared/contact.js"></script>
+</body>
+</html>

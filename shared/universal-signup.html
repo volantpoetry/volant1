@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Create Account · Volant</title>
+  <!-- Google Font & Font Awesome -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="../images/volant-foundry-favicon.png">
+<link rel="apple-touch-icon" href="../images/volant-foundry-favicon.png">
+
+  <style>
+    /* ----- reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f6f4fc 0%, #edebf5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+    }
+
+    /* ----- card container (glassmorphism) ----- */
+    .container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 40px;
+      padding: 2.5rem 2.2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 
+        0 30px 60px -20px rgba(0,0,0,0.25),
+        0 8px 24px rgba(0,0,0,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.2s ease;
+    }
+
+    /* ----- platform badge ----- */
+    .platform-badge {
+      display: inline-block;
+      padding: 0.45rem 1.2rem;
+      border-radius: 60px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      background: #4b2aad;
+      color: white;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 4px 8px rgba(75, 42, 173, 0.15);
+    }
+    .platform-badge.poetry { background: linear-gradient(135deg, #4b2aad, #7a4fdb); }
+    .platform-badge.reads { background: linear-gradient(135deg, #d4a574, #c9944d); }
+    .platform-badge.foundry { background: linear-gradient(135deg, #2c3e50, #4a627a); }
+
+    /* ----- breadcrumb / back ----- */
+    .back-link {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      color: #4b2aad;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+      transition: 0.15s;
+    }
+    .back-link i { font-size: 0.8rem; }
+    .back-link:hover { color: #2f1b6b; text-decoration: underline; }
+
+    .breadcrumb {
+      display: none;
+      font-size: 0.8rem;
+      color: #8a8a9a;
+      margin-bottom: 1.2rem;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb a {
+      color: #4b2aad;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* ----- typography ----- */
+    h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #1d1a2b;
+      margin: 0.2rem 0 0.2rem;
+    }
+    .subtitle {
+      color: #6b677a;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      font-weight: 400;
+      border-left: 3px solid #4b2aad;
+      padding-left: 0.8rem;
+      background: rgba(75, 42, 173, 0.02);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* ----- form elements ----- */
+    form label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2b263b;
+      margin: 1.4rem 0 0.35rem;
+      letter-spacing: 0.2px;
+    }
+    label:first-of-type { margin-top: 0; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1.5px solid #e4e0ed;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(4px);
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+      color: #1d1a2b;
+      outline: none;
+    }
+    input:focus {
+      border-color: #4b2aad;
+      box-shadow: 0 0 0 4px rgba(75, 42, 173, 0.08);
+      background: white;
+    }
+    input::placeholder {
+      color: #b2adc4;
+      font-weight: 400;
+    }
+
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .password-eye {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.1rem;
+      user-select: none;
+      color: #9a94af;
+      padding: 4px 6px;
+      border-radius: 30px;
+      transition: 0.15s;
+      line-height: 1;
+    }
+    .password-eye:hover { background: rgba(75, 42, 173, 0.06); color: #4b2aad; }
+    .password-eye.showing { color: #4b2aad; background: rgba(75, 42, 173, 0.08); }
+
+    /* password strength */
+    .password-strength {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 40px;
+      display: none;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .password-strength.show { display: inline-block; }
+    .password-strength.weak { background: #fdeded; color: #b33c3c; }
+    .password-strength.medium { background: #fff4e5; color: #b45b1a; }
+    .password-strength.strong { background: #eaf6ed; color: #1f6b44; }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: #9a94af;
+      margin-top: 0.3rem;
+      padding-left: 0.3rem;
+      letter-spacing: 0.1px;
+    }
+
+    /* ----- button & status ----- */
+    .btn-primary {
+      width: 100%;
+      padding: 0.95rem;
+      margin-top: 1.8rem;
+      border: none;
+      border-radius: 40px;
+      background: #4b2aad;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 8px 18px rgba(75, 42, 173, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #3a1f85;
+      transform: scale(1.01);
+      box-shadow: 0 10px 24px rgba(75, 42, 173, 0.25);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 1.2rem;
+      padding: 0.8rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: none;
+      font-weight: 500;
+      background: #f5f3fa;
+      border: 1px solid transparent;
+    }
+    .status.show { display: block; }
+    .status.success {
+      background: #eaf6ed;
+      color: #1f6b44;
+      border-color: #b7dfc9;
+    }
+    .status.error {
+      background: #fdeded;
+      color: #b33c3c;
+      border-color: #f5d0d0;
+    }
+    .status.info {
+      background: #e8edfd;
+      color: #2a4a9e;
+      border-color: #c8d4f5;
+    }
+
+    /* ----- account & footer ----- */
+    .account-check {
+      background: rgba(245, 242, 252, 0.5);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1rem;
+      border-radius: 30px;
+      margin-top: 1.8rem;
+      text-align: center;
+      font-size: 0.9rem;
+      border: 1px solid rgba(75, 42, 173, 0.04);
+    }
+    .account-check a {
+      color: #4b2aad;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1.5px dotted transparent;
+      transition: 0.1s;
+    }
+    .account-check a:hover { border-bottom-color: #4b2aad; }
+
+    .links {
+      text-align: center;
+      margin-top: 1.2rem;
+    }
+    .links small {
+      color: #b2adc4;
+      font-size: 0.7rem;
+      letter-spacing: 0.2px;
+      line-height: 1.5;
+      display: block;
+    }
+
+    /* spinner */
+    .loading-spinner { display: none; }
+    .spinner {
+      border: 2.5px solid rgba(255,255,255,0.2);
+      border-top: 2.5px solid white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* responsive */
+    @media (max-width: 500px) {
+      .container { padding: 1.8rem 1.4rem; border-radius: 28px; }
+      h2 { font-size: 1.6rem; }
+      .platform-badge { font-size: 0.65rem; padding: 0.3rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- back link (hidden until redirect present) -->
+  <a href="#" id="backLink" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+
+  <!-- dynamic platform badge -->
+  <div class="platform-badge" id="platformBadge">Volant Platform</div>
+
+  <!-- breadcrumb (hidden until redirect) -->
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="#" id="breadcrumbHome">Home</a>
+    <span>›</span>
+    <span>Create Account</span>
+  </div>
+
+  <h2>Create account</h2>
+  <p class="subtitle">Join us and start creating</p>
+
+  <form id="signup-form" class="auth-form">
+    <label for="signup-username">Username</label>
+    <input type="text" id="signup-username" placeholder="Choose a unique name (max 11)" 
+           required maxlength="11" autocomplete="username">
+    <div class="field-hint">Your public identifier on the platform</div>
+
+    <label for="signup-email">Email address</label>
+    <input type="email" id="signup-email" placeholder="you@example.com" 
+           required autocomplete="email">
+    <div class="field-hint">We'll send a verification link</div>
+
+    <label for="signup-password">Password</label>
+    <div class="password-wrapper">
+      <input type="password" id="signup-password" placeholder="Create a strong password" 
+             required autocomplete="new-password">
+      <span id="toggle-password" class="password-eye"><i class="far fa-eye"></i></span>
+    </div>
+    <div class="password-strength" id="passwordStrength"></div>
+    <div class="field-hint">8+ characters with letters &amp; numbers recommended</div>
+
+    <button type="submit" class="btn-primary" id="signup-button">
+      <span class="loading-spinner" id="spinner"><span class="spinner"></span></span>
+      <span id="buttonText">Create Account</span>
+    </button>
+  </form>
+
+  <div id="signup-status" class="status"></div>
+
+  <div class="account-check">
+    <span>Already have an account? </span>
+    <a href="#" id="goToLogin">Sign in</a>
+  </div>
+
+  <div class="links">
+    <small>By creating an account, you agree to our Terms of Service and Privacy Policy</small>
+  </div>
+</div>
+
+<script type="module">
+  // ----- Firebase imports (unchanged) -----
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Firebase Config (unchanged)
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.firebasestorage.app",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543",
+    measurementId: "G-WSWDCB7KD8"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ----- PLATFORM DETECTION (unchanged) -----
+  const urlParams = new URLSearchParams(window.location.search);
+  const platform = urlParams.get('platform') || 'poetry';
+  const redirectUrl = urlParams.get('redirect');
+
+  const platformConfig = {
+    poetry: { name: 'Volant Poetry', badge: 'poetry', homeUrl: '../index.html', color: '#4b2aad' },
+    reads: { name: 'Volant Reads', badge: 'reads', homeUrl: '../store/index.html', color: '#d4a574' },
+    foundry: { name: 'Volant Foundry', badge: 'foundry', homeUrl: '../volant_foundry/volant_foundry/index.html', color: '#2c3e50' }
+  };
+  const currentPlatform = platformConfig[platform] || platformConfig.poetry;
+
+  // update UI
+  document.getElementById('platformBadge').textContent = currentPlatform.name;
+  document.getElementById('platformBadge').classList.add(currentPlatform.badge);
+
+  const backLink = document.getElementById('backLink');
+  const breadcrumbHome = document.getElementById('breadcrumbHome');
+  if (redirectUrl) {
+    backLink.href = redirectUrl;
+    backLink.style.display = 'inline-flex';
+    breadcrumbHome.href = redirectUrl;
+    document.getElementById('breadcrumb').style.display = 'flex';
+  }
+
+  // ----- DOM refs -----
+  const signupForm = document.getElementById('signup-form');
+  const signupButton = document.getElementById('signup-button');
+  const statusEl = document.getElementById('signup-status');
+  const passwordInput = document.getElementById('signup-password');
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordStrength = document.getElementById('passwordStrength');
+  const goToLogin = document.getElementById('goToLogin');
+  const spinner = document.getElementById('spinner');
+  const buttonText = document.getElementById('buttonText');
+  const usernameInput = document.getElementById('signup-username');
+  const emailInput = document.getElementById('signup-email');
+
+  // ----- password strength (polished) -----
+  passwordInput.addEventListener('input', () => {
+    const pwd = passwordInput.value;
+    let strength = 'weak';
+    let message = 'Weak password';
+
+    if (pwd.length >= 8) {
+      if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) {
+        strength = 'strong';
+        message = '✅ Strong password';
+      } else if (/[a-z]/.test(pwd) && /[0-9]/.test(pwd)) {
+        strength = 'medium';
+        message = '⚠️ Medium strength';
+      } else if (pwd.length >= 10) {
+        strength = 'medium';
+        message = '⚠️ Medium strength';
+      }
+    }
+    if (pwd.length > 0) {
+      passwordStrength.textContent = message;
+      passwordStrength.className = `password-strength show ${strength}`;
+    } else {
+      passwordStrength.classList.remove('show');
+    }
+  });
+
+  // ----- password toggle (polished) -----
+  togglePassword.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePassword.classList.toggle("showing", isPassword);
+    togglePassword.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
+  });
+
+  // ----- navigation (UPDATED: point to files within shared folder) -----
+  goToLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    params.append('platform', platform);
+    if (redirectUrl) params.append('redirect', redirectUrl);
+    window.location.href = `universal-login.html?${params.toString()}`;
+  });
+
+  // ----- status helper -----
+  function showStatus(message, type = 'error') {
+    statusEl.textContent = message;
+    statusEl.className = `status show ${type}`;
+  }
+
+  // ----- SIGNUP (original logic intact) -----
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const username = usernameInput.value.trim() || 'Anonymous';
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    signupButton.disabled = true;
+    spinner.style.display = 'inline';
+    buttonText.textContent = 'Creating account…';
+
+    try {
+      // Check username
+      const q = query(collection(db, 'users'), where('username', '==', username));
+      const querySnap = await getDocs(q);
+      if (!querySnap.empty) {
+        showStatus('❌ Username already taken');
+        signupButton.disabled = false;
+        spinner.style.display = 'none';
+        buttonText.textContent = 'Create Account';
+        return;
+      }
+
+      // Check email
+      const emailQuery = query(collection(db, 'users'), where('email', '==', email));
+      const emailSnap = await getDocs(emailQuery);
+      if (!emailSnap.empty) {
+        showStatus('❌ Email already registered');
+        signupButton.disabled = false;
+        spinner.style.display = 'none';
+        buttonText.textContent = 'Create Account';
+        return;
+      }
+
+      // Create user
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+
+      // Send verification
+      await sendEmailVerification(user);
+
+      // Create user document
+      await setDoc(doc(db, 'users', user.uid), {
+        username: username,
+        email: email,
+        createdAt: serverTimestamp(),
+        platform: platform,
+        emailVerified: false
+      });
+
+      showStatus('✅ Account created! Verification email sent. Redirecting…', 'success');
+
+      if (redirectUrl) {
+        localStorage.setItem('redirectAfterLogin', redirectUrl);
+      }
+
+      const verifyParams = new URLSearchParams();
+      verifyParams.append('email', email);
+      verifyParams.append('platform', platform);
+      if (redirectUrl) verifyParams.append('redirect', redirectUrl);
+
+      await signOut(auth);
+
+      setTimeout(() => {
+        window.location.href = `verify-email.html?${verifyParams.toString()}`;
+      }, 2000);
+
+    } catch (err) {
+      console.error('Signup error:', err);
+      let errorMsg = '❌ ' + err.message;
+      if (err.code === 'auth/email-already-in-use') errorMsg = '❌ Email already registered';
+      else if (err.code === 'auth/weak-password') errorMsg = '❌ Password should be at least 6 characters';
+      else if (err.code === 'auth/invalid-email') errorMsg = '❌ Invalid email address';
+      showStatus(errorMsg);
+      signupButton.disabled = false;
+      spinner.style.display = 'none';
+      buttonText.textContent = 'Create Account';
+    }
+  });
+</script>
+</body>
+</html>

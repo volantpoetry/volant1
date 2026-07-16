@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About | Volant Foundry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../shared/about.css" />
+  <link rel="icon" type="image/png" href="../images/volant-foundry-favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Volant Foundry is a creative technology platform building digital spaces for writers, readers, and creators. Home of Volant Poetry and Volant Reads.">
+  <meta name="keywords" content="Volant Foundry, Volant Poetry, Volant Reads, literary marketplace, poetry community, creative platform">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="About | Volant Foundry">
+  <meta property="og:description" content="Volant Foundry is a creative technology platform behind Volant Poetry and Volant Reads. Discover our literary ecosystem.">
+  <meta property="og:image" content="https://volantpoetry.vercel.app/images/volant-og.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://volantpoetry.vercel.app/about.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About | Volant Foundry">
+  <meta name="twitter:description" content="Volant Foundry is a creative technology platform behind Volant Poetry, Volant Reads, and more.">
+  <meta name="twitter:image" content="https://volantpoetry.vercel.app/images/volant-og.jpg">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://volantpoetry.vercel.app/about.html">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Volant Foundry",
+    "url": "https://volantpoetry.vercel.app",
+    "logo": "https://volantpoetry.vercel.app/images/volant-favicon.png",
+    "description": "Volant Foundry is a creative technology platform building digital spaces for writers, readers, and creators.",
+    "founder": {
+      "@type": "Person",
+      "name": "Rence Blunt"
+    },
+    "sameAs": [
+      "https://instagram.com/volantpoetry",
+      "https://twitter.com/volantpoetry"
+    ]
+  }
+  </script>
+
+  <style>
+    /* Mobile nav toggle */
+    #nav-links { display: none; }
+    #nav-links.show { display: flex; flex-direction: column; }
+    
+    @media (max-width: 600px) {
+      .logo img {
+        height: 28px !important;
+      }
+      .logo {
+        font-size: 16px !important;
+      }
+    }
+
+    /* Quick Nav Links */
+    .quick-nav-links {
+      max-width: 1000px;
+      margin: 20px auto 0;
+      padding: 0 20px;
+    }
+    .quick-nav-links .nav-container {
+      background: #f5f3ff;
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 20px;
+      border: 1px solid #ede7df;
+    }
+    .quick-nav-links a {
+      color: #4b2aad;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.3s ease;
+      white-space: nowrap;
+    }
+    .quick-nav-links a:hover {
+      color: #6a45d1;
+      text-decoration: underline;
+    }
+    .quick-nav-links .divider {
+      color: #ccc;
+    }
+    
+    @media (max-width: 480px) {
+      .quick-nav-links .nav-container {
+        padding: 10px 12px;
+        gap: 6px 10px;
+        flex-wrap: wrap;
+      }
+      .quick-nav-links a {
+        font-size: 0.75rem !important;
+        padding: 3px 8px;
+        background: rgba(75,42,173,0.06);
+        border-radius: 20px;
+      }
+      .quick-nav-links .divider {
+        display: none;
+      }
+      .quick-nav-links a i {
+        margin-right: 3px;
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .quick-nav-links a {
+        font-size: 0.65rem !important;
+        padding: 2px 6px;
+      }
+    }
+
+    /* Ranking Sections Styling */
+    .ranking-info-section {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .ranking-info-section h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #4b2aad;
+      margin-bottom: 40px;
+    }
+
+    .ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .ranking-card {
+      background: linear-gradient(145deg, #fdfcfb, #f7f5ff);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .ranking-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+
+    .ranking-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #4b2aad;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0d6b0;
+      padding-bottom: 10px;
+    }
+
+    .formula-box {
+      background: rgba(75, 42, 173, 0.08);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      font-family: monospace;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .rule-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .rule-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rule-list li:last-child {
+      border-bottom: none;
+    }
+
+    .rule-icon {
+      font-size: 1.2rem;
+      min-width: 40px;
+    }
+
+    .rule-text {
+      flex: 1;
+    }
+
+    .rule-weight {
+      font-weight: bold;
+      color: #4b2aad;
+      background: #e8e0f0;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .example-box {
+      background: #fff8e7;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      border-left: 4px solid #ff9800;
+    }
+
+    .badge-preview {
+      display: inline-block;
+      background: #ff9800;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      margin-left: 8px;
+    }
+
+    /* ===== VOLANT READS SECTION ===== */
+    .volant-reads-section {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .volant-reads-section h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #4b2aad;
+      margin-bottom: 30px;
+    }
+
+    .volant-reads-section h2 i {
+      color: #b76e4b;
+      margin-right: 10px;
+    }
+
+    .volant-reads-box {
+      background: linear-gradient(135deg, #fdfcfb, #f7f5ff);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ede7df;
+    }
+
+    .volant-reads-box .description {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #ede7df;
+    }
+
+    .volant-reads-box .description p {
+      color: #333;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin: 8px 0;
+    }
+
+    .volant-reads-box .description strong {
+      color: #4b2aad;
+    }
+
+    .volant-reads-box .description .highlight {
+      color: #b76e4b;
+      font-weight: 600;
+    }
+
+    .volant-reads-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin: 20px 0;
+    }
+
+    .volant-reads-col {
+      background: #faf8f5;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #ede7df;
+    }
+
+    .volant-reads-col h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #4b2aad;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .volant-reads-col h3 i {
+      color: #b76e4b;
+    }
+
+    .volant-reads-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .volant-reads-col ul li {
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      color: #333;
+      border-bottom: 1px solid #f0ece6;
+    }
+
+    .volant-reads-col ul li:last-child {
+      border-bottom: none;
+    }
+
+    .volant-reads-col ul li i {
+      color: #b76e4b;
+      width: 20px;
+      font-size: 0.8rem;
+    }
+
+    .volant-reads-col .badge {
+      display: inline-block;
+      background: #4b2aad;
+      color: white;
+      padding: 1px 10px;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .volant-reads-col .badge.orange {
+      background: #b76e4b;
+    }
+
+    .volant-reads-col .badge.green {
+      background: #2d7d46;
+    }
+
+    .volant-reads-col .badge.gold {
+      background: #f5a623;
+    }
+
+    .volant-reads-cta {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #ede7df;
+    }
+
+    .volant-reads-cta .btn {
+      display: inline-block;
+      background: #4b2aad;
+      color: white;
+      padding: 10px 35px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 0 8px;
+      box-shadow: 0 4px 15px rgba(75, 42, 173, 0.3);
+    }
+
+    .volant-reads-cta .btn:hover {
+      background: #3a1f8a;
+      transform: translateY(-3px);
+    }
+
+    .volant-reads-cta .btn.orange {
+      background: #b76e4b;
+      box-shadow: 0 4px 15px rgba(183, 110, 75, 0.3);
+    }
+
+    .volant-reads-cta .btn.orange:hover {
+      background: #9f5e3f;
+    }
+
+    .volant-reads-cta .btn i {
+      margin-right: 8px;
+    }
+
+    .volant-reads-footer-note {
+      margin-top: 25px;
+      padding: 15px 20px;
+      background: #f0ece6;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .volant-reads-footer-note p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .volant-reads-footer-note i {
+      color: #4b2aad;
+      margin-right: 8px;
+    }
+
+    /* Parent brand intro */
+    .parent-brand-banner {
+      background: linear-gradient(135deg, #2a1a4a, #4b2aad);
+      color: white;
+      padding: 30px 20px;
+      border-radius: 16px;
+      margin: 40px auto 0;
+      max-width: 1000px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(75, 42, 173, 0.3);
+    }
+    .parent-brand-banner h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+    .parent-brand-banner h1 span {
+      color: #f5c542;
+    }
+    .parent-brand-banner p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .brand-platforms {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .brand-platforms span {
+      background: rgba(255,255,255,0.15);
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      backdrop-filter: blur(4px);
+    }
+    .brand-platforms span i {
+      margin-right: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .volant-reads-grid {
+        grid-template-columns: 1fr;
+      }
+      .volant-reads-cta .btn {
+        display: block;
+        margin: 10px auto;
+        max-width: 250px;
+      }
+      .volant-reads-box {
+        padding: 20px;
+      }
+      .parent-brand-banner h1 {
+        font-size: 1.6rem;
+      }
+      .brand-platforms {
+        gap: 12px;
+      }
+      
+      /* Left align text on mobile */
+      .parent-brand-banner p {
+        text-align: left !important;
+        padding: 0 4px;
+      }
+      
+      /* Keep platform tags in a row on mobile */
+      .brand-platforms {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+      }
+      .brand-platforms span {
+        font-size: 0.8rem !important;
+        padding: 4px 12px !important;
+      }
+      
+      /* Reduce heading sizes on mobile */
+      .ranking-info-section h2,
+      .volant-reads-section h2 {
+        font-size: 1.4rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .volant-reads-col {
+        padding: 15px;
+      }
+      .volant-reads-col ul li {
+        font-size: 0.85rem;
+      }
+      .volant-reads-box .description p {
+        font-size: 0.95rem;
+      }
+      
+      /* Further reduce heading sizes on very small screens */
+      .ranking-info-section h2,
+      .volant-reads-section h2 {
+        font-size: 1.2rem !important;
+      }
+      
+      /* Keep platform tags in a row on very small screens */
+      .brand-platforms {
+        gap: 6px !important;
+      }
+      .brand-platforms span {
+        font-size: 0.7rem !important;
+        padding: 3px 10px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+    <div class="logo" style="display: flex; align-items: center;">
+      <img src="../images/logo.png" alt="Volant Foundry Logo" style="height: 40px; width: auto; margin-right: 5px;">
+      <span class="logo-highlight">Volant</span> Foundry
+    </div>
+
+    <div class="nav-links" id="nav-links" style="display: flex; gap: 30px; margin-left: 40px;">
+        <span class="close-btn" id="close-btn">✕</span>
+        <a href="/">Home</a>
+        <a href="../poems">Poems</a>
+        <a href="/contact">Contact</a>
+          <a href="/">Bookstore</a>
+            <a href="/">Volant Foundry</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="menu-toggle" id="menu-toggle">☰</div>
+    </div>
+  </nav>
+</header>
+
+<!-- ===== QUICK NAV LINKS ===== -->
+<div class="quick-nav-links">
+  <div class="nav-container">
+    <a href="#volant-foundry"><i class="fas fa-home"></i> Volant Foundry</a>
+    <span class="divider">|</span>
+    <a href="#volant-poetry"><i class="fas fa-feather-alt"></i> Volant Poetry</a>
+    <span class="divider">|</span>
+    <a href="#volant-reads"><i class="fas fa-book-open"></i> Volant Reads</a>
+    <span class="divider">|</span>
+    <a href="#ranking-system"><i class="fas fa-trophy"></i> Ranking System</a>
+  </div>
+</div>
+
+<!-- ===== BRAND BANNER ===== -->
+<div class="parent-brand-banner" id="volant-foundry">
+  <h1><span>Volant Foundry</span></h1>
+  <p>
+    A creative technology platform building digital spaces for writers, readers, and creators. 
+    It began with <strong>Volant Poetry</strong>, a platform for sharing and discovering poetry, and has expanded into 
+    <strong>Volant Reads</strong>, a digital literary marketplace where users can discover, purchase, and access books, poetry, and other written content.
+  </p>
+  <div class="brand-platforms">
+    <span><i>📖</i> Volant Poetry</span>
+    <span><i>📚</i> Volant Reads</span>
+    <span><i></i> + more coming</span>
+  </div>
+</div>
+
+<!-- About / Introduction -->
+<section class="about-section" id="volant-poetry">
+  <div class="about-container">
+    <div class="about-text">
+      <h2>Welcome to Volant Foundry</h2>
+      <p>
+        <strong>Volant Foundry</strong> is the parent platform behind a growing ecosystem of literary and creative spaces. 
+        Our flagship platform, <strong>Volant Poetry</strong>, is a <strong>community-driven space</strong> where poets, writers, and readers come together. 
+        This is not just a personal website — it is a <strong>shared space</strong> for anyone who loves poetry and creative expression.
+      </p>
+      <p>
+        Through <strong>Volant Reads</strong>, we empower independent authors by providing a marketplace to sell their works while retaining ownership and earning the majority of sales revenue.
+        Every voice matters, and every creator is welcome.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="mission-section">
+  <div class="mission-container">
+    <div class="mission-block">
+      <h3>Our Mission</h3>
+      <p>
+        To foster a vibrant literary community that heals, inspires, and gives voice to every poet, writer, and reader through technology and creativity.
+      </p>
+    </div>
+    <div class="mission-block">
+      <h3>Our Vision</h3>
+      <p>
+        To create a thriving, collaborative digital ecosystem where literature enriches lives and builds meaningful connections.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOLANT READS SECTION ===== -->
+<section class="volant-reads-section" id="volant-reads">
+  <h2><i class="fas fa-book-open"></i> Volant Reads — A Platform of Volant Foundry</h2>
+  
+  <div class="volant-reads-box">
+    <div class="description">
+      <p>
+        <strong>Volant Reads</strong> is a digital literary marketplace where users can discover, purchase, and access books, poetry, and other written content. 
+        It empowers independent authors by providing a platform to sell their works while retaining ownership and receiving the majority of sales revenue.
+      </p>
+      <p style="font-size: 0.95rem; color: #6b6b6b; margin-top: 5px;">
+        <i class="fas fa-arrow-right" style="color: #b76e4b;"></i> 
+        Authors keep full copyright. Earn <strong>90%</strong> of net revenue. Track sales in real time.
+      </p>
+    </div>
+
+    <div class="volant-reads-grid">
+      <div class="volant-reads-col">
+        <h3><i class="fas fa-feather-alt"></i> For Authors</h3>
+        <ul>
+          <li><i class="fas fa-globe"></i> Open to everyone — no membership</li>
+          <li><i class="fas fa-file-alt"></i> Submit title, synopsis, author bio</li>
+          <li><i class="fas fa-file-pdf"></i> Upload PDF manuscript</li>
+          <li><i class="fas fa-image"></i> Add cover image</li>
+          <li><i class="fas fa-tag"></i> Set your own price <span class="badge">free or paid</span></li>
+          <li><i class="fas fa-percent"></i> Earn <strong>90%</strong> of net sales <span class="badge gold">90%</span></li>
+          <li><i class="fas fa-coins"></i> Paid via Momo, Bank, or others</li>
+          <li><i class="fas fa-file-alt"></i> Number of pages <span class="badge orange">required</span></li>
+          <li style="font-style: italic; color: #b76e4b; font-weight: 500;">
+            <i class="fas fa-share-alt" style="color: #b76e4b;"></i> 
+            <em>Share your store link or book page link to promote sales</em>
+          </li>
+        </ul>
+      </div>
+
+      <div class="volant-reads-col">
+        <h3><i class="fas fa-book-open"></i> For Readers</h3>
+        <ul>
+          <li><i class="fas fa-search"></i> Browse by title, author, keywords</li>
+          <li><i class="fas fa-book"></i> View synopsis, genre, pages</li>
+          <li><i class="fas fa-user-edit"></i> Learn about the author</li>
+          <li><i class="fas fa-download"></i> Download free books <span class="badge green">free</span></li>
+          <li><i class="fas fa-shopping-cart"></i> Purchase paid books</li>
+          <li><i class="fas fa-file-alt"></i> See number of pages</li>
+          <li><i class="fas fa-star"></i> Discover new books daily</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="volant-reads-footer-note">
+      <p>
+        <i class="fas fa-info-circle"></i> 
+        <strong>Net sales revenue</strong> is the amount received after payment processing fees, taxes, refunds, and similar transaction costs. 
+        Volant Reads retains <strong>10%</strong>.
+      </p>
+    </div>
+
+    <div class="volant-reads-cta">
+      <a href="/" class="btn"><i class="fas fa-store"></i> Browse Bookstore</a>
+      <a href="../store/submit" class="btn orange"><i class="fas fa-upload"></i> Submit Your Book</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RANKING SYSTEM SECTION ===== -->
+<section class="ranking-info-section" id="ranking-system">
+  <h2>🏆 How Our Ranking System Works</h2>
+  <div class="ranking-grid">
+    
+    <div class="ranking-card">
+      <h3>🏆 Poem Ranking</h3>
+      <p>Poems are ranked based on engagement from the <strong>last 7 days</strong>. Old poems can still win if they receive recent activity!</p>
+      
+      <div class="formula-box">
+        <strong>Score = (Views × 1) + (Likes × 3) + (Comments × 4)</strong>
+      </div>
+      
+      <ul class="rule-list">
+        <li><span class="rule-icon">👁️</span><span class="rule-text">Views (Reads)</span><span class="rule-weight">×1 point</span></li>
+        <li><span class="rule-icon">❤️</span><span class="rule-text">Likes</span><span class="rule-weight">×3 points</span></li>
+        <li><span class="rule-icon">💬</span><span class="rule-text">Comments</span><span class="rule-weight">×4 points</span></li>
+      </ul>
+      
+      <div class="example-box">
+        <strong>📝 Example:</strong><br>
+        100 views + 20 likes + 5 comments<br>
+        = (100×1) + (20×3) + (5×4)<br>
+        = 100 + 60 + 20 = <strong>180 points</strong>
+      </div>
+      
+      <p style="margin-top: 12px; font-size: 0.85rem; color: #666;">
+        <strong>🔄 Rolling 7 Days:</strong> Only activity from the last 7 days counts. 
+        Poems fall off after 7 days of no activity.
+      </p>
+    </div>
+    
+    <div class="ranking-card">
+      <h3>👤 Poet Ranking</h3>
+      <p>Poets are ranked weekly (Monday to Sunday). Winners are announced every Monday!</p>
+      
+      <div class="formula-box">
+        <strong>Score = (Poems × 2) + (Likes Received × 1.5) + (Comments Received × 1.5) + (Likes Given × 3) + (Comments Given × 4)</strong>
+      </div>
+      
+      <ul class="rule-list">
+        <li><span class="rule-icon">✍️</span><span class="rule-text">Poems Written</span><span class="rule-weight">×2 points</span></li>
+        <li><span class="rule-icon">⭐</span><span class="rule-text">Likes Received</span><span class="rule-weight">×1.5 points</span></li>
+        <li><span class="rule-icon">💬</span><span class="rule-text">Comments Received</span><span class="rule-weight">×1.5 points</span></li>
+        <li><span class="rule-icon">❤️→</span><span class="rule-text">Likes Given to Others</span><span class="rule-weight">×3 points</span></li>
+        <li><span class="rule-icon">💬→</span><span class="rule-text">Comments Given to Others</span><span class="rule-weight">×4 points</span></li>
+      </ul>
+      
+      <div class="example-box">
+        <strong>Key Insight:</strong><br>
+        Giving feedback (likes/comments) is worth <strong>MORE</strong> than receiving it!<br>
+        This encourages a supportive community where everyone engages with each other.
+      </div>
+      
+      <p style="margin-top: 12px; font-size: 0.85rem; color: #666;">
+        <strong>📅 Weekly Reset:</strong> Rankings reset every Monday. 
+        The previous week's champion is saved in our Hall of Fame!
+      </p>
+    </div>
+  </div>
+  
+  <div style="margin-top: 30px; text-align: center; padding: 20px; background: #f5f3ee; border-radius: 12px;">
+    <h4 style="color: #4b2aad; margin-bottom: 10px;">💡 Why This System?</h4>
+    <p style="max-width: 800px; margin: 0 auto;">
+      Our ranking system is designed to reward <strong>genuine community engagement</strong>, not just popularity.
+      Commenting thoughtfully on others' work is valued more than receiving likes.
+      This creates a supportive environment where every poet can thrive!
+    </p>
+    <div style="margin-top: 15px;">
+      <span class="badge-preview">🔥 Trending this week</span> Shows poems getting recent activity
+      <span style="margin-left: 15px;">🤝 Community Helper is Earned by giving 5+ comments or 20+ likes</span>
+    </div>
+  </div>
+</section>
+
+<!-- Platform Section -->
+<section class="platform-section">
+  <div class="platform-container">
+    <h2>Community Guidelines</h2>
+    <p>
+      Volant Poetry is a creative home for poets and poetry lovers. 
+      Share your work, explore new voices, and immerse yourself in a community where every word matters.
+    </p>
+
+    <p style="margin-top: 10px; font-weight: bold; background: #fff3f3; border-left: 5px solid #d32f2f; padding: 10px;">
+      ❗ Volant Poetry is an <strong>open community</strong>. Poets can freely share their work without editorial approval. 
+      To maintain quality, please follow these simple standards:
+      <ol style="margin-top:5px; padding-left: 20px;">
+        <li>All poems must be written by the author themselves.</li>
+        <li><strong>No AI-generated content</strong> is allowed.</li>
+        <li>Respect other poets and readers, no spam or plagiarism.</li>
+        <li>Use proper titles and basic formatting.</li>
+      </ol>
+      <a href="../submission-guidelines" style="color:#4b2aad; text-decoration:underline;">Read the full guidelines</a>
+    </p>
+  </div>
+</section>
+
+<!-- Dedication Section -->
+<section class="dedication-section">
+  <div class="dedication-container">
+    <h2>Dedication</h2>
+    <p>
+      This platform is dedicated to all poets, writers, and readers. 
+      To every voice seeking connection, and every soul looking for inspiration.
+      May Volant Foundry be your space to create and belong.
+    </p>
+  </div>
+</section>
+
+<!-- Author / Founder Section -->
+<section class="author-section">
+  <div class="about-image" style="text-align: center; margin-top: 40px;">
+    <img src="../images/renceblunt.jpg" alt="Rence Blunt" style="max-width: 300px; width: 100%; border-radius: 8px;">
+    <div class="author-info" style="margin-top: 10px;">
+      <h3>Rence Blunt</h3>
+      <p>Founder of Volant Foundry</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  &copy; 2026 Volant Foundry. All Rights Reserved.
+</footer>
+
+<script type="module" src="test.js"></script>
+<script>
+  const menuToggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  const closeBtn = document.getElementById("close-btn");
+
+  menuToggle.addEventListener("click", () => navLinks.classList.toggle("show"));
+  closeBtn.addEventListener("click", () => navLinks.classList.remove("show"));
+</script>
+
+</body>
+</html>

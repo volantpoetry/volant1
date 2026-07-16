@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Poetry Nexus | Requests, Prompts & Writing Squads</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fefaf5;
+      color: #1e1a15;
+      line-height: 1.5;
+    }
+    /* Scroll progress bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, #c17b4a, #4b2aad);
+      z-index: 9999;
+      transition: width 0.1s ease;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 12px 24px;
+      background: #ffffffdd;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e9e2d9;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo-img {
+      width: 37px;
+      height: 37px;
+      object-fit: contain;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6b4e3a, #2c3e50);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .desktop-search-container {
+      flex: 1;
+      max-width: 280px;
+    }
+    .desktop-search-container input {
+      width: 100%;
+      padding: 8px 16px;
+      border-radius: 40px;
+      border: 1px solid #e1d5ca;
+      background: white;
+      font-family: inherit;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #4a3b2c;
+      font-weight: 500;
+    }
+    .mobile-icons {
+      display: none;
+      gap: 12px;
+    }
+    .search-toggle, .menu-toggle {
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .search-container {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: white;
+      padding: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      z-index: 99;
+    }
+    .search-container.visible {
+      display: block;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid #ede3d8;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.75rem 1.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #7b6b5e;
+      border-radius: 30px 30px 0 0;
+      transition: 0.2s;
+    }
+    .tab-btn.active {
+      color: #c17b4a;
+      border-bottom: 3px solid #c17b4a;
+      background: #fef3ea;
+    }
+    .tab-content {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.8rem;
+    }
+    .request-card, .group-card {
+      background: white;
+      border-radius: 28px;
+      padding: 1.5rem;
+      border: 1px solid #f0e4d8;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      transition: all 0.2s;
+    }
+    .request-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .prompt-box {
+      background: #fdf8f3;
+      border-left: 5px solid #c17b4a;
+      padding: 1rem;
+      border-radius: 16px;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+    .poem-response {
+      background: #faf6f0;
+      border-radius: 20px;
+      padding: 0.8rem;
+      margin-top: 0.8rem;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+    }
+    .btn {
+      background: #c17b4a;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #c17b4a;
+      color: #c17b4a;
+    }
+    .member-tag {
+      background: #ede3d8;
+      border-radius: 40px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.8rem;
+    }
+    .group-members {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.8rem 0;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-card {
+      background: white;
+      max-width: 500px;
+      width: 90%;
+      border-radius: 32px;
+      padding: 2rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #e1d5ca;
+      font-family: inherit;
+      margin-top: 0.5rem;
+    }
+    .footer-note {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: #a18f7c;
+    }
+    @media (max-width: 768px) {
+      .desktop-search-container { display: none; }
+      .mobile-icons { display: flex; }
+      .nav-links { display: none; flex-direction: column; position: fixed; top: 0; right: 0; background: white; width: 70%; height: 100%; padding: 2rem; box-shadow: -2px 0 12px rgba(0,0,0,0.1); z-index: 200; }
+      .nav-links.show { display: flex; }
+      .close-btn { align-self: flex-end; font-size: 1.8rem; cursor: pointer; }
+    }
+    .read-more-btn, .respond-btn { margin-top: 8px; font-size: 0.8rem; background: none; border: none; color: #c17b4a; font-weight: 600; cursor: pointer; }
+    .author-img-sm { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+<div class="scroll-progress" id="scroll-progress"></div>
+<header>
+  <nav>
+    <div class="logo">
+      <img src="../images/logo.png" alt="Volant" class="nav-logo-img" onerror="this.src='https://via.placeholder.com/37'">
+      <span class="logo-text">Volant Poetry</span>
+    </div>
+    <div class="desktop-search-container"><input id="desktop-search" type="text" placeholder="Search poems, authors..." /></div>
+    <div class="search-container" id="mobileSearchContainer"><input id="mobile-search" type="text" placeholder="Search..." /></div>
+    <div class="nav-links" id="navLinks">
+      <span class="close-btn" id="closeMenuBtn">✕</span>
+      <a href="/">Home</a>
+      <a href="../shared/about">About</a>
+      <a href="../user-profile">My Profile</a>
+    </div>
+    <div class="mobile-icons">
+      <div class="search-toggle" id="mobileSearchToggle">🔍</div>
+      <div class="menu-toggle" id="menuToggle">☰</div>
+    </div>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="requestsFeed">📜 Poetry Requests</button>
+    <button class="tab-btn" data-tab="groupsFeed">👥 Writing Squads</button>
+    <button class="tab-btn" data-tab="myRequests">📌 My Requests</button>
+  </div>
+
+  <!-- FEED: public requests -->
+  <div id="requestsFeed" class="tab-content active">
+    <div class="flex-between" style="margin-bottom:1.5rem;"><h2>✨ request a poem / offer verses</h2><button id="newRequestBtn" class="btn">+ New Request</button></div>
+    <div id="requestsList" class="grid-2">Loading poetic requests...</div>
+  </div>
+
+  <!-- GROUPS: writing squads -->
+  <div id="groupsFeed" class="tab-content">
+    <div class="flex-between" style="margin-bottom:1.5rem;"><h2>🌸 poetry squads – co-write & critique</h2><button id="createGroupBtn" class="btn">+ Start Squad</button></div>
+    <div id="groupsList" class="grid-2">Loading circles...</div>
+  </div>
+
+  <!-- MY REQUESTS managed by user -->
+  <div id="myRequests" class="tab-content">
+    <h2>📖 My poetry requests</h2>
+    <div id="myRequestsList"></div>
+    <div class="footer-note">When poets respond, their verses appear here.</div>
+  </div>
+</div>
+
+<!-- MODAL new request -->
+<div id="requestModal" class="modal"><div class="modal-card"><h3>📝 New poetry request</h3><input id="reqTitle" placeholder="Title / theme"><textarea id="reqPrompt" rows="4" placeholder="Describe mood, imagery, keywords, or an opening line..."></textarea><div style="display:flex; gap:1rem; margin-top:1rem;"><button id="submitReqBtn" class="btn">Publish</button><button id="closeReqModal" class="btn-outline btn">Cancel</button></div></div></div>
+<!-- MODAL new group -->
+<div id="groupModal" class="modal"><div class="modal-card"><h3>✍️ Create a Poetry Squad</h3><input id="groupName" placeholder="Squad name (e.g. 'Midnight Sonneteers')"><textarea id="groupDesc" rows="3" placeholder="Vibe? weekly prompts, workshop, collab?"></textarea><div style="display:flex; gap:1rem; margin-top:1rem;"><button id="submitGroupBtn" class="btn">Form squad</button><button id="closeGroupModalBtn" class="btn-outline btn">Cancel</button></div></div></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, getDoc, deleteDoc, arrayUnion, serverTimestamp, where, getDocs, arrayRemove, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
+
+  let currentUser = null;
+  let currentUsername = "Poet";
+
+  async function fetchUsername(uid) {
+    if (!uid) return "Guest";
+    const snap = await getDoc(doc(db, "users", uid));
+    return snap.exists() ? snap.data().username || "Poet" : "Poet";
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    if (user) {
+      const uDoc = await getDoc(doc(db, "users", user.uid));
+      currentUsername = uDoc.exists() ? uDoc.data().username || user.email.split('@')[0] : "Writer";
+    } else {
+      currentUsername = "Guest";
+    }
+    loadRequestsFeed();
+    loadGroupsFeed();
+    if (user) loadMyRequests();
+  });
+
+  // --- REQUESTS (prompts + poem responses) ---
+  const requestsCol = collection(db, "poetryRequests");
+  let unsubRequests = null;
+  function loadRequestsFeed() {
+    if (unsubRequests) unsubRequests();
+    const q = query(requestsCol, orderBy("timestamp", "desc"));
+    unsubRequests = onSnapshot(q, (snapshot) => {
+      const container = document.getElementById("requestsList");
+      if (!container) return;
+      if (snapshot.empty) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center;">✨ No requests yet. Be the first to ask!</div>`; return; }
+      let html = "";
+      snapshot.forEach(docSnap => {
+        const req = docSnap.data();
+        const id = docSnap.id;
+        const responses = req.responses || [];
+        html += `
+          <div class="request-card" data-id="${id}">
+            <div class="flex-between"><span class="request-title">${escapeHtml(req.title)}</span><span class="member-tag">by ${escapeHtml(req.authorName)}</span></div>
+            <div class="prompt-box">🎭 ${escapeHtml(req.prompt)}</div>
+            <div><strong>📜 responses (${responses.length})</strong></div>
+            <div id="resp-${id}">${responses.slice(0,2).map(r => `<div class="poem-response"><strong>${escapeHtml(r.poetName)}</strong> wrote:<br>${escapeHtml(r.poemText)}</div>`).join('')}${responses.length>2?`<div class="member-tag">+${responses.length-2} more</div>`:''}</div>
+            ${currentUser ? `<textarea id="respText-${id}" rows="2" placeholder="Write a poem in response..." style="margin-top:12px;"></textarea>
+            <button class="respond-btn" data-id="${id}" class="btn" style="margin-top:6px;">✍️ Offer Poem</button>` : `<p style="margin-top:12px; color:#b87c4f;">🔐 <a href="/universal-login.html?platform=poetry&redirect=poem%20request">Sign in</a> to respond</p>`}
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      document.querySelectorAll(".respond-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          if (!currentUser) { alert("Please sign in"); return; }
+          const reqId = btn.dataset.id;
+          const textarea = document.getElementById(`respText-${reqId}`);
+          const poemText = textarea.value.trim();
+          if (!poemText) { alert("Write a poem or fragment to share."); return; }
+          const reqRef = doc(db, "poetryRequests", reqId);
+          const reqSnap = await getDoc(reqRef);
+          if (!reqSnap.exists()) return;
+          const newResp = { poetId: currentUser.uid, poetName: currentUsername, poemText, timestamp: new Date().toISOString() };
+          await updateDoc(reqRef, { responses: arrayUnion(newResp) });
+          textarea.value = "";
+          alert("✨ Your poem has been offered!");
+        });
+      });
+    });
+  }
+
+  // My requests (delete, view responses)
+  async function loadMyRequests() {
+    if (!currentUser) { document.getElementById("myRequestsList").innerHTML = `<p>Sign in to see your requests.</p>`; return; }
+    const q = query(requestsCol, where("authorId", "==", currentUser.uid), orderBy("timestamp", "desc"));
+    const snap = await getDocs(q);
+    const container = document.getElementById("myRequestsList");
+    if (snap.empty) { container.innerHTML = `<div style="background:#faf3ea; border-radius:24px; padding:2rem; text-align:center;">You haven't posted any request. Click "New Request" to inspire others.</div>`; return; }
+    let html = `<div class="grid-2">`;
+    snap.forEach(docSnap => {
+      const req = docSnap.data();
+      const id = docSnap.id;
+      const responses = req.responses || [];
+      html += `<div class="request-card"><div class="flex-between"><span class="request-title">${escapeHtml(req.title)}</span><button class="delete-req" data-id="${id}" style="background:#e2c6b0; border:none; padding:4px 12px; border-radius:40px;">🗑️ Delete</button></div>
+      <div class="prompt-box">${escapeHtml(req.prompt)}</div><div><strong>💬 Responses: ${responses.length}</strong></div>
+      ${responses.map(r => `<div class="poem-response"><strong>${escapeHtml(r.poetName)}</strong>:<br>${escapeHtml(r.poemText)}</div>`).join('')}
+      </div>`;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+    document.querySelectorAll(".delete-req").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = btn.dataset.id;
+        if (confirm("Delete this request? All responses will disappear.")) {
+          await deleteDoc(doc(db, "poetryRequests", id));
+          loadMyRequests();
+          loadRequestsFeed();
+        }
+      });
+    });
+  }
+
+  // --- GROUPS (squads with wall posts) ---
+  const groupsCol = collection(db, "poetryGroups");
+  let unsubGroups = null;
+  function loadGroupsFeed() {
+    if (unsubGroups) unsubGroups();
+    const q = query(groupsCol, orderBy("createdAt", "desc"));
+    unsubGroups = onSnapshot(q, async (snapshot) => {
+      const container = document.getElementById("groupsList");
+      if (!container) return;
+      if (snapshot.empty) { container.innerHTML = `<div>✨ No squads yet. Start a circle to co-write.</div>`; return; }
+      let html = "";
+      for (const docSnap of snapshot.docs) {
+        const group = docSnap.data();
+        const id = docSnap.id;
+        const members = group.members || [];
+        const isMember = currentUser && members.some(m => m.uid === currentUser.uid);
+        html += `<div class="group-card" data-groupid="${id}">
+          <h3>📚 ${escapeHtml(group.name)}</h3>
+          <p style="color:#5a4a38;">${escapeHtml(group.description || "Collaborative poetry space.")}</p>
+          <div class="group-members">${members.slice(0,5).map(m => `<span class="member-tag">${escapeHtml(m.username)}</span>`).join('')}${members.length>5?`<span class="member-tag">+${members.length-5}</span>`:''}</div>
+          <div class="flex-between"><span>👥 ${members.length} members</span>
+          ${!currentUser ? `<button disabled>Sign in to join</button>` : (isMember ? `<button class="leave-group-btn" data-id="${id}" style="background:#b0a59b; border:none; padding:4px 12px; border-radius:40px;">Leave</button>` : `<button class="join-group-btn" data-id="${id}" class="btn">🤝 Join squad</button>`)}
+          </div>
+          ${isMember ? `<div style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.8rem;">
+            <textarea id="wallMsg-${id}" rows="2" placeholder="Share a poem, prompt, or feedback..."></textarea>
+            <button class="post-wall-btn" data-id="${id}" style="margin-top:5px;">📢 Post to squad</button>
+            <div id="wallFeed-${id}" style="margin-top:12px; max-height:200px; overflow-y:auto;"></div>
+          </div>` : ''}
+        </div>`;
+      }
+      container.innerHTML = html;
+
+      // join/leave handlers
+      document.querySelectorAll(".join-group-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          if (!currentUser) return;
+          const gid = btn.dataset.id;
+          const groupRef = doc(db, "poetryGroups", gid);
+          const snap = await getDoc(groupRef);
+          if (snap.exists()) {
+            const members = snap.data().members || [];
+            if (!members.some(m => m.uid === currentUser.uid)) {
+              await updateDoc(groupRef, { members: arrayUnion({ uid: currentUser.uid, username: currentUsername }) });
+            }
+          }
+        });
+      });
+      document.querySelectorAll(".leave-group-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          if (!currentUser) return;
+          const gid = btn.dataset.id;
+          const groupRef = doc(db, "poetryGroups", gid);
+          const snap = await getDoc(groupRef);
+          if (snap.exists()) {
+            const members = snap.data().members || [];
+            const filtered = members.filter(m => m.uid !== currentUser.uid);
+            await updateDoc(groupRef, { members: filtered });
+          }
+        });
+      });
+      // post to wall and render wall messages
+      document.querySelectorAll(".post-wall-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          if (!currentUser) return;
+          const gid = btn.dataset.id;
+          const textarea = document.getElementById(`wallMsg-${gid}`);
+          const msg = textarea.value.trim();
+          if (!msg) return;
+          const groupRef = doc(db, "poetryGroups", gid);
+          const newPost = { from: currentUsername, fromId: currentUser.uid, text: msg, timestamp: serverTimestamp() };
+          await updateDoc(groupRef, { wallMessages: arrayUnion(newPost) });
+          textarea.value = "";
+        });
+      });
+      // render wall for groups that are member-view
+      for (const docSnap of snapshot.docs) {
+        const group = docSnap.data();
+        const id = docSnap.id;
+        const isMember = currentUser && (group.members || []).some(m => m.uid === currentUser.uid);
+        if (isMember) {
+          const wallDiv = document.getElementById(`wallFeed-${id}`);
+          if (wallDiv && group.wallMessages) {
+            const messages = group.wallMessages.slice().reverse().slice(0, 8);
+            wallDiv.innerHTML = messages.map(w => `<div style="background:#fff4ea; margin:5px 0; padding:6px 10px; border-radius:16px;"><strong>${escapeHtml(w.from)}</strong>: ${escapeHtml(w.text)}</div>`).join('');
+            if (messages.length === 0) wallDiv.innerHTML = `<em>✨ No posts yet. Be the first!</em>`;
+          }
+        }
+      }
+    });
+  }
+
+  // create request
+  document.getElementById("newRequestBtn")?.addEventListener("click", () => {
+    if (!currentUser) { alert("Please sign in to create a poetry request."); return; }
+    document.getElementById("requestModal").style.display = "flex";
+  });
+  document.getElementById("submitReqBtn")?.addEventListener("click", async () => {
+    const title = document.getElementById("reqTitle").value.trim();
+    const prompt = document.getElementById("reqPrompt").value.trim();
+    if (!title || !prompt) { alert("Title and prompt required."); return; }
+    await addDoc(requestsCol, {
+      title, prompt, authorId: currentUser.uid, authorName: currentUsername, timestamp: serverTimestamp(), responses: []
+    });
+    document.getElementById("reqTitle").value = "";
+    document.getElementById("reqPrompt").value = "";
+    document.getElementById("requestModal").style.display = "none";
+    loadRequestsFeed();
+    if (currentUser) loadMyRequests();
+  });
+  document.getElementById("closeReqModal")?.addEventListener("click", () => document.getElementById("requestModal").style.display = "none");
+  document.getElementById("closeGroupModalBtn")?.addEventListener("click", () => document.getElementById("groupModal").style.display = "none");
+  document.getElementById("createGroupBtn")?.addEventListener("click", () => {
+    if (!currentUser) { alert("Sign in to start a squad."); return; }
+    document.getElementById("groupModal").style.display = "flex";
+  });
+  document.getElementById("submitGroupBtn")?.addEventListener("click", async () => {
+    const name = document.getElementById("groupName").value.trim();
+    const description = document.getElementById("groupDesc").value.trim();
+    if (!name) { alert("Squad name needed"); return; }
+    await addDoc(groupsCol, {
+      name, description: description || "A creative poetry circle.",
+      createdAt: serverTimestamp(), ownerId: currentUser.uid,
+      members: [{ uid: currentUser.uid, username: currentUsername }],
+      wallMessages: []
+    });
+    document.getElementById("groupName").value = "";
+    document.getElementById("groupDesc").value = "";
+    document.getElementById("groupModal").style.display = "none";
+    loadGroupsFeed();
+  });
+  
+  // TABS and UI helpers
+  const tabs = document.querySelectorAll(".tab-btn");
+  const contents = document.querySelectorAll(".tab-content");
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.dataset.tab;
+      tabs.forEach(b => b.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+      if (tabId === "myRequests" && currentUser) loadMyRequests();
+      if (tabId === "groupsFeed") loadGroupsFeed();
+    });
+  });
+  function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+
+  // scroll progress
+  window.addEventListener("scroll", () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  });
+  // mobile menu
+  const menuToggle = document.getElementById("menuToggle");
+  const closeMenu = document.getElementById("closeMenuBtn");
+  const navLinksDiv = document.getElementById("navLinks");
+  if (menuToggle) menuToggle.onclick = () => navLinksDiv.classList.add("show");
+  if (closeMenu) closeMenu.onclick = () => navLinksDiv.classList.remove("show");
+  const mobileSearchToggle = document.getElementById("mobileSearchToggle");
+  const mobileSearchContainer = document.getElementById("mobileSearchContainer");
+  if (mobileSearchToggle) mobileSearchToggle.onclick = () => mobileSearchContainer.classList.toggle("visible");
+  window.onclick = (e) => { if (e.target === document.getElementById("requestModal")) document.getElementById("requestModal").style.display = "none"; if (e.target === document.getElementById("groupModal")) document.getElementById("groupModal").style.display = "none"; };
+  // dummy search (optional but matches style)
+  const desktopSearch = document.getElementById("desktop-search");
+  const mobileSearch = document.getElementById("mobile-search");
+  const searchHandler = (val) => { console.log("search:", val); /* extend if needed */ };
+  if(desktopSearch) desktopSearch.addEventListener("input", (e) => searchHandler(e.target.value));
+  if(mobileSearch) mobileSearch.addEventListener("input", (e) => searchHandler(e.target.value));
+</script>
+<div class="footer-note">🌿 Request a poem → poets respond with original verses. Join squads to co-create & nurture craft.</div>
+</body>
+</html>

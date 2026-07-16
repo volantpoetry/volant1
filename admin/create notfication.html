@@ -1,0 +1,42 @@
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, collection, addDoc, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function createNotificationsCollection() {
+  try {
+    const docRef = await addDoc(collection(db, "notifications"), {
+      recipient: "TestUser",
+      sender: "System",
+      type: "init",
+      poemId: "none",
+      poemTitle: "Initialization",
+      message: "Notifications collection successfully created.",
+      timestamp: serverTimestamp(),
+      read: false
+    });
+    console.log("✅ Notifications collection created with ID:", docRef.id);
+    alert("✅ Notifications collection successfully created!");
+  } catch (err) {
+    console.error("❌ Error creating collection:", err);
+    alert("❌ Failed to create collection. Check console.");
+  }
+}
+
+createNotificationsCollection();
+
+
+</script>

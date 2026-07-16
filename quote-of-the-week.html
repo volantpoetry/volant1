@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quote of the Week - Volant Poetry</title>
+  <link rel="stylesheet" href="style.css" />
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .weekly-container {
+      display: flex;
+      justify-content: center; /* Center on small screens */
+      padding: 4rem 5%;
+      flex-direction: column;
+    }
+
+    .weekly-left {
+      max-width: 700px;
+      width: 100%;
+    }
+
+    /* Remove card background and shadow completely */
+    .weekly-card {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .weekly-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4b2aad;
+      margin-bottom: 1rem;
+
+    }
+
+    #weekly-quote {
+      font-size: 1.4rem;
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      color: #4b3f2f;
+    
+    }
+
+    #quote-author {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #B8860B;
+      display: block;
+      text-align: left;
+    }
+
+    /* Large screens adjustments */
+    @media (min-width: 1200px) {
+      .weekly-container {
+        justify-content: flex-end; /* Push content to the right */
+        padding-right: 10%;
+      }
+
+      /* Keep quote right-aligned, title centered */
+      #weekly-quote, #quote-author {
+        text-align: right;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Weekly Highlights -->
+  <section class="weekly-container">
+    <div class="weekly-left">
+      <div class="weekly-card quote-card">
+        <h2 class="weekly-title">Quote of the Week</h2>
+        <p id="weekly-quote"><em></em></p>
+        <span id="quote-author" class="author"></span>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="script.js"></script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>

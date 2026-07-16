@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Volant Foundry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f3f0;
+            color: #2d2a24;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: #ffffff;
+            padding: 16px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .admin-header .logo img {
+            height: 36px;
+            width: 36px;
+            object-fit: contain;
+        }
+
+        .admin-header .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4b2aad;
+        }
+
+        .admin-header .logo-highlight {
+            font-weight: 300;
+            color: #4b2aad;
+            opacity: 0.7;
+        }
+
+        .admin-header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-header .admin-badge {
+            background: #4b2aad;
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .admin-header .logout-btn {
+            background: none;
+            border: 1px solid #ddd;
+            color: #2d2a24;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .admin-header .logout-btn:hover {
+            background: #fee;
+            border-color: #b76e4b;
+            color: #b76e4b;
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 40px 60px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #ede7df;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #4b2aad;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #8a7b6a;
+            margin-top: 4px;
+        }
+
+        /* ===== TOOLBAR ===== */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #ede7df;
+        }
+
+        .toolbar .left-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar .right-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #4b2aad;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3a1f8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(75,42,173,0.25);
+        }
+
+        .btn-secondary {
+            background: #f0ebe4;
+            color: #2d2a24;
+        }
+
+        .btn-secondary:hover {
+            background: #e5ddd4;
+        }
+
+        .btn-success {
+            background: #2d7d46;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #1f5f33;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #b76e4b;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #9f5e3f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #2d2a24;
+        }
+
+        .btn-outline:hover {
+            border-color: #4b2aad;
+            color: #4b2aad;
+        }
+
+        .btn-email {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .btn-email:hover {
+            background: #1557b0;
+            transform: translateY(-2px);
+        }
+
+        /* ===== SEARCH ===== */
+        .search-input {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            min-width: 200px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #4b2aad;
+            box-shadow: 0 0 0 2px rgba(75,42,173,0.1);
+        }
+
+        /* ===== TABLE ===== */
+        .table-container {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #ede7df;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-container th {
+            background: #faf7f2;
+            text-align: left;
+            padding: 14px 18px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6f6252;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #ede7df;
+        }
+
+        .table-container td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #f0ebe4;
+            font-size: 0.9rem;
+        }
+
+        .table-container tr:hover td {
+            background: #faf8f5;
+        }
+
+        .table-container .email-cell {
+            font-weight: 500;
+            color: #2d2a24;
+        }
+
+        .table-container .date-cell {
+            color: #8a7b6a;
+            font-size: 0.85rem;
+        }
+
+        .table-container .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #e6f4ea;
+            color: #1e7e34;
+        }
+
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8a7b6a;
+        }
+
+        .loading-state .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ede7df;
+            border-top: 4px solid #4b2aad;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #8a7b6a;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ede7df;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2d2a24;
+            margin-bottom: 6px;
+        }
+
+        /* ===== TOAST ===== */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #toast.success { background: #2d7d46; }
+        #toast.error { background: #b76e4b; }
+        #toast.info { background: #4b2aad; }
+
+        /* ===== ACCESS DENIED ===== */
+        .access-denied {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .access-denied i {
+            font-size: 4rem;
+            color: #b76e4b;
+            margin-bottom: 20px;
+        }
+
+        .access-denied h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #2d2a24;
+            margin-bottom: 8px;
+        }
+
+        .access-denied p {
+            color: #8a7b6a;
+            max-width: 400px;
+        }
+
+        .access-denied .login-link {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 28px;
+            background: #4b2aad;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .access-denied .login-link:hover {
+            background: #3a1f8a;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .admin-container {
+                padding: 16px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar .left-actions,
+            .toolbar .right-actions {
+                flex-wrap: wrap;
+            }
+
+            .toolbar button {
+                flex: 1;
+                justify-content: center;
+                min-width: 80px;
+            }
+
+            .search-input {
+                min-width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table-container table {
+                min-width: 500px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-card .stat-number {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-header .logo-text {
+                font-size: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-container {
+                padding: 12px;
+            }
+        }
+
+        /* Checkbox styling */
+        .table-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #4b2aad;
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .select-all-container label {
+            font-size: 0.8rem;
+            color: #6f6252;
+            cursor: pointer;
+        }
+
+        .copy-success {
+            color: #2d7d46;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+
+        /* Mailto modal */
+        .mailto-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mailto-modal.active {
+            display: flex;
+        }
+
+        .mailto-modal-content {
+            background: #fff;
+            max-width: 500px;
+            width: 90%;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .mailto-modal-content h2 {
+            font-family: 'Playfair Display', serif;
+            color: #2d2a24;
+            margin-bottom: 16px;
+        }
+
+        .mailto-modal-content label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+            color: #6f6252;
+        }
+
+        .mailto-modal-content input,
+        .mailto-modal-content textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 12px;
+        }
+
+        .mailto-modal-content textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .mailto-modal-content .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .mailto-modal-content .modal-actions button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .mailto-modal-content .modal-actions .btn-send {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .mailto-modal-content .modal-actions .btn-send:hover {
+            background: #1557b0;
+        }
+
+        .mailto-modal-content .modal-actions .btn-cancel {
+            background: #f0ebe4;
+            color: #2d2a24;
+        }
+
+        .mailto-modal-content .modal-actions .btn-cancel:hover {
+            background: #e5ddd4;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="admin-header">
+    <a href="#" class="logo">
+        <img src="../images/logo.png" alt="Volant Foundry">
+        <span class="logo-text">
+            <span class="logo-highlight">Volant</span> Admin
+        </span>
+    </a>
+    <div class="header-actions">
+        <span class="admin-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="admin-container" id="adminContent">
+    <!-- Will be rendered by JS -->
+</main>
+
+<!-- ===== MAILTO MODAL ===== -->
+<div class="mailto-modal" id="mailtoModal">
+    <div class="mailto-modal-content">
+        <h2><i class="fas fa-envelope"></i> Send Email</h2>
+        <label>To:</label>
+        <input type="text" id="mailtoRecipients" readonly style="background:#f5f3f0;">
+        <label>Subject:</label>
+        <input type="text" id="mailtoSubject" placeholder="Enter subject...">
+        <label>Message:</label>
+        <textarea id="mailtoBody" placeholder="Write your message..."></textarea>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="mailtoCancel">Cancel</button>
+            <button class="btn-send" id="mailtoSend"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script>
+    // ===== FIREBASE CONFIG =====
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+        authDomain: "silent-depth.firebaseapp.com",
+        projectId: "silent-depth",
+        storageBucket: "silent-depth.appspot.com",
+        messagingSenderId: "78008755450",
+        appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // ===== DOM REFS =====
+    const adminContent = document.getElementById('adminContent');
+    const toast = document.getElementById('toast');
+    const mailtoModal = document.getElementById('mailtoModal');
+    const mailtoRecipients = document.getElementById('mailtoRecipients');
+    const mailtoSubject = document.getElementById('mailtoSubject');
+    const mailtoBody = document.getElementById('mailtoBody');
+    let toastTimeout = null;
+    let selectedEmails = [];
+
+    // ===== TOAST =====
+    function showToast(message, type = 'info') {
+        toast.textContent = message;
+        toast.className = type + ' show';
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ===== CHECK ADMIN =====
+    async function checkAdmin(user) {
+        if (!user) return false;
+        try {
+            const doc = await db.collection('admins').doc(user.uid).get();
+            return doc.exists;
+        } catch (e) {
+            console.error('Admin check error:', e);
+            return false;
+        }
+    }
+
+    // ===== LOAD SUBSCRIBERS =====
+    async function loadSubscribers() {
+        try {
+            const snapshot = await db.collection('mailing')
+                .orderBy('timestamp', 'desc')
+                .get();
+
+            const subscribers = [];
+            snapshot.forEach(doc => {
+                subscribers.push({ id: doc.id, ...doc.data() });
+            });
+            return subscribers;
+        } catch (e) {
+            console.error('Error loading subscribers:', e);
+            return [];
+        }
+    }
+
+    // ===== OPEN MAILTO MODAL =====
+    function openMailtoModal(emails) {
+        selectedEmails = emails;
+        mailtoRecipients.value = emails.join('; ');
+        mailtoSubject.value = '';
+        mailtoBody.value = '';
+        mailtoModal.classList.add('active');
+    }
+
+    // ===== CLOSE MAILTO MODAL =====
+    function closeMailtoModal() {
+        mailtoModal.classList.remove('active');
+    }
+
+    // ===== SEND MAILTO =====
+    function sendMailto() {
+        const to = mailtoRecipients.value;
+        const subject = encodeURIComponent(mailtoSubject.value || '');
+        const body = encodeURIComponent(mailtoBody.value || '');
+        
+        if (!to) {
+            showToast('No recipients selected.', 'error');
+            return;
+        }
+
+        // Open mail client with mailto link
+        const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
+        window.open(mailtoLink, '_blank');
+        
+        closeMailtoModal();
+        showToast(`📧 Opening email client with ${selectedEmails.length} recipient(s)...`, 'success');
+    }
+
+    // ===== RENDER ADMIN DASHBOARD =====
+    function renderDashboard(subscribers) {
+        const total = subscribers.length;
+        const active = subscribers.filter(s => s.status === 'active').length;
+        const today = new Date().toDateString();
+        const todayCount = subscribers.filter(s => {
+            if (!s.timestamp) return false;
+            const d = s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+            return d.toDateString() === today;
+        }).length;
+
+        // Build table rows
+        let rows = '';
+        if (subscribers.length === 0) {
+            rows = `
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-envelope-open-text"></i>
+                            <h3>No subscribers yet</h3>
+                            <p>When people join the horizon, their emails will appear here.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            subscribers.forEach((sub, index) => {
+                const date = sub.timestamp ? 
+                    (sub.timestamp.toDate ? sub.timestamp.toDate() : new Date(sub.timestamp)) : 
+                    new Date();
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const status = sub.status || 'active';
+                const statusClass = status === 'active' ? 'active' : 'pending';
+                
+                rows += `
+                    <tr>
+                        <td><input type="checkbox" class="sub-checkbox" data-id="${sub.id}" data-email="${sub.email || ''}"></td>
+                        <td class="email-cell">${sub.email || 'No email'}</td>
+                        <td>${sub.userName || '-'}</td>
+                        <td class="date-cell">${dateStr}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        adminContent.innerHTML = `
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${total}</div>
+                    <div class="stat-label">Total Subscribers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${active}</div>
+                    <div class="stat-label">Active Subscribers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${todayCount}</div>
+                    <div class="stat-label">Joined Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${subscribers.length > 0 ? '📧' : '📭'}</div>
+                    <div class="stat-label">${subscribers.length > 0 ? 'Ready to email' : 'No data'}</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="left-actions">
+                    <div class="select-all-container">
+                        <input type="checkbox" id="selectAll">
+                        <label for="selectAll">Select All</label>
+                    </div>
+                    <button class="btn-email" id="emailSelectedBtn">
+                        <i class="fas fa-envelope"></i> Email Selected
+                    </button>
+                    <button class="btn-email" id="emailAllBtn">
+                        <i class="fas fa-envelope"></i> Email All
+                    </button>
+                    <button class="btn-secondary" id="copySelectedBtn">
+                        <i class="fas fa-copy"></i> Copy Selected
+                    </button>
+                </div>
+                <div class="right-actions">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search emails...">
+                    <button class="btn-primary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px;"></th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Subscribed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        // ===== EVENT LISTENERS =====
+
+        // Select All
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                document.querySelectorAll('.sub-checkbox').forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+        }
+
+        // Get selected emails helper
+        function getSelectedEmails() {
+            const checked = document.querySelectorAll('.sub-checkbox:checked');
+            const emails = [];
+            checked.forEach(cb => {
+                const email = cb.getAttribute('data-email');
+                if (email) emails.push(email);
+            });
+            return emails;
+        }
+
+        // Email Selected
+        document.getElementById('emailSelectedBtn').addEventListener('click', function() {
+            const emails = getSelectedEmails();
+            if (emails.length === 0) {
+                showToast('Please select at least one subscriber.', 'error');
+                return;
+            }
+            openMailtoModal(emails);
+        });
+
+        // Email All
+        document.getElementById('emailAllBtn').addEventListener('click', function() {
+            const allEmails = [];
+            document.querySelectorAll('.sub-checkbox').forEach(cb => {
+                const email = cb.getAttribute('data-email');
+                if (email) allEmails.push(email);
+            });
+            if (allEmails.length === 0) {
+                showToast('No emails to send.', 'error');
+                return;
+            }
+            openMailtoModal(allEmails);
+        });
+
+        // Copy Selected
+        document.getElementById('copySelectedBtn').addEventListener('click', function() {
+            const emails = getSelectedEmails();
+            if (emails.length === 0) {
+                showToast('Please select at least one subscriber.', 'error');
+                return;
+            }
+            copyToClipboard(emails.join('\n'));
+            showToast(`✅ Copied ${emails.length} email(s) to clipboard!`, 'success');
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const term = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const email = row.querySelector('.email-cell');
+                if (email) {
+                    const text = email.textContent.toLowerCase();
+                    row.style.display = text.includes(term) ? '' : 'none';
+                }
+            });
+        });
+
+        // Refresh
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            showToast('Refreshing...', 'info');
+            initAdmin();
+        });
+    }
+
+    // ===== COPY TO CLIPBOARD =====
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(() => {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+        } catch (e) {
+            console.error('Copy failed:', e);
+        }
+        document.body.removeChild(textarea);
+    }
+
+    // ===== INIT ADMIN =====
+    async function initAdmin() {
+        const user = auth.currentUser;
+        
+        if (!user) {
+            adminContent.innerHTML = `
+                <div class="access-denied">
+                    <i class="fas fa-lock"></i>
+                    <h1>Access Denied</h1>
+                    <p>You must be signed in as an admin to view this page.</p>
+                    <a href="/universal-login.html?platform=foundry&redirect=admin" class="login-link">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        // Check if user is admin
+        const isAdmin = await checkAdmin(user);
+        if (!isAdmin) {
+            adminContent.innerHTML = `
+                <div class="access-denied">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Unauthorized</h1>
+                    <p>You do not have admin privileges to access this page.</p>
+                    <button onclick="auth.signOut(); location.reload();" class="login-link" style="background:#b76e4b; border:none; cursor:pointer;">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        // Load subscribers
+        adminContent.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading subscribers...</p>
+            </div>
+        `;
+
+        const subscribers = await loadSubscribers();
+        renderDashboard(subscribers);
+    }
+
+    // ===== AUTH STATE =====
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            initAdmin();
+        } else {
+            initAdmin(); // will show access denied
+        }
+    });
+
+    // ===== LOGOUT =====
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        auth.signOut().then(() => {
+            showToast('👋 Logged out successfully.', 'info');
+            setTimeout(() => { location.reload(); }, 500);
+        }).catch(() => {
+            showToast('Error logging out.', 'error');
+        });
+    });
+
+    // ===== MAILTO MODAL EVENTS =====
+    document.getElementById('mailtoCancel').addEventListener('click', closeMailtoModal);
+    document.getElementById('mailtoSend').addEventListener('click', sendMailto);
+    
+    // Close modal on backdrop click
+    mailtoModal.addEventListener('click', function(e) {
+        if (e.target === mailtoModal) {
+            closeMailtoModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mailtoModal.classList.contains('active')) {
+            closeMailtoModal();
+        }
+    });
+
+    // ===== COMPILE / EXPORT FUNCTION =====
+    window.compileEmails = function() {
+        const allEmails = [];
+        document.querySelectorAll('.sub-checkbox').forEach(cb => {
+            const email = cb.getAttribute('data-email');
+            if (email) allEmails.push(email);
+        });
+        
+        if (allEmails.length === 0) {
+            showToast('No emails to compile.', 'error');
+            return;
+        }
+
+        const formats = {
+            'Newline separated': allEmails.join('\n'),
+            'Comma separated': allEmails.join(', '),
+            'Semicolon separated': allEmails.join('; '),
+            'Array format': JSON.stringify(allEmails)
+        };
+
+        copyToClipboard(formats['Newline separated']);
+        showToast(`✅ Compiled ${allEmails.length} emails. Copied to clipboard.`, 'success');
+        
+        console.log('📧 Compiled Emails:');
+        console.log('Newline:', formats['Newline separated']);
+        console.log('Comma:', formats['Comma separated']);
+        console.log('Array:', formats['Array format']);
+        
+        return formats;
+    };
+
+    // Keyboard shortcut: Ctrl+Shift+C to compile
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            window.compileEmails();
+        }
+    });
+
+    console.log('🔐 Admin Dashboard loaded.');
+    console.log('📧 Use "Email Selected" or "Email All" to send emails.');
+    console.log('📋 Use Ctrl+Shift+C to compile emails.');
+</script>
+
+</body>
+</html>

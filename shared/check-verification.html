@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Verification Status</title>
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+    <h2>Verification Status Check</h2>
+    <div id="status"></div>
+    <button onclick="forceCheck()">Force Check Verification</button>
+
+    <script type="module">
+        import { auth } from './usersAccount.js';
+        
+        window.forceCheck = async () => {
+            const status = document.getElementById('status');
+            if (!auth.currentUser) {
+                status.innerHTML = 'Not logged in';
+                return;
+            }
+            
+            status.innerHTML = 'Checking...';
+            
+            // Force multiple reloads
+            await auth.currentUser.reload();
+            await new Promise(r => setTimeout(r, 2000));
+            await auth.currentUser.reload();
+            
+            status.innerHTML = `
+                <strong>Email:</strong> ${auth.currentUser.email}<br>
+                <strong>Verified:</strong> ${auth.currentUser.emailVerified}<br>
+                <strong>Reloaded from server:</strong> Yes
+            `;
+        };
+    </script>
+</body>
+</html>

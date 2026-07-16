@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Sign-Up</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; background: #f9f9f9; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { padding: 10px 15px; border-radius: 6px; border: none; background: #2a7ae2; color: #fff; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #1e5cb8; }
+    #logout-btn { display: block; margin: 20px auto; background: #d9534f; }
+    #logout-btn:hover { background: #c9302c; }
+  </style>
+    <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+
+  <h2 style="text-align:center;">Admin Sign-Up</h2>
+  <form id="admin-signup-form">
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <button id="logout-btn">Logout</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged, 
+      createUserWithEmailAndPassword, 
+      signOut 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      getDoc, 
+      setDoc, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 🔧 Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.firebasestorage.app",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543",
+      measurementId: "G-WSWDCB7KD8"
+    };
+
+    // 🚀 Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("admin-signup-form");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // ✅ Ensure logged in user is super-admin
+    let currentUserRole = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "/admin-login"; 
+        return;
+      }
+
+      const adminRef = doc(db, "admins", user.uid);
+      const adminSnap = await getDoc(adminRef);
+
+      if (!adminSnap.exists()) {
+        alert("⛔ Access denied. Not an admin.");
+        await signOut(auth);
+        window.location.href = "/admin-login";
+        return;
+      }
+
+      currentUserRole = adminSnap.data().role;
+
+      if (currentUserRole !== "super-admin") {
+        alert("⛔ Only super-admin can add new admins.");
+        window.location.href = "/admin"; // normal admin dashboard
+      }
+    });
+
+    // ✍️ Only super-admin can add new admins
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+    console.log("DEBUG → role:", currentUserRole);
+
+if (currentUserRole !== "super-admin") {
+  alert("⛔ Only super-admin can add new admins. Your role is: " + currentUserRole);
+  window.location.href = "/admin";
+}
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const username = document.getElementById("username").value.trim();
+
+      try {
+        // Create new admin account
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+        const uid = newUser.uid;
+
+        // Save as normal admin
+        await setDoc(doc(db, "admins", uid), {
+          email,
+          username,
+          role: "admin",  // 🔑 always "admin"
+          createdAt: serverTimestamp()
+        });
+
+        alert(`✅ Admin account created successfully!`);
+        await signOut(auth);
+        window.location.href = "/admin-login"; 
+      } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+      }
+    });
+
+    // 🚪 Logout
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      alert("👋 Logged out successfully.");
+      window.location.href = "/admin-login";
+    });
+  </script>
+
+</body>
+</html>

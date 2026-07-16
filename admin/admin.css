@@ -1,0 +1,483 @@
+/* Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #222;
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 10px;
+  margin: 5px 0;
+  color: #ddd;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: #444;
+  color: #fff;
+}
+
+/* Main content */
+.content {
+  flex: 1;
+  padding: 30px;
+  background: #f4f4f4;
+}
+
+.content h1 {
+  margin-bottom: 20px;
+}
+
+/* Form styling */
+.form-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.form-section.hidden {
+  display: none;
+}
+
+.form-section h2 {
+  margin-bottom: 15px;
+}
+
+form label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+form input,
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background: #222;
+  color: #fff;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #444;
+}
+
+.form-message {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Footer */
+.site-footer {
+  background: #222;
+  color: #ccc;
+  padding: 20px 15px;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.footer-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.footer-links {
+  margin-top: 10px;
+}
+
+.footer-links a {
+  margin: 0 10px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+
+/* Tables in admin panel */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+table th {
+  background: #222;
+  color: #fff;
+}
+
+table td {
+  background: #fff;
+}
+
+button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.delete-btn {
+  background: #c0392b;
+  color: #fff;
+}
+
+button.delete-btn:hover {
+  background: #e74c3c;
+}
+
+button.edit-btn {
+  background: #2980b9;
+  color: #fff;
+}
+
+button.edit-btn:hover {
+  background: #3498db;
+}
+
+form input {
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Sidebar layout */
+.sidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px; /* space between primary and secondary containers */
+}
+
+/* Primary sidebar */
+.primary-sidebar {
+  background: #222;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.primary-sidebar h2 {
+  margin-bottom: 10px;
+}
+
+.primary-sidebar nav a {
+  display: block;
+  padding: 8px;
+  margin: 5px 0;
+  color: #ddd;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.primary-sidebar nav a:hover,
+.primary-sidebar nav a.active {
+  background: #444;
+  color: #fff;
+}
+
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  color: #fff;
+  padding: 40px 10px;
+}
+
+.navbar .logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  margin-right: 4%;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.nav-links a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    background: #222;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 10px 20px;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}
+
+.nav-links a {
+  margin-left: 20px;
+  color: #ddd;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* Hamburger (hidden on desktop) */
+.menu-toggle {
+  display: none;
+  font-size: 2rem;
+  color: #fff; /* white color */
+  cursor: pointer;
+  z-index: 1100;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  /* Hide nav links */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    background: #222;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 200px;
+    padding: 15px;
+    border-radius: 0 0 0 10px;
+  }
+
+  .nav-links a {
+    margin: 10px 0;
+    display: block;
+  }
+
+  /* Show hamburger in the same spot nav links were */
+  .menu-toggle {
+    display: block;
+    margin-right: 25px; /* keep it inward a little */
+  }
+
+  /* Toggle state */
+  .nav-links.show {
+    display: flex;
+  }
+}
+/* Mobile view */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+    margin-left: 0px; /* smaller margin than before (was 25px) */
+  }
+}
+
+
+.messages-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message-card {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 5px solid #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.message-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #222;
+}
+
+.message-card p {
+  margin: 5px 0;
+  color: #444;
+}
+
+.message-card small {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+
+/* Hide sidebar on small screens */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px; /* below navbar */
+    height: calc(100% - 60px);
+    transform: translateX(-100%); /* hidden by default */
+    z-index: 1000;
+    background: #f8f8f8;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+  }
+
+  .sidebar.show {
+    transform: translateX(0); /* slide in */
+  }
+
+  /* Dim the rest of the page when sidebar is open */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: rgba(0,0,0,0.3);
+    z-index: 900;
+  }
+
+  .overlay.show {
+    display: block;
+  }
+
+  /* Layout adjustment for small screens */
+  .admin-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle {
+  display: none; /* hidden on large screens */
+  position: fixed;
+  top: 70px;       /* below navbar */
+  left: 15px;      /* left side */
+  z-index: 1200;
+  font-size: 2rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Show toggle only on small screens */
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    height: calc(100% - 60px);
+    transform: translateX(-100%);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* Optional: dim rest of page */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: rgba(0,0,0,0.3);
+    z-index: 900;
+  }
+
+  .overlay.show {
+    display: block;
+  }
+
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}

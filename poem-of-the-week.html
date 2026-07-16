@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Volant Poetry | Poem of the Week</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #ffffff;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .weekly-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 5%;
+      background: white;
+    }
+    .weekly-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4b2aad;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .weekly-card {
+      background: linear-gradient(160deg, #fdf6f0, #e2e9f0) !important;
+      padding: 1.5rem;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 80%;
+      max-width: 600px;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+    .author-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .author-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .author-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .author-link {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #B8860B;
+      text-decoration: none;
+    }
+    .follow-mini-btn {
+      background: #4caf50;
+      border: none;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .follow-mini-btn.following {
+      background: #f44336;
+    }
+    .view-badge {
+      background: transparent !important;
+      padding: 4px 10px;
+      color: #4b3f2f;
+      font-size: 0.85rem;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+    .view-badge.view-update {
+      color: #4CAF50;
+      transform: scale(1.05);
+    }
+    .recent-poem-title {
+      font-family: 'Playfair Display', serif;
+      color: #4b2aad;
+      margin-top: 12px;
+      font-size: 1.8rem;
+    }
+    .poem-content {
+      margin-top: 8px;
+      white-space: pre-wrap;
+      font-style: normal;
+      color: #4b3f2f;
+      line-height: 1.5;
+      font-family: 'Lato', serif;
+    }
+    .read-more-btn {
+      background: none;
+      border: none;
+      color: #960606;
+      cursor: pointer;
+      margin-top: 5px;
+      font-size: 0.95rem;
+      font-family: 'Lato', sans-serif;
+    }
+    .poem-category-line {
+      margin: 10px 0 4px;
+      text-align: left;
+    }
+    .category-link {
+      color: #B8860B;
+      text-decoration: none;
+      background: transparent !important;
+      padding: 2px 0 !important;
+    }
+    .category-link:not(:last-child)::after {
+      content: ", ";
+      color: #B8860B;
+    }
+    .poem-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .comment-section {
+      display: flex;
+      gap: 6px;
+      flex: 0 1 auto;
+      max-width: 45%;
+    }
+    .comment-input {
+      width: 100%;
+      min-width: 120px;
+      max-width: 180px;
+      resize: vertical;
+      min-height: 36px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      font-family: 'Inter', sans-serif;
+    }
+    .comment-btn, .like-btn {
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .comment-btn {
+      background: #4b2aad !important;
+      color: white !important;
+    }
+    .like-btn {
+      background: transparent !important;
+      color: #e63946 !important;
+      font-size: 1rem;
+    }
+    .like-btn.liked {
+      background: #e63946 !important;
+      color: white !important;
+    }
+    .like-count, .message-count {
+      background: transparent !important;
+      padding: 4px 0 !important;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #2c3e50;
+    }
+    .comment-list-outside {
+      margin-top: 16px;
+      width: 80%;
+      max-width: 600px;
+    }
+    .comment-list {
+      background: white !important;
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid #f0e6d8;
+    }
+    .comment {
+      background: #faf8f5 !important;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border: 1px solid #ede3d4;
+    }
+    .reply-toggle {
+      color: #5a3cb3;
+      cursor: pointer;
+      font-size: 0.7rem;
+      margin-top: 4px;
+      display: inline-block;
+    }
+    .reply-section {
+      margin-left: 20px;
+      margin-top: 6px;
+    }
+    .reply-input textarea {
+      width: 95%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      padding: 6px;
+      resize: none;
+    }
+    .send-reply-btn {
+      background: #5a3cb3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .weekly-container { padding: 2rem 3%; }
+      .weekly-card, .comment-list-outside { width: 90%; }
+    }
+    /* Compact categories styling */
+.poem-category-line {
+  margin: 6px 0 2px !important;
+  text-align: left;
+  font-size: 0.7rem !important;
+  line-height: 1.3;
+}
+
+.category-link {
+  color: #B8860B;
+  text-decoration: none;
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: 0.7rem !important;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+.category-link:not(:last-child)::after {
+  content: ", ";
+  color: #B8860B;
+  font-size: 0.7rem;
+}
+
+/* Optional: make category section even tighter */
+.poem-category-line em {
+  font-style: normal;
+  font-size: 0.7rem;
+}
+
+  </style>
+</head>
+<body>
+
+<section class="weekly-container">
+  <h2 class="weekly-title">Poem of the Week</h2>
+  <div class="weekly-card" id="poemCard"></div>
+  <div class="comment-list-outside" id="commentsOutsideContainer"></div>
+</section>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { 
+    getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, addDoc, 
+    increment, serverTimestamp, query, orderBy, getDocs, writeBatch 
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  onAuthStateChanged(auth, (user) => { currentUser = user; refreshAllFollowButtons(); });
+
+  // ============================================
+  // SILENT READ TRACKING SYSTEM (no console logs)
+  // ============================================
+  const READ_TRACKING_KEY = 'weekly_poem_read_tracking';
+  const READ_TIMEOUT_MINUTES = 30;
+  const READ_DELAY_SECONDS = 8;
+  const VIEW_THRESHOLD = 0.6;
+  
+  let activeReadTimer = null;
+  let viewStartTime = null;
+  let isTracking = false;
+  let currentPoemId = 'weeklyPoem';
+  
+  function getReadTracking() {
+    const stored = sessionStorage.getItem(READ_TRACKING_KEY);
+    if (!stored) return {};
+    try {
+      const tracking = JSON.parse(stored);
+      const now = Date.now();
+      const cleaned = {};
+      for (const [poemId, timestamp] of Object.entries(tracking)) {
+        if (now - timestamp < READ_TIMEOUT_MINUTES * 60 * 1000) {
+          cleaned[poemId] = timestamp;
+        }
+      }
+      return cleaned;
+    } catch (e) { return {}; }
+  }
+  
+  function saveReadTracking(tracking) {
+    try {
+      sessionStorage.setItem(READ_TRACKING_KEY, JSON.stringify(tracking));
+    } catch (e) {}
+  }
+  
+  function wasRecentlyRead(poemId) {
+    const tracking = getReadTracking();
+    const now = Date.now();
+    return tracking[poemId] && (now - tracking[poemId] < READ_TIMEOUT_MINUTES * 60 * 1000);
+  }
+  
+  async function recordViewToFirebase(poemId) {
+    if (wasRecentlyRead(poemId)) return false;
+    
+    try {
+      const poemRef = doc(db, "weeklyHighlights", "weeklyPoem");
+      await updateDoc(poemRef, { views: increment(1) });
+      
+      const tracking = getReadTracking();
+      tracking[poemId] = Date.now();
+      saveReadTracking(tracking);
+      
+      const viewSpan = document.querySelector('.view-badge');
+      if (viewSpan) {
+        const currentText = viewSpan.textContent;
+        const match = currentText.match(/\d+/);
+        if (match) {
+          const currentCount = parseInt(match[0]);
+          const newCount = currentCount + 1;
+          viewSpan.innerHTML = ` ${newCount} reads`;
+          viewSpan.classList.add('view-update');
+          setTimeout(() => viewSpan.classList.remove('view-update'), 1000);
+        }
+      }
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+  
+  function startTrackingPoem() {
+    if (!currentPoemId) return;
+    if (wasRecentlyRead(currentPoemId)) return;
+    if (activeReadTimer) return;
+    
+    viewStartTime = Date.now();
+    isTracking = true;
+    
+    activeReadTimer = setTimeout(async () => {
+      const viewDuration = Date.now() - viewStartTime;
+      if (!wasRecentlyRead(currentPoemId) && viewDuration >= READ_DELAY_SECONDS * 1000) {
+        await recordViewToFirebase(currentPoemId);
+      }
+      clearTimeout(activeReadTimer);
+      activeReadTimer = null;
+      isTracking = false;
+      viewStartTime = null;
+    }, READ_DELAY_SECONDS * 1000);
+  }
+  
+  function stopTrackingPoem() {
+    if (activeReadTimer) {
+      clearTimeout(activeReadTimer);
+      activeReadTimer = null;
+    }
+    isTracking = false;
+    viewStartTime = null;
+  }
+
+  // ============================================
+  // SILENT NOTIFICATION SENDER (no console logs)
+  // ============================================
+  async function sendNotification(forUserId, fromUserId, type, data = {}) {
+    if (!forUserId || !fromUserId || forUserId === fromUserId) return;
+    try {
+      const userDoc = await getDoc(doc(db, "users", fromUserId));
+      const fromUserName = userDoc.exists() ? userDoc.data().username : "Someone";
+      const notification = { 
+        forUser: forUserId, 
+        fromUser: fromUserId, 
+        fromUserName, 
+        type, 
+        timestamp: serverTimestamp(), 
+        read: false, 
+        ...data 
+      };
+      await addDoc(collection(db, "notifications"), notification);
+    } catch(e) {}
+  }
+
+  // ---------------- Follow logic ----------------
+  let followCache = new Map();
+  async function isFollowing(poetId, uid) {
+    if (!uid || !poetId || uid === poetId) return false;
+    if (followCache.has(poetId)) return followCache.get(poetId);
+    try {
+      const snap = await getDoc(doc(db, "social", `${uid}_${poetId}`));
+      const val = snap.exists();
+      followCache.set(poetId, val);
+      return val;
+    } catch(e) { return false; }
+  }
+
+  async function handleFollowClick(poetId, btnElement) {
+    if (!currentUser) { alert("Please sign in to follow poets."); return; }
+    if (!poetId || currentUser.uid === poetId) return;
+    const docId = `${currentUser.uid}_${poetId}`;
+    const followRef = doc(db, "social", docId);
+    const currently = followCache.get(poetId) || false;
+    const batch = writeBatch(db);
+    try {
+      if (currently) {
+        batch.delete(followRef);
+        batch.update(doc(db, "users", poetId), { followerCount: increment(-1) });
+        batch.update(doc(db, "users", currentUser.uid), { followingCount: increment(-1) });
+        await batch.commit();
+        followCache.set(poetId, false);
+        btnElement.textContent = "Follow";
+        btnElement.classList.remove("following");
+        btnElement.style.background = "#4CAF50";
+      } else {
+        batch.set(followRef, { followerId: currentUser.uid, followedId: poetId, createdAt: serverTimestamp() });
+        batch.update(doc(db, "users", poetId), { followerCount: increment(1) });
+        batch.update(doc(db, "users", currentUser.uid), { followingCount: increment(1) });
+        await batch.commit();
+        followCache.set(poetId, true);
+        btnElement.textContent = "Following";
+        btnElement.classList.add("following");
+        btnElement.style.background = "#f44336";
+        await sendNotification(poetId, currentUser.uid, 'follow', {});
+      }
+    } catch(err) { alert("Error updating follow."); }
+  }
+
+  function refreshAllFollowButtons() {
+    document.querySelectorAll('.follow-mini-btn').forEach(btn => {
+      const poetId = btn.dataset.poetId;
+      if (!poetId || !currentUser) return;
+      isFollowing(poetId, currentUser.uid).then(following => {
+        if (following) {
+          btn.textContent = "Following";
+          btn.classList.add("following");
+          btn.style.background = "#f44336";
+        } else {
+          btn.textContent = "Follow";
+          btn.classList.remove("following");
+          btn.style.background = "#4CAF50";
+        }
+      });
+    });
+  }
+
+  // ---------- Load Poem ----------
+  async function loadPoemOfTheWeek() {
+    const cardContainer = document.getElementById("poemCard");
+    const outsideComments = document.getElementById("commentsOutsideContainer");
+    cardContainer.innerHTML = `<div style="text-align:center; padding:20px;">Loading poem...</div>`;
+    outsideComments.innerHTML = "";
+
+    try {
+      const poemRef = doc(db, "weeklyHighlights", "weeklyPoem");
+      const snap = await getDoc(poemRef);
+      if (!snap.exists()) { cardContainer.innerHTML = `<div>No poem this week.</div>`; return; }
+      const data = snap.data();
+      const authorId = data.authorId || "";
+      let displayName = data.authorName || data.author || "Anonymous";
+      let profileLink = "#";
+      let profileImage = "/images/default-avatar.png";
+
+      if (authorId) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", authorId));
+          if (userDoc.exists()) {
+            const u = userDoc.data();
+            displayName = u.username || displayName;
+            profileLink = `/user-profile.html?uid=${authorId}`;
+            profileImage = u.photoURL || u.cachedAvatarURL || profileImage;
+          }
+        } catch(e) {}
+      }
+
+      const title = data.title || "Untitled";
+      const fullContent = data.content || "";
+      const lines = fullContent.split("\n");
+      const previewLines = lines.slice(0, 18);
+      const restLines = lines.slice(18);
+      const previewHtml = previewLines.join("<br>");
+      const fullHtml = fullContent.replace(/\n/g, "<br>");
+      const likesCount = data.likes || 0;
+      const viewsCount = data.views || 0;
+      const categories = data.categories || ["Poetry", "Reflection"];
+      const likedBy = data.likedBy || [];
+
+      let followingStatus = false;
+      if (currentUser && authorId && currentUser.uid !== authorId) followingStatus = await isFollowing(authorId, currentUser.uid);
+
+      const followBtnHtml = (currentUser && authorId && currentUser.uid !== authorId) 
+        ? `<button class="follow-mini-btn ${followingStatus ? 'following' : ''}" data-poet-id="${authorId}" style="background: ${followingStatus ? '#f44336' : '#4CAF50'};">${followingStatus ? 'Following' : 'Follow'}</button>` 
+        : '';
+
+      cardContainer.innerHTML = `
+        <div class="author-line">
+          <div class="author-left">
+            <img src="${profileImage}" class="author-img" onerror="this.src='/images/default-avatar.png'">
+            <div>
+              <a href="${profileLink}" class="author-link">${escapeHtml(displayName)}</a>
+              <div style="margin-top: 2px;">${followBtnHtml}</div>
+            </div>
+          </div>
+          <div class="view-badge"> ${viewsCount} reads</div>
+        </div>
+        <h3 class="recent-poem-title">${escapeHtml(title)}</h3>
+        <div class="poem-content" id="poemContentBlock">${previewHtml}</div>
+        ${restLines.length ? '<button class="read-more-btn" id="readMoreBtn">Read More</button>' : ''}
+        <div class="poem-category-line">
+          ${categories.map(cat => `<a href="category.html?name=${encodeURIComponent(cat)}" class="category-link">${escapeHtml(cat)}</a>`).join(" ")}
+        </div>
+        <div class="poem-actions">
+          <div class="comment-section">
+            <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
+            <button class="comment-btn">Post</button>
+          </div>
+          <button class="like-btn ${likedBy.includes(currentUser?.uid) ? 'liked' : ''}">❤️ <span class="like-count-val">${likesCount}</span></button>
+          <span class="message-count" id="toggleCommentsBtn">💬 <span id="commentCountBadge">0</span></span>
+        </div>
+      `;
+
+      // READ MORE toggle
+      const moreBtn = document.getElementById("readMoreBtn");
+      const contentDiv = document.getElementById("poemContentBlock");
+      if (moreBtn) {
+        let expanded = false;
+        moreBtn.addEventListener("click", () => {
+          if (!expanded) { contentDiv.innerHTML = fullHtml; moreBtn.textContent = "Show Less"; }
+          else { contentDiv.innerHTML = previewHtml; moreBtn.textContent = "Read More"; }
+          expanded = !expanded;
+        });
+      }
+
+      // LIKE with notification
+      const likeBtn = cardContainer.querySelector(".like-btn");
+      const likeSpan = cardContainer.querySelector(".like-count-val");
+      likeBtn.addEventListener("click", async () => {
+        if (!currentUser) { alert("Sign in to like."); return; }
+        const poemDocRef = doc(db, "weeklyHighlights", "weeklyPoem");
+        const currSnap = await getDoc(poemDocRef);
+        const currData = currSnap.data();
+        const currLikedBy = currData.likedBy || [];
+        let newLikes = currData.likes || 0;
+        if (currLikedBy.includes(currentUser.uid)) {
+          await updateDoc(poemDocRef, { likes: Math.max(newLikes - 1, 0), likedBy: arrayRemove(currentUser.uid) });
+          likeSpan.textContent = Math.max(newLikes - 1, 0);
+          likeBtn.classList.remove("liked");
+        } else {
+          await updateDoc(poemDocRef, { likes: newLikes + 1, likedBy: arrayUnion(currentUser.uid) });
+          likeSpan.textContent = newLikes + 1;
+          likeBtn.classList.add("liked");
+          if (authorId && authorId !== currentUser.uid) {
+            await sendNotification(authorId, currentUser.uid, 'like', { poemId: "weeklyPoem", poemTitle: title });
+          }
+        }
+      });
+
+      // SETUP SILENT READ TRACKING
+      const poemCardElement = cardContainer;
+      const readObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= VIEW_THRESHOLD) {
+            startTrackingPoem();
+          } else if (entry.intersectionRatio < VIEW_THRESHOLD && isTracking) {
+            stopTrackingPoem();
+          }
+        }
+      }, { threshold: [0, VIEW_THRESHOLD], rootMargin: "0px" });
+      
+      readObserver.observe(poemCardElement);
+      
+      window.addEventListener('beforeunload', () => {
+        readObserver.disconnect();
+        stopTrackingPoem();
+      });
+
+      // COMMENT SECTION
+      const outsideDiv = document.getElementById("commentsOutsideContainer");
+      const commentListDiv = document.createElement("div");
+      commentListDiv.className = "comment-list";
+      commentListDiv.id = "weeklyCommentList";
+      commentListDiv.style.display = "none";
+      outsideDiv.innerHTML = "";
+      outsideDiv.appendChild(commentListDiv);
+
+      async function renderCommentsAndCount() {
+        const commentsRef = collection(db, "weeklyHighlights", "weeklyPoem", "comments");
+        const q = query(commentsRef, orderBy("timestamp", "desc"));
+        const snapComments = await getDocs(q);
+        const badgeSpan = document.getElementById("commentCountBadge");
+        if (badgeSpan) badgeSpan.innerText = snapComments.size;
+        commentListDiv.innerHTML = "";
+        if (snapComments.empty) {
+          commentListDiv.innerHTML = "<p style='padding: 10px; color:#6b5a48;'>No comments yet. Be the first!</p>";
+          return;
+        }
+        for (const commentDoc of snapComments.docs) {
+          const com = commentDoc.data();
+          const commentId = commentDoc.id;
+          const commentDivElem = document.createElement("div");
+          commentDivElem.className = "comment";
+          commentDivElem.dataset.commentId = commentId;
+          const authorName = com.username || "Anonymous";
+          const authorLink = com.userId ? `<a href="/user-profile.html?uid=${com.userId}" style="font-weight:600;color:#4b2aad; text-decoration:none;">${escapeHtml(authorName)}</a>` : `<strong>${escapeHtml(authorName)}</strong>`;
+          commentDivElem.innerHTML = `
+            <div>${authorLink}: ${escapeHtml(com.text)}</div>
+            <div><small class="reply-toggle" style="cursor:pointer;">Reply</small></div>
+            <div class="reply-section"></div>
+          `;
+          const repliesRef = collection(db, "weeklyHighlights", "weeklyPoem", "comments", commentId, "replies");
+          const repliesSnap = await getDocs(query(repliesRef, orderBy("timestamp", "asc")));
+          const replySectionDiv = commentDivElem.querySelector(".reply-section");
+          repliesSnap.forEach(replyDoc => {
+            const reply = replyDoc.data();
+            const replyUser = reply.username || "Anonymous";
+            const replyLink = reply.userId ? `<a href="/user-profile.html?uid=${reply.userId}" style="color:#B8860B; text-decoration:none;">${escapeHtml(replyUser)}</a>` : `<strong>${escapeHtml(replyUser)}</strong>`;
+            const replyElem = document.createElement("div");
+            replyElem.style.background = "#f9f3ea";
+            replyElem.style.padding = "6px 10px";
+            replyElem.style.borderRadius = "12px";
+            replyElem.style.margin = "5px 0";
+            replyElem.innerHTML = `${replyLink}: ${escapeHtml(reply.text)}`;
+            replySectionDiv.appendChild(replyElem);
+          });
+          commentListDiv.appendChild(commentDivElem);
+        }
+      }
+
+      const toggleBtn = document.getElementById("toggleCommentsBtn");
+      toggleBtn.addEventListener("click", async () => {
+        if (commentListDiv.style.display === "block") {
+          commentListDiv.style.display = "none";
+        } else {
+          await renderCommentsAndCount();
+          commentListDiv.style.display = "block";
+        }
+      });
+      await renderCommentsAndCount();
+
+      // POST COMMENT
+      const postBtn = cardContainer.querySelector(".comment-btn");
+      const commentInput = cardContainer.querySelector(".comment-input");
+      postBtn.addEventListener("click", async () => {
+        if (!currentUser) { alert("Please sign in to comment."); return; }
+        const text = commentInput.value.trim();
+        if (!text) return;
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        const username = userDoc.exists() ? userDoc.data().username : currentUser.email?.split('@')[0] || "Poet";
+        await addDoc(collection(db, "weeklyHighlights", "weeklyPoem", "comments"), {
+          userId: currentUser.uid, username: username, text: text, timestamp: serverTimestamp()
+        });
+        commentInput.value = "";
+        if (commentListDiv.style.display === "block") await renderCommentsAndCount();
+        else {
+          const commentsRef = collection(db, "weeklyHighlights", "weeklyPoem", "comments");
+          const newSnap = await getDocs(commentsRef);
+          const badge = document.getElementById("commentCountBadge");
+          if (badge) badge.innerText = newSnap.size;
+        }
+        if (authorId && authorId !== currentUser.uid) {
+          await sendNotification(authorId, currentUser.uid, 'comment', { poemId: "weeklyPoem", poemTitle: title, commentText: text });
+        }
+      });
+
+      // REPLY HANDLER
+      commentListDiv.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("reply-toggle")) {
+          const commentDivElem = e.target.closest(".comment");
+          const replySection = commentDivElem.querySelector(".reply-section");
+          if (replySection.querySelector(".reply-input")) return;
+          const inputArea = document.createElement("div");
+          inputArea.className = "reply-input";
+          inputArea.innerHTML = `<textarea rows="2" placeholder="Write a reply..."></textarea><div><button class="send-reply-btn">Send Reply</button></div>`;
+          replySection.appendChild(inputArea);
+        }
+        if (e.target.classList.contains("send-reply-btn")) {
+          if (!currentUser) { alert("Sign in to reply."); return; }
+          const replyBtn = e.target;
+          const replyInputDiv = replyBtn.closest(".reply-input");
+          const textarea = replyInputDiv.querySelector("textarea");
+          const replyText = textarea.value.trim();
+          if (!replyText) return;
+          const commentDivElem = replyBtn.closest(".comment");
+          const commentId = commentDivElem.dataset.commentId;
+          if (!commentId) return;
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          const username = userDoc.exists() ? userDoc.data().username : currentUser.email?.split('@')[0] || "Reader";
+          
+          await addDoc(collection(db, "weeklyHighlights", "weeklyPoem", "comments", commentId, "replies"), {
+            userId: currentUser.uid, username: username, text: replyText, timestamp: serverTimestamp()
+          });
+          
+          const commentSnap = await getDoc(doc(db, "weeklyHighlights", "weeklyPoem", "comments", commentId));
+          const commentOwner = commentSnap.exists() ? commentSnap.data().userId : null;
+
+          const repliesRef = collection(db, "weeklyHighlights", "weeklyPoem", "comments", commentId, "replies");
+          const repliesSnap = await getDocs(query(repliesRef, orderBy("timestamp", "asc")));
+          const replySectionDiv = commentDivElem.querySelector(".reply-section");
+          const children = [...replySectionDiv.children];
+          for (let child of children) if (!child.classList || !child.classList.contains("reply-input")) child.remove();
+          repliesSnap.forEach(replyDoc => {
+            const reply = replyDoc.data();
+            const replyUser = reply.username || "Anonymous";
+            const replyLink = reply.userId ? `<a href="/user-profile.html?uid=${reply.userId}" style="color:#B8860B; text-decoration:none;">${escapeHtml(replyUser)}</a>` : `<strong>${escapeHtml(replyUser)}</strong>`;
+            const replyElem = document.createElement("div");
+            replyElem.style.background = "#f9f3ea";
+            replyElem.style.padding = "6px 10px";
+            replyElem.style.borderRadius = "12px";
+            replyElem.style.margin = "5px 0";
+            replyElem.innerHTML = `${replyLink}: ${escapeHtml(reply.text)}`;
+            replySectionDiv.insertBefore(replyElem, replyInputDiv);
+          });
+          replyInputDiv.remove();
+
+          if (commentOwner && commentOwner !== currentUser.uid) {
+            await sendNotification(commentOwner, currentUser.uid, 'reply', { 
+              poemId: "weeklyPoem", poemTitle: title, commentId: commentId, replyText: replyText 
+            });
+          }
+        }
+      });
+
+      // Follow button
+      const followBtn = cardContainer.querySelector(".follow-mini-btn");
+      if (followBtn && authorId) {
+        followBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          handleFollowClick(authorId, followBtn);
+        });
+      }
+
+    } catch (err) {
+      document.getElementById("poemCard").innerHTML = `<div style="color:red;">Error loading poem.</div>`;
+    }
+  }
+
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m) { if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
+
+  loadPoemOfTheWeek();
+</script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>

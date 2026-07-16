@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Content - Volant Poetry</title>
+  <link rel="stylesheet" href="../admin/admin.css"/>
+  <style>
+/* Sidebar toggle button */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 70px;
+  left: 10px;
+  z-index: 1600;
+  font-size: 2rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Hide sidebar on small screens */
+@media (max-width: 768px) {
+  #sidebar-toggle { display: block; }
+
+  aside.sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: calc(100% - 60px);
+    transform: translateX(-100%);
+    z-index: 1400;
+  }
+
+  aside.sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-layout { flex-direction: column; }
+  main.content { margin-left: 0; padding: 15px; }
+}</style>
+  <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+  <!-- Navbar -->
+   <nav class="navbar">
+  <div class="logo">Volant Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="/admin" class="active">1st Admin Panel</a>
+  <a href="/3 admin-panel">2rd Admin Panel</a>
+         <a href="/manage" class="active">Manage Poems</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<!-- Sidebar toggle -->
+<button id="sidebar-toggle">☰</button>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Admin</h2>
+      <nav>
+        <a href="#" class="active" data-section="poemsSection">Poems</a>
+        <a href="#" data-section="quotesSection">Quotes</a>
+        <a href="#" data-section="recentSection">Recent Poems</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <h1>Manage Verses</h1>
+
+      <!-- Poems Table -->
+      <section id="poemsSection" class="form-section">
+        <h2>Poems</h2>
+        <table id="poemsTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Quotes Table -->
+      <section id="quotesSection" class="form-section hidden">
+        <h2>Quotes</h2>
+        <table id="quotesTable">
+          <thead>
+            <tr>
+              <th>Quote</th>
+              <th>Author</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Recent Poems Table -->
+      <section id="recentSection" class="form-section hidden">
+        <h2>Recent Poems</h2>
+        <table id="recentTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2025 Volant Poetry. All rights reserved.</p>
+      <nav class="footer-links">
+        <a href="/">Home</a>
+        <a href="../poems">Poems</a>
+        <a href="/quotes">Quotes</a>
+        <a href="../shared/about">About</a>
+        <a href="../shared/contact">Contact</a>
+      </nav>
+    </div>
+  </footer>
+    <Script>// Navbar toggle (for mobile menu)
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  if (toggle && navLinks) {
+    toggle.addEventListener("click", () => {
+      navLinks.classList.toggle("show");
+    });
+  }
+
+  // Close menu on link click (mobile)
+  if (navLinks) {
+    const links = navLinks.querySelectorAll("a");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("show");
+      });
+    });
+  }
+});
+</Script>
+<script>
+// Sidebar toggle logic
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
+
+sidebarToggle.addEventListener("click", () => {
+  sidebar.classList.toggle("show");
+});
+</script>
+
+  <script type="module" src="../admin/manage.js"></script>
+</body>
+</html>

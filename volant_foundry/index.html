@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Volant Foundry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="../images/volant-foundry-favicon.png">
+    <link rel="apple-touch-icon" href="../images/volant-foundry-favicon.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        main {
+            padding-top: 70px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            display: flex;
+            padding: 15px 74px;
+            justify-content: space-between;
+            background-color: #ffffff;
+            text-align: center;
+            align-items: center;
+            position: fixed;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            height: 70px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-image {
+            display: flex;
+            height: 40px;
+            gap: 0px;
+            text-align: center;
+            max-height: 40px;
+            margin-left: 55px;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .img {
+            height: 40px;
+            width: 40px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #4b2aad;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+        }
+
+        .logo-highlight {
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 2px #4b2aad, 0 0 4px #4b2aad, 0 0 6px #4b2aad;
+            opacity: 1;
+        }
+
+        .nav-links a {
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            color: #2d2a24;
+            margin-left: -72px;
+            letter-spacing: 0px;
+            margin-right: 100px;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #4b2aad;
+        }
+
+        /* Hamburger Menu Button */
+        #menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #2d2a24;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+
+        .hero {
+            padding: 150px;
+            background-color: black;
+            margin-top: 1px;
+            align-items: center;
+            text-align: center;
+            padding-top: 100px;
+            padding-bottom: 80px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #fff;
+            font-size: 45px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .hero p {
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            font-weight: 300;
+            max-width: 600px;
+            margin: auto;
+            margin-bottom: 58px;
+        }
+
+        .hero-btn a {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-decoration: none;
+            margin-inline: 4px;
+            padding: 11px;
+            border-radius: 15px;
+            font-size: 17px;
+        }
+        .secondary:hover {
+            color: #c49a2c;
+            transform: translateY(-2px);
+        }
+        .primary:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .primary {
+            background-color: #bfb38e;
+            color: #111111;
+        }
+        .secondary {
+            background-color: none;
+            color: #fff;
+            border: 1px solid #beb5b5;
+        }
+
+        .eco-cards {
+            display: flex;
+            padding: 70px;
+            gap: 18px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            margin-bottom: 20px;
+        }
+
+        .eco-card {
+            border: 1px solid rgb(245, 242, 242);
+            padding: 39px;
+            border-radius: 18px;
+            padding-top: 16px;
+            max-width: 250px;
+            margin-left: 55px;
+            background: #fff;
+        }
+
+        .eco-card h4 {
+            font-family: 'DM Serif Display', Georgia, serif;
+            font-size: 19px;
+            margin-bottom: 15px;
+            margin-top: 12px;
+        }
+
+        .eco-card p {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 250;
+            margin-bottom: 15px;
+        }
+
+        .eco-card a {
+            font-family: 'Space Grotesk', sans-serif;
+            text-decoration: none;
+            color: #8b1e1e;
+            font-weight: 500;
+        }
+
+        h3 {
+            font-family: "Cormorant Garamond", serif !important;
+            font-size: 28px;
+            text-align: left;
+            margin-top: 10px;
+            margin-bottom: 32px;
+            padding: 0px 70px;
+            line-height: 1.3;
+        }
+
+        .our-eco {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            margin-top: 45px;
+            padding: 0px 70px;
+            font-weight: 250;
+            color: #beb5b5;
+            margin-left: 55px;
+        }
+
+        .eco-intro {
+            display: flex;
+            justify-content: space-between;
+            margin-left: 55px;
+        }
+
+        .ex {
+            font-family: 'Inter', sans-serif;
+            text-align: right;
+            padding: 0px 75px;
+            font-weight: 250;
+            font-size: 15px;
+            margin-top: 10px;
+            margin-bottom: 32px;
+            line-height: 1.3;
+            margin-right: 100px;
+        }
+
+        .what-main {
+            background-color: #0B0F14;
+            color: #fff;
+            padding-top: 2px;
+            padding-bottom: 40px;
+            margin-bottom: 25px;
+        }
+
+        .what-cards {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr 1fr;
+            margin-left: 55px;
+        }
+
+        .what-card {
+            border-right: 1px solid #beb5b5;
+            border-right-style: dotted;
+        }
+
+        .what-card1 h6 {
+            text-align: left;
+            font-size: 23px;
+            margin-top: 15px;
+            font-weight: 300;
+            padding: 0px 20px;
+            margin-bottom: 9px;
+        }
+
+        .what-card1 p {
+            padding: 0px 20px;
+            font-size: 17px;
+            color: #beb5b5;
+            max-width: 200px;
+        }
+
+        .what-eco {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            margin-top: 40px;
+            padding: 0px 70px;
+            color: #beb5b5;
+            margin-left: 55px;
+        }
+
+        .what-p {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 25px !important;
+            text-align: left !important;
+            margin-top: 20px !important;
+            padding: 0px 70px !important;
+            color: #fff !important;
+            max-width: 444px !important;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        .what-card h6 {
+            font-family: 'Instrument Serif', Georgia, serif;
+            text-align: left;
+            font-size: 23px;
+            margin-top: 15px;
+            font-weight: 300;
+            padding: 0px 20px;
+            margin-bottom: 9px;
+        }
+
+        .what-card p {
+            font-family: 'Inter', sans-serif;
+            padding: 0px 20px;
+            font-size: 17px;
+            color: #beb5b5;
+            max-width: 200px;
+        }
+
+        .what-eco-fea {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            margin-top: 25px;
+            padding: 0px 70px;
+            color: #beb5b5;
+            font-weight: 200 !important;
+            margin-left: 55px !important;
+        }
+
+        .what-p-fea {
+            font-family: "Cormorant Garamond", serif !important;
+            font-size: 28px !important;
+            text-align: left !important;
+            margin-top: 20px !important;
+            padding: 0px 70px !important;
+            color: #0B0F14;
+            max-width: 444px !important;
+            line-height: 1.3;
+            font-weight: bold;
+            margin-left: 55px;
+        }
+
+        .what-p-fea1 {
+            font-size: 15px !important;
+            text-align: left !important;
+            margin-top: 15px !important;
+            padding: 0px 70px !important;
+            color: #0B0F14;
+            max-width: 444px !important;
+            line-height: 1.5;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            display: grid;
+            grid-template-columns: 0.6fr 0.3fr 0.3fr 0.4fr 1fr;
+            justify-content: space-between;
+            background-color: #1a1714;
+            color: #e8e0d8;
+            padding: 44px;
+            padding-bottom: 12px;
+        }
+
+        .footer-card {
+            display: grid;
+            margin-left: 55px;
+        }
+
+        .footer-logo {
+            display: flex;
+            margin-left: 55px;
+            align-items: center;
+        }
+        .footer-logo .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #ffffff;
+            margin-left: 8px;
+        }
+        .footer-logo .logo-highlight {
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 2px #4b2aad, 0 0 4px #4b2aad, 0 0 6px #4b2aad;
+            opacity: 1;
+        }
+        .footer h4 {
+            font-family: 'DM Serif Display', Georgia, serif;
+            margin-bottom: 8px;
+            color: #eae7e7;
+        }
+        .footer-img {
+            height: 40px;
+            width: 40px;
+            object-fit: contain;
+        }
+
+        .footer-bottom {
+            background-color: #1a1714;
+            color: #beb5b5;
+            border-top: 0.5px solid #beb5b5;
+            text-align: center;
+            align-items: center;
+            padding: 5px 0px;
+            font-size: 13px;
+        }
+
+        .footer-card a {
+            font-family: 'Inter', sans-serif;
+            color: #beb5b5;
+            text-decoration: none;
+            line-height: 1.5;
+        }
+
+        .location {
+            margin-bottom: 80px;
+            color: #beb5b5;
+        }
+
+        .PenCheaper {
+            margin-bottom: 70px;
+        }
+
+        .footer-logo-p {
+            margin-top: 20px;
+            margin-left: 55px;
+            font-size: 14px;
+        }
+
+        /* Logo */
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        /* Hero heading */
+        h2 {
+            font-family: "Cormorant Garamond", serif;
+            font-weight: 600;
+        }
+
+        /* Section headings */
+        h3 {
+            font-family: "Cormorant Garamond", serif;
+            font-weight: 600;
+        }
+
+        /* Card titles */
+        .eco-card h4,
+        .what-card h6,
+        .what-card1 h6,
+        .footer h4 {
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+        }
+
+        /* Body text */
+        body,
+        p,
+        a,
+        input,
+        button,
+        .nav-links a,
+        .hero p,
+        .eco-card p,
+        .what-card p,
+        .what-card1 p,
+        .footer-card a,
+        .footer-logo-p {
+            font-family: "Inter", sans-serif;
+        }
+
+        .innit-img {
+            align-items: center;
+            padding: 19px;
+            text-align: left;
+            margin-top: -18px !important;
+        }
+
+        .innit-img-eco-card {
+            align-items: center;
+            padding: 19px 0px;
+            text-align: left;
+            margin-top: -18px !important;
+        }
+
+        .build-image {
+            height: 50px;
+            margin-bottom: -24px;
+            border-radius: 4px;
+        }
+
+        .latest-main {
+            display: grid;
+            grid-template-columns: 1.2fr 1.1fr 1.5fr;
+        }
+
+        .latest {
+            padding: 64px 0px;
+            padding-top: 5px;
+            margin-bottom: 2px;
+        }
+
+        .book-cover {
+            width: 90px;
+            height: 120px;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .books {
+            display: flex;
+            margin-top: 25px;
+        }
+
+        .title-des-eco {
+            display: grid;
+        }
+
+        .book-title {
+            color: #111111;
+            font-size: 23px;
+            margin-left: 19px;
+            padding-top: 0px !important;
+            margin-bottom: -30px;
+            font-weight: bold;
+            font-family: "Cormorant Garamond", serif;
+        }
+
+        .des-eco {
+            display: grid;
+            margin-left: 19px;
+            line-height: 1.4;
+            margin-top: -10px;
+            font-weight: 400;
+        }
+
+        .book-des {
+            font-size: 17px;
+            font-family: "Cormorant Garamond", serif;
+            margin-bottom: 4px;
+            margin-top: 4px;
+        }
+
+        .book-eco {
+            font-size: 17px;
+            margin-top: 0px;
+            font-family: "Cormorant Garamond", serif;
+        }
+
+        /* ===== MORE BOOKS - same style as latest books ===== */
+        .more-books-section {
+            padding: 20px 70px 10px 70px;
+        }
+        .more-books-section .more-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: #beb5b5;
+            font-weight: 200;
+            margin-bottom: 20px;
+        }
+        .more-books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 8px;
+        }
+        .more-book-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .more-book-item:hover {
+            background: #f5f3f0;
+        }
+        .more-book-item img {
+            width: 90px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .more-book-item .more-info {
+            display: grid;
+            padding-top: 4px;
+        }
+        .more-book-item .more-info h4 {
+            font-size: 23px;
+            font-family: "Cormorant Garamond", serif;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: -6px;
+        }
+        .more-book-item .more-info .more-des {
+            font-size: 17px;
+            font-family: "Cormorant Garamond", serif;
+            color: #111;
+            margin-bottom: 2px;
+        }
+        .more-book-item .more-info .more-meta {
+            font-size: 17px;
+            font-family: "Cormorant Garamond", serif;
+            color: #777;
+        }
+
+        /* ===== JOIN THE HORIZON (right column on large screens) ===== */
+        .join-horizon-right {
+            padding: 64px 0px;
+            padding-top: 5px;
+            margin-bottom: 2px;
+        }
+        .join-horizon-right .join-horizon {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: #beb5b5;
+            font-weight: 200 !important;
+            margin-bottom: 10px;
+        }
+        .join-horizon-right .join-horizon-p1 {
+            font-family: "Cormorant Garamond", serif !important;
+            font-size: 28px !important;
+            text-align: left !important;
+            color: #0B0F14;
+            line-height: 1.3;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .join-horizon-right .join-horizon-p2 {
+            font-size: 15px !important;
+            text-align: left !important;
+            color: #0B0F14;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+        .join-horizon-right .join {
+            display: grid;
+            max-width: 350px !important;
+        }
+        .join-horizon-right .join-field-css {
+            font-size: 20px;
+            padding: 9px;
+            border-radius: 7px;
+            max-width: 100%;
+            max-height: 45px;
+            border: 1px solid #ddd;
+        }
+        .join-horizon-right .join-btn {
+            font-family: 'Inter', sans-serif !important;
+            text-decoration: none;
+            margin: auto;
+            margin-top: 8px;
+            align-items: center;
+            color: #fff;
+            background-color: #0B0F14;
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 17px;
+            max-width: 200px;
+            border: none;
+            cursor: pointer;
+        }
+        .join-horizon-right .join-btn:hover {
+            background-color: #bfb38e;
+            color: #0B0F14;
+        }
+
+        /* ===== VOLANT CODES – big images, 4 per row, clean white bg ===== */
+        .codes-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            padding: 0 70px 30px 70px;
+        }
+        .code-item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px;
+            transition: 0.2s;
+            border: 1px solid #f0ede8;
+            text-align: left;
+            cursor: pointer;
+        }
+        .code-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+        .code-item img {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f8f6f2;
+            display: block;
+            cursor: pointer;
+        }
+        .code-item h4 {
+            font-size: 17px;
+            margin: 12px 0 2px;
+            color: #1a1714;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+        }
+        .code-item .code-meta {
+            font-size: 14px;
+            color: #777;
+            font-family: "Cormorant Garamond", serif;
+            margin-bottom: 2px;
+        }
+        .code-item .tag {
+            display: inline-block;
+            background: #eae7e0;
+            border-radius: 30px;
+            padding: 2px 14px;
+            font-size: 12px;
+            color: #2d2a24;
+            margin-top: 4px;
+            font-family: "Inter", sans-serif;
+        }
+
+        /* ===== LIGHTBOX MODAL ===== */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92);
+            overflow: auto;
+            animation: fadeIn 0.3s;
+        }
+        .lightbox.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+        }
+        .lightbox-close {
+            position: fixed;
+            top: 25px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 1001;
+            font-family: 'Inter', sans-serif;
+        }
+        .lightbox-close:hover {
+            color: #bfb38e;
+            transform: scale(1.1);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ===== JOIN section - standalone (hidden on large, shown on small) ===== */
+        .join-section-mobile {
+            display: none;
+            background: #faf9f7;
+            padding: 20px 70px 50px 70px;
+        }
+        .join-section-mobile .join-container {
+            max-width: 500px;
+        }
+        .join-section-mobile .join-horizon {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: #beb5b5;
+            font-weight: 200 !important;
+            margin-bottom: 10px;
+            padding: 0 !important;
+        }
+        .join-section-mobile .join-horizon-p1 {
+            font-family: "Cormorant Garamond", serif !important;
+            font-size: 28px !important;
+            text-align: left !important;
+            color: #0B0F14;
+            line-height: 1.3;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 0 !important;
+        }
+        .join-section-mobile .join-horizon-p2 {
+            font-size: 15px !important;
+            text-align: left !important;
+            color: #0B0F14;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            padding: 0 !important;
+        }
+        .join-section-mobile .join {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+        .join-section-mobile .join-field-css {
+            font-size: 20px;
+            padding: 9px;
+            border-radius: 7px;
+            max-width: 100%;
+            max-height: 45px;
+            border: 1px solid #ddd;
+        }
+        .join-section-mobile .join-btn {
+            font-family: 'Inter', sans-serif !important;
+            text-decoration: none;
+            margin: auto;
+            margin-top: 8px;
+            align-items: center;
+            color: #fff;
+            background-color: #0B0F14;
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 17px;
+            max-width: 200px;
+            border: none;
+            cursor: pointer;
+        }
+        .join-section-mobile .join-btn:hover {
+            background-color: #bfb38e;
+            color: #0B0F14;
+        }
+
+        /* ===== RESPONSIVE MEDIA QUERIES ===== */
+        @media (max-width: 1024px) {
+            header {
+                padding: 15px 30px;
+            }
+            .nav-links a {
+                margin-right: 30px;
+                margin-left: 0;
+            }
+            .codes-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 18px;
+                padding: 0 30px 30px 30px;
+            }
+            .more-books-section {
+                padding: 20px 30px 10px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 70px;
+            }
+            .logo-image {
+                margin-left: 0;
+            }
+            #menu-btn {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: #ffffff;
+                padding: 15px 0;
+                margin-top: 10px;
+                border-top: 1px solid #ede7df;
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .nav-links a {
+                margin: 0;
+                padding: 8px 0;
+                text-align: center;
+                width: 100%;
+                color: #2d2a24;
+            }
+            .hero {
+                padding: 60px 30px !important;
+                padding-top: 40px !important;
+                padding-bottom: 40px !important;
+                margin-top: 5px !important;
+            }
+            .eco-cards {
+                padding: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            .eco-card {
+                margin-left: 0;
+                max-width: 100%;
+                flex: 1 1 auto;
+            }
+            .what-cards {
+                grid-template-columns: 1fr 1fr;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+            .what-card {
+                border-right: none !important;
+                border-bottom: none !important;
+                padding-bottom: 15px;
+            }
+            .what-card1 {
+                border-bottom: none !important;
+                padding-bottom: 15px;
+            }
+            .what-card:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+            .what-card1:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+            .footer {
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                padding: 30px;
+            }
+            .footer-card {
+                margin-left: 0;
+            }
+            .footer-logo {
+                margin-left: 0;
+            }
+            .footer-logo-p {
+                margin-left: 0;
+            }
+            .latest-main {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .latest {
+                padding: 30px 20px;
+            }
+            .more-books-section {
+                padding: 10px 20px 20px 20px;
+            }
+            .more-books-grid {
+                grid-template-columns: 1fr;
+            }
+            .more-book-item img {
+                width: 65px;
+                height: 90px;
+            }
+            .more-book-item .more-info h4 {
+                font-size: 17px;
+            }
+            .more-book-item .more-info .more-des {
+                font-size: 14px;
+            }
+            .more-book-item .more-info .more-meta {
+                font-size: 13px;
+            }
+            .join-horizon-right {
+                display: none !important;
+            }
+            .join-section-mobile {
+                display: block !important;
+                padding: 20px 20px 40px 20px;
+            }
+            .eco-intro {
+                flex-direction: column;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+            .ex {
+                text-align: left;
+                padding: 0;
+                margin-right: 0;
+            }
+            h3,
+            .our-eco,
+            .what-eco,
+            .what-eco-fea {
+                padding: 0 20px;
+                margin-left: 0;
+            }
+            .what-p,
+            .what-p-fea,
+            .what-p-fea1 {
+                padding: 0 20px !important;
+                margin-left: 0 !important;
+            }
+            .what-eco-fea {
+                margin-top: 5px !important;
+                margin-bottom: 3px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .what-p-fea {
+                margin-top: 3px !important;
+                margin-bottom: 0px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .latest {
+                padding-top: 5px !important;
+                padding-bottom: 5px !important;
+            }
+            .latest-main {
+                padding-top: 10px !important;
+                padding-bottom: 5px !important;
+            }
+            .our-eco {
+                margin-top: 20px !important;
+                margin-bottom: 10px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .eco-intro {
+                margin-top: 0px !important;
+                margin-bottom: 0px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            h3 {
+                margin-top: 5px !important;
+                margin-bottom: 10px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .ex {
+                margin-top: 0px !important;
+                margin-bottom: 15px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+                display: none;
+            }
+            .eco-cards {
+                padding-top: 0px !important;
+                padding-bottom: 10px !important;
+                margin-top: 0px !important;
+                margin-bottom: 0px !important;
+            }
+            main {
+                padding-top: 65px !important;
+            }
+            .codes-grid {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 0 20px 20px 20px;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+            .logo-image {
+                margin-left: 0;
+                height: 35px;
+            }
+            .img {
+                height: 30px;
+                width: 30px;
+            }
+            .logo-text {
+                font-size: 1.0rem;
+            }
+            .nav-links a {
+                font-size: 14px;
+            }
+            main {
+                padding-top: 60px !important;
+            }
+            .hero {
+                padding: 40px 15px !important;
+                padding-top: 25px !important;
+                padding-bottom: 30px !important;
+                margin-top: 5px !important;
+            }
+            h2 {
+                font-size: 28px;
+            }
+            .hero p {
+                font-size: 14px;
+                max-width: 100%;
+                margin-bottom: 30px;
+            }
+            .hero-btn a {
+                font-size: 14px;
+                padding: 9px 16px;
+                display: inline-block;
+                margin: 4px;
+            }
+            .eco-cards {
+                padding: 12px;
+                gap: 12px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .eco-card {
+                padding: 18px 14px;
+                max-width: 100%;
+                margin-left: 0;
+                flex: 1 1 auto;
+                border-radius: 12px;
+            }
+            .eco-card h4 {
+                font-size: 15px;
+                margin-top: 8px;
+                margin-bottom: 8px;
+            }
+            .eco-card p {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+            .eco-card a {
+                font-size: 13px;
+            }
+            .build-image {
+                height: 35px;
+                margin-bottom: -18px;
+            }
+            h3 {
+                font-size: 22px;
+                padding: 0 15px;
+            }
+            .our-eco {
+                font-size: 13px;
+                padding: 0 15px;
+                margin-top: 15px !important;
+                margin-bottom: 8px !important;
+                margin-left: 0;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .eco-intro {
+                margin-left: 15px;
+                margin-right: 15px;
+                margin-top: 0px !important;
+                margin-bottom: 0px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .ex {
+                font-size: 13px;
+                padding: 0;
+                margin-right: 0;
+                margin-top: 0px !important;
+                margin-bottom: 10px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .what-cards {
+                grid-template-columns: 1fr 1fr;
+                margin-left: 15px;
+                margin-right: 15px;
+            }
+            .what-card {
+                border-right: none !important;
+                border-bottom: none !important;
+                padding-bottom: 12px;
+            }
+            .what-card1 {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+            .what-eco {
+                font-size: 13px;
+                padding: 0 15px;
+                margin-left: 0;
+                margin-top: 25px;
+            }
+            .what-p {
+                font-size: 20px !important;
+                padding: 0 15px !important;
+                max-width: 100% !important;
+            }
+            .what-card h6,
+            .what-card1 h6 {
+                font-size: 18px;
+                padding: 0 12px;
+            }
+            .what-card p,
+            .what-card1 p {
+                font-size: 14px;
+                padding: 0 12px;
+                max-width: 100%;
+            }
+            .what-eco-fea {
+                font-size: 13px;
+                padding: 0 15px;
+                margin-left: 0 !important;
+                margin-top: 3px !important;
+                margin-bottom: 2px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .what-p-fea {
+                font-size: 22px !important;
+                padding: 0 15px !important;
+                margin-left: 0 !important;
+                margin-top: 2px !important;
+                margin-bottom: 0px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+                max-width: 100% !important;
+            }
+            .what-p-fea1 {
+                font-size: 14px !important;
+                padding: 0 15px !important;
+                max-width: 100% !important;
+            }
+            .latest-main {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding-top: 5px !important;
+                padding-bottom: 3px !important;
+            }
+            .latest {
+                padding: 15px 12px !important;
+                padding-top: 3px !important;
+                padding-bottom: 3px !important;
+            }
+            .more-books-section {
+                padding: 5px 12px 15px 12px;
+            }
+            .more-books-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .more-book-item {
+                padding: 6px 8px;
+                gap: 12px;
+            }
+            .more-book-item img {
+                width: 55px;
+                height: 75px;
+            }
+            .more-book-item .more-info h4 {
+                font-size: 15px;
+                margin-bottom: -4px;
+            }
+            .more-book-item .more-info .more-des {
+                font-size: 14px;
+            }
+            .more-book-item .more-info .more-meta {
+                font-size: 13px;
+            }
+            .books {
+                flex-direction: row;
+                align-items: flex-start;
+                margin-bottom: 16px;
+            }
+            .book-cover {
+                width: 65px;
+                height: 90px;
+                flex-shrink: 0;
+            }
+            .book-title {
+                font-size: 17px;
+                margin-left: 12px;
+                margin-bottom: 4px;
+                padding-top: 0 !important;
+            }
+            .des-eco {
+                margin-left: 12px;
+                margin-top: 0px;
+                line-height: 1.5;
+            }
+            .book-des {
+                font-size: 14px;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+            .book-eco {
+                font-size: 13px;
+                margin-top: 2px;
+            }
+            .footer {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 25px 20px;
+            }
+            .footer-card {
+                margin-left: 0;
+            }
+            .footer-logo {
+                margin-left: 0;
+            }
+            .footer-logo .logo-text {
+                font-size: 1.0rem;
+            }
+            .footer-logo-p {
+                margin-left: 0;
+                font-size: 12px;
+                margin-top: 10px;
+            }
+            .footer h4 {
+                font-size: 14px;
+            }
+            .footer-card a {
+                font-size: 13px;
+                line-height: 1.8;
+            }
+            .location {
+                margin-bottom: 20px;
+            }
+            .PenCheaper {
+                margin-bottom: 20px;
+            }
+            .footer-img {
+                height: 30px;
+                width: 30px;
+            }
+            .footer-bottom {
+                font-size: 11px;
+                padding: 8px 15px;
+            }
+            .join-section-mobile {
+                padding: 15px 15px 30px 15px !important;
+            }
+            .join-section-mobile .join-horizon-p1 {
+                font-size: 22px !important;
+            }
+            .join-section-mobile .join-field-css {
+                font-size: 18px;
+                padding: 8px;
+                max-height: 40px;
+            }
+            .join-section-mobile .join-btn {
+                font-size: 14px;
+                padding: 8px 20px;
+                max-width: 150px;
+            }
+            .codes-grid {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 0 12px 15px 12px;
+                gap: 12px;
+            }
+            .code-item img {
+                aspect-ratio: 16/10;
+            }
+            .code-item h4 {
+                font-size: 15px;
+            }
+            .code-item .code-meta {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            header {
+                padding: 8px 10px;
+                min-height: 55px;
+            }
+            .logo-image {
+                height: 30px;
+            }
+            .img {
+                height: 28px;
+                width: 28px;
+            }
+            .logo-text {
+                font-size: 0.9rem;
+            }
+            #menu-btn {
+                font-size: 24px;
+            }
+            main {
+                padding-top: 55px !important;
+            }
+            .hero {
+                padding: 30px 10px !important;
+                padding-top: 20px !important;
+                padding-bottom: 25px !important;
+                margin-top: 5px !important;
+            }
+            h2 {
+                font-size: 22px;
+            }
+            .hero p {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+            .hero-btn a {
+                font-size: 12px;
+                padding: 7px 14px;
+                border-radius: 10px;
+            }
+            .eco-cards {
+                padding: 10px;
+                gap: 10px;
+                grid-template-columns: 1fr 1fr;
+            }
+            .eco-card {
+                padding: 14px 10px;
+                border-radius: 10px;
+            }
+            .eco-card h4 {
+                font-size: 13px;
+                margin-top: 6px;
+                margin-bottom: 6px;
+            }
+            .eco-card p {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+            .eco-card a {
+                font-size: 12px;
+            }
+            .build-image {
+                height: 30px;
+                margin-bottom: -14px;
+            }
+            .our-eco {
+                font-size: 12px;
+                padding: 0 12px;
+                margin-top: 12px !important;
+                margin-bottom: 5px !important;
+                margin-left: 0;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            h3 {
+                font-size: 20px;
+                padding: 0 12px;
+                margin-top: 2px !important;
+                margin-bottom: 5px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .ex {
+                font-size: 14px;
+                padding: 0;
+                margin-right: 0;
+                margin-top: 0px !important;
+                margin-bottom: 8px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .what-eco {
+                font-size: 12px;
+                padding: 0 12px;
+                margin-left: 0;
+                margin-top: 20px;
+            }
+            .what-p {
+                font-size: 18px !important;
+                padding: 0 12px !important;
+            }
+            .what-cards {
+                grid-template-columns: 1fr 1fr;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+            .what-card {
+                border-right: none !important;
+                border-bottom: none !important;
+                padding-bottom: 10px;
+            }
+            .what-card1 {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+            .what-card h6,
+            .what-card1 h6 {
+                font-size: 16px;
+                padding: 0 10px;
+            }
+            .what-card p,
+            .what-card1 p {
+                font-size: 13px;
+                padding: 0 10px;
+            }
+            .what-eco-fea {
+                font-size: 12px;
+                padding: 0 12px;
+                margin-left: 0 !important;
+                margin-top: 2px !important;
+                margin-bottom: 2px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .what-p-fea {
+                font-size: 20px !important;
+                padding: 0 12px !important;
+                margin-left: 0 !important;
+                margin-top: 2px !important;
+                margin-bottom: 0px !important;
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .latest-main {
+                padding-top: 3px !important;
+                padding-bottom: 2px !important;
+            }
+            .latest {
+                padding: 12px 10px !important;
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+            .more-books-section {
+                padding: 3px 10px 12px 10px;
+            }
+            .more-books-grid {
+                grid-template-columns: 1fr;
+                gap: 2px;
+            }
+            .more-book-item {
+                padding: 4px 6px;
+                gap: 10px;
+            }
+            .more-book-item img {
+                width: 45px;
+                height: 62px;
+            }
+            .more-book-item .more-info h4 {
+                font-size: 13px;
+                margin-bottom: -2px;
+            }
+            .more-book-item .more-info .more-des {
+                font-size: 12px;
+            }
+            .more-book-item .more-info .more-meta {
+                font-size: 12px;
+            }
+            .books {
+                flex-direction: row;
+                align-items: flex-start;
+                margin-bottom: 14px;
+            }
+            .book-cover {
+                width: 55px;
+                height: 75px;
+                flex-shrink: 0;
+            }
+            .book-title {
+                font-size: 15px;
+                margin-left: 10px;
+                margin-bottom: 2px;
+                padding-top: 0 !important;
+            }
+            .des-eco {
+                margin-left: 10px;
+                margin-top: 0px;
+                line-height: 1.4;
+            }
+            .book-des {
+                font-size: 14px;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+            .book-eco {
+                font-size: 14px;
+                margin-top: 2px;
+            }
+            .footer {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                padding: 15px 10px;
+            }
+            .footer h4 {
+                font-size: 12px;
+            }
+            .footer-card a {
+                font-size: 12px;
+                line-height: 1.6;
+            }
+            .footer-img {
+                height: 24px;
+                width: 24px;
+            }
+            .footer-logo .logo-text {
+                font-size: 0.9rem;
+            }
+            .footer-logo-p {
+                font-size: 12px;
+                margin-top: 8px;
+            }
+            .footer-bottom {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+            .location {
+                margin-bottom: 15px;
+            }
+            .PenCheaper {
+                margin-bottom: 15px;
+            }
+            .location {
+                font-size: 12px;
+            }
+            .codes-grid {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 0 10px 12px 10px;
+                gap: 8px;
+            }
+            .code-item {
+                padding: 8px;
+            }
+            .code-item h4 {
+                font-size: 13px;
+            }
+            .code-item .code-meta {
+                font-size: 12px;
+            }
+            .join-section-mobile {
+                padding: 10px 10px 25px 10px !important;
+            }
+            .join-section-mobile .join-horizon-p1 {
+                font-size: 20px !important;
+            }
+            .join-section-mobile .join-field-css {
+                font-size: 16px;
+                padding: 6px 10px;
+                max-height: 35px;
+            }
+            .join-section-mobile .join-btn {
+                font-size: 13px;
+                padding: 6px 14px;
+                max-width: 130px;
+            }
+        }
+
+        /* Completely hide all border markings in What We Do on 768px and below */
+        @media (max-width: 768px) {
+            .what-card {
+                border-right: none !important;
+                border-bottom: none !important;
+                padding-bottom: 15px;
+            }
+            .what-card1 {
+                border-bottom: none !important;
+                padding-bottom: 15px;
+            }
+            .what-card:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+            .what-card1:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0;
+            }
+        }
+
+        .more-books-section {display: none;}
+        .codes-grid {display: none;}
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="#" class="logo-image" style="text-decoration:none;">
+            <img src="../images/logo.png" alt="Volant Foundry Logo" class="img">
+            <span class="logo-text">
+                <span class="logo-highlight">Volant</span> Foundry
+            </span>
+        </a>
+        <button id="menu-btn">☰</button>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#" data-target="home">Home</a>
+            <a href="#" data-target="ecosystem">Our Platforms</a>
+            <a href="../shared/about">About</a>
+            <a href="../shared/contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" id="home">
+            <h2>Simply Volant, forever in the horizon</h2>
+            <P>Volant Foundry is a creative technology platform building digital spaces for writers, readers, and creators.</P>
+            <div class="hero-btn">
+                <a href="#" class="primary" data-target="ecosystem">Explore Our Platforms</a>
+                <a href="../shared/contact" class="secondary">Contact Us</a>
+            </div>
+        </section>
+
+        <section id="ecosystem">
+            <p class="our-eco">OUR PLATFROMS</p>
+            <div class="eco-intro">
+                <div>
+                    <h3>Different wings. <br> One vision.</h3>
+                </div>
+
+                <div>
+                    <p class="ex">Explore the pillars of Volant Foundry. <br>Each project serves a purpose. <br>Together, we build legacy.</p>
+                </div>
+            </div>
+
+            <div class="eco-cards">
+                <div class="eco-card" id="card-poetry">
+                    <div class="innit-img-eco-card">
+                        <img src="../images/poetry.png" alt="Volant Poetry image" class="build-image">
+                    </div>
+                    <h4>Volant Poetry</h4>
+                    <p>Write, publish poems, connect with writers and grow your audience.</p>
+                    <a href="/">Enter Community →</a>
+                </div>
+
+                <div class="eco-card" id="card-reads">
+                    <div class="innit-img-eco-card">
+                        <img src="../images/volant-reads.png" alt="Volant Reads image" class="build-image">
+                    </div>
+                    <h4>Volant Reads</h4>
+                    <p>Buy ebooks, build your library, sell books, track sales and receive payouts.</p>
+                    <a href="/">Buy and Sell Ebooks →</a>
+                </div>
+
+                <div class="eco-card" id="card-codes">
+                    <div class="innit-img-eco-card">
+                        <img src="../images/volant-codes.png" alt="Volant Codes image" class="build-image">
+                    </div>
+                    <h4>Volant Codes</h4>
+                    <p>Future home for vibe coding, AI tools, software and digital innovation.</p>
+                    <a href="#">Coming Soon →</a>
+                    </p>
+                </div>
+
+                <div class="eco-card" id="card-pencheaper">
+                    <div class="innit-img-eco-card">
+                        <img src="../images/volant-lyrics.png" alt="Volant Lyrics image" class="build-image">
+                    </div>
+                    <h4>Volant Lyrics</h4>
+                    <p>A place to buy and sell original lyrics with full copyright.</p>
+                    <a href="#">Coming Soon →</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="what-main" id="services">
+            <p class="what-eco">WHAT WE DO</p>
+            <div class="what-cards">
+                <div class="what-card">
+                    <p class="what-p">The intersection of creativity,technology, and impact.</p>
+                </div>
+                <div class="what-card">
+                    <div class="innit-img">
+                        <img src="../images/poetry.png" alt="Volant Poetry image" class="build-image">
+                    </div>
+                    <h6>Create</h6>
+                    <p>We craft original contents that inspires and connect.</p>
+                </div>
+                <div class="what-card">
+                    <div class="innit-img">
+                        <img src="../images/volant-codes.png" alt="Volant Codes image" class="build-image">
+                    </div>
+                    <h6>Build</h6>
+                    <p>We develop digital solutions that solve real problems.</p>
+                </div>
+                <div class="what-card1">
+                    <div class="innit-img">
+                        <img src="../images/volant-lyrics.png" alt="Volant Lyrics image" class="build-image">
+                    </div>
+                    <h6>Empower</h6>
+                    <p>We share knowledge and wisdom to empower others.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== LATEST FROM VOLANT ===== -->
+        <section id="about">
+            <div class="latest-main">
+                <!-- Column 1: LATEST heading -->
+                <div class="latest">
+                    <h2 class="what-eco-fea">LATEST FROM VOLANT</h2>
+                    <p class="what-p-fea">Fresh drops from our platforms.</p>
+                </div>
+
+                <!-- Column 2: Book listings -->
+                <div class="latest">
+                    <div class="books">
+                        <img src="../images/Black and Blue Fiction Book Cover (2).png" alt="Scentless Roses Cover" class="book-cover" onclick="openLightbox(this.src)">
+                        <div class="title-des-eco">
+                            <h2 class="book-title">Scentless Roses</h2>
+                            <div class="des-eco">
+                                <p class="book-des">A collection of poems by Rence Blunt</p>
+                                <p class="book-eco">Volant Reads . June 16, 2026</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="books">
+                        <img src="../images/Black and Blue Fiction Book Cover (8).jpg" alt="The Fall Of Twilight Cover" class="book-cover" onclick="openLightbox(this.src)">
+                        <div class="title-des-eco">
+                            <h2 class="book-title">The Fall Of Twilight</h2>
+                            <div class="des-eco">
+                                <p class="book-des">A collection of poems by Rence Blunt</p>
+                                <p class="book-eco">Volant Reads . Forthcoming</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: JOIN THE HORIZON (right side on large screens) -->
+                <div class="join-horizon-right" id="contact">
+                    <h2 class="join-horizon">JOIN THE HORIZON</h2>
+                    <P class="join-horizon-p1">Be part of something <br>meaningful</P>
+                    <p class="join-horizon-p2">Join our community and get updates, opportunities, and early access to newly published books, poems, and everything we build.</p>
+                    <div class="join">
+                        <input type="email" name="join-field" id="join-field" placeholder="Enter your email" class="join-field-css">
+                        <button class="join-btn" id="joinBtn">Join Now</button>
+                    </div>
+                </div>
+
+                <!-- ===== MORE BOOKS (full width, same style as latest books) ===== -->
+                <div style="grid-column: 1 / -1; padding: 10px 0 0 0;">
+                    <div class="more-books-section">
+                        <p class="more-label">MORE FROM VOLANT READS</p>
+                        <div class="more-books-grid">
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="images/Black and Blue Fiction Book Cover (3).jpg" alt="Echoes of Silence" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>Echoes of Silence</h4>
+                                    <p class="more-des">A collection of poems by Maya Darko</p>
+                                    <p class="more-meta">Volant Reads . June 2026</p>
+                                </div>
+                            </div>
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="images/Black and Blue Fiction Book Cover (4).jpg" alt="The Last Verse" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>The Last Verse</h4>
+                                    <p class="more-des">A collection of poems by Kofi Mensah</p>
+                                    <p class="more-meta">Volant Reads . May 2026</p>
+                                </div>
+                            </div>
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="images/Black and Blue Fiction Book Cover (5).jpg" alt="Whispers in the Dark" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>Whispers in the Dark</h4>
+                                    <p class="more-des">A collection of poems by Akua Serwaa</p>
+                                    <p class="more-meta">Volant Reads . April 2026</p>
+                                </div>
+                            </div>
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="images/Black and Blue Fiction Book Cover (6).jpg" alt="Beneath the Surface" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>Beneath the Surface</h4>
+                                    <p class="more-des">A collection of poems by Yaw Asante</p>
+                                    <p class="more-meta">Volant Reads . March 2026</p>
+                                </div>
+                            </div>
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="images/Black and Blue Fiction Book Cover (7).jpg" alt="Fading Light" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>Fading Light</h4>
+                                    <p class="more-des">A collection of poems by Abena Osei</p>
+                                    <p class="more-meta">Volant Reads . February 2026</p>
+                                </div>
+                            </div>
+                            <div class="more-book-item" onclick="openLightbox(this.querySelector('img').src)">
+                                <img src="../images/Black and Blue Fiction Book Cover (2).png" alt="Silent Whispers" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22120%22%3E%3Crect width=%2290%22 height=%22120%22 fill=%22%23eee%22/%3E%3C/svg%3E'">
+                                <div class="more-info">
+                                    <h4>Silent Whispers</h4>
+                                    <p class="more-des">A collection of poems by Kwame Adjei</p>
+                                    <p class="more-meta">Volant Reads . January 2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== VOLANT CODES PROJECTS – big images, 4 per row ===== -->
+                <div style="grid-column: 1 / -1; padding: 10px 0 10px 0;">
+                    <div class="codes-grid">
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="../images/kindady.png" alt="Pastery Website" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EPastery%3C/text%3E%3C/svg%3E'">
+                            <h4>Pastery</h4>
+                            <p class="code-meta">Volant Codes . June 2026</p>
+                            <span class="tag">HTML · CSS · JS</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/store-project.jpg" alt="Store Project" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EStore%3C/text%3E%3C/svg%3E'">
+                            <h4>Volant Store</h4>
+                            <p class="code-meta">Volant Codes . May 2026</p>
+                            <span class="tag">React · Firebase</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/volant-poetry-project.jpg" alt="Volant Poetry Project" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EPoetry%3C/text%3E%3C/svg%3E'">
+                            <h4>Volant Poetry</h4>
+                            <p class="code-meta">Volant Codes . April 2026</p>
+                            <span class="tag">Vue · Node</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/ai-storyteller.jpg" alt="AI Storyteller" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EAI%3C/text%3E%3C/svg%3E'">
+                            <h4>AI Storyteller</h4>
+                            <p class="code-meta">Volant Codes . March 2026</p>
+                            <span class="tag">Python · GPT</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/lyric-vault.jpg" alt="Lyric Vault" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3ELyrics%3C/text%3E%3C/svg%3E'">
+                            <h4>Lyric Vault</h4>
+                            <p class="code-meta">Volant Codes . February 2026</p>
+                            <span class="tag">Vue · Stripe</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/foundry-cms.jpg" alt="Foundry CMS" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3ECMS%3C/text%3E%3C/svg%3E'">
+                            <h4>Foundry CMS</h4>
+                            <p class="code-meta">Volant Codes . January 2026</p>
+                            <span class="tag">PHP · MySQL</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/eco-reader.jpg" alt="Eco Reader" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EReader%3C/text%3E%3C/svg%3E'">
+                            <h4>Eco Reader</h4>
+                            <p class="code-meta">Volant Codes . December 2025</p>
+                            <span class="tag">HTML · CSS · JS</span>
+                        </div>
+                        <div class="code-item" onclick="openLightbox(this.querySelector('img').src)">
+                            <img src="images/dashboard-project.jpg" alt="Dashboard" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect width=%22200%22 height=%22120%22 fill=%22%23f0ede8%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-family=%22Inter%22 font-size=%2214%22 fill=%22%23999%22%3EDashboard%3C/text%3E%3C/svg%3E'">
+                            <h4>Volant Dashboard</h4>
+                            <p class="code-meta">Volant Codes . November 2025</p>
+                            <span class="tag">D3 · Node</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== JOIN THE HORIZON – mobile only ===== -->
+        <section class="join-section-mobile" id="contact-mobile">
+            <div class="join-container">
+                <h2 class="join-horizon">JOIN THE HORIZON</h2>
+                <P class="join-horizon-p1">Be part of something <br>meaningful</P>
+                <p class="join-horizon-p2">Join our community and get updates, opportunities, and early access to newly published books, poems, and everything we build.</p>
+                <div class="join">
+                    <input type="email" name="join-field-mobile" id="join-field-mobile" placeholder="Enter your email" class="join-field-css">
+                    <button class="join-btn" id="joinBtnMobile">Join Now</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" src="">
+    </div>
+
+    <footer>
+        <div class="footer">
+            <div>
+                <div class="footer-logo">
+                    <img src="../images/logo.png" alt="Volant Foundry Logo" class="footer-img">
+                    <span class="logo-text">
+                        <span class="logo-highlight">Volant</span> Foundry
+                    </span>
+                </div>
+                <p class="footer-logo-p">Simply Volant, forever in the horizon</p>
+            </div>
+            <div class="footer-card">
+                <h4>QUICK LINKS</h4>
+                <a href="/" data-target="home">Home</a>
+                <a href="/ecosystem" data-target="ecosystem">Platforms</a>
+                <a href="#about" data-target="about">Latest</a>
+                <a href="#contact" data-target="contact">Contact</a>
+                <a href="../shared/privacy">Privacy</a>
+                <a href="../shared/terms">Terms</a>
+            </div>
+
+            <div class="footer-card">
+                <h4>EXPLORE</h4>
+                <a href="/">Volant Poetry</a>
+                <a href="/" data-target="card-reads">Volant Reads</a>
+                <a href="/volantCodes" data-target="card-codes">Volant Codes</a>
+                <a href="/volantLyrics" data-target="card-pencheaper" class="PenCheaper">Volant Lyrics</a>
+            </div>
+
+            <div class="footer-card">
+                <h4>CONTACT</h4>
+                <a href="mailto: reach.volant@gmail.com" class="gmail">reach.volant@gmail.com</a>
+                <a href="tel: +233245691423" class="number">+233 24 569 1423</a>
+                <p class="location">Kumasi, Ghana</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Volant Foundry. All Rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+    </script>
+
+    <script>
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+            authDomain: "silent-depth.firebaseapp.com",
+            projectId: "silent-depth",
+            storageBucket: "silent-depth.appspot.com",
+            messagingSenderId: "78008755450",
+            appId: "1:78008755450:web:3fd0f0f298a08820935543"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ===== LIGHTBOX =====
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // ===== HAMBURGER MENU TOGGLE =====
+        const menuBtn = document.getElementById('menu-btn');
+        const navLinks = document.getElementById('navLinks');
+
+        menuBtn.addEventListener('click', function() {
+            navLinks.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // ===== SMOOTH SCROLL =====
+        document.querySelectorAll('[data-target]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ===== JOIN THE HORIZON =====
+        function handleJoin(emailInput) {
+            const email = emailInput.value.trim();
+            if (email === '') {
+                alert('Please enter your email address.');
+                emailInput.focus();
+                return;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                emailInput.focus();
+                return;
+            }
+            const user = auth.currentUser;
+            db.collection('mailing').add({
+                    email: email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: user ? user.uid : null,
+                    userName: user ? user.displayName : null,
+                    userEmail: user ? user.email : null,
+                    source: 'volant-foundry-website',
+                    status: 'active'
+                })
+                .then(() => {
+                    alert('✅ Thank you for joining the horizon! 🚀');
+                    emailInput.value = '';
+                })
+                .catch((error) => {
+                    console.error('Error saving email: ', error);
+                    alert('Something went wrong. Please try again.');
+                });
+        }
+
+        document.getElementById('joinBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            handleJoin(document.getElementById('join-field'));
+        });
+
+        document.getElementById('joinBtnMobile').addEventListener('click', function(e) {
+            e.preventDefault();
+            handleJoin(document.getElementById('join-field-mobile'));
+        });
+
+        document.getElementById('join-field').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('joinBtn').click();
+        });
+
+        document.getElementById('join-field-mobile').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('joinBtnMobile').click();
+        });
+    </script>
+
+</body>
+</html>

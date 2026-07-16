@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow">
+<title>Admin Dashboard - Volant Poetry</title>
+<link rel="stylesheet" href="../admin/admin.css"/>
+<style>
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  color: #fff;
+  padding: 10px 20px;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1500;
+}
+.logo { font-weight: bold; }
+.nav-links a { color: #fff; margin-left: 20px; text-decoration: none; font-weight: bold; }
+.nav-links a.active { text-decoration: underline; }
+
+/* Admin layout */
+.admin-layout { display: flex; margin-top: 60px; }
+aside.sidebar {
+  width: 250px;
+  background: #f5f5f5;
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+main.content { flex: 1; padding: 20px; }
+
+/* Sidebar toggle button */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 70px;
+  left: 10px;
+  z-index: 1600;
+  font-size: 2rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Hide sidebar on small screens */
+@media (max-width: 768px) {
+  #sidebar-toggle { display: block; }
+
+  aside.sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: calc(100% - 60px);
+    transform: translateX(-100%);
+    z-index: 1400;
+  }
+
+  aside.sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-layout { flex-direction: column; }
+  main.content { margin-left: 0; padding: 15px; }
+}
+</style>
+  <link rel="icon" type="png" href="../images/logo.png" />
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">Volant Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="/admin" class="active">1st Admin Panel</a>
+  <a href="/3-admin-panel">2rd Admin Panel</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<!-- Sidebar toggle -->
+<button id="sidebar-toggle">☰</button>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="primary-sidebar">
+      <h2>Add Verses</h2>
+      <nav>
+        <a href="#" class="active" data-section="poemForm">Add Poem</a>
+        <a href="#" data-section="quoteForm">Add Quote</a>
+        <a href="#" data-section="recentPoemForm">Add Recent Poem</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+    <h1>1st Admin Panel</h1>
+    
+    <!-- Add Poem Form -->
+    <section id="poemForm" class="form-section">
+      <h2>Add New Poem</h2>
+      <form id="poemSubmitForm">
+        <label>Title:</label>
+        <input type="text" placeholder="Poem title" required />
+        <label>Content:</label>
+        <textarea rows="6" placeholder="Poem content..." required></textarea>
+        <label>Author:</label>
+        <input type="text" placeholder="Author name" />
+        <button type="submit">Submit Poem</button>
+        <p class="form-message"></p>
+      </form>
+    </section>
+
+    <!-- Add Quote Form -->
+    <section id="quoteForm" class="form-section hidden">
+      <h2>Add New Quote</h2>
+      <form id="quoteSubmitForm">
+        <label>Quote:</label>
+        <textarea rows="4" placeholder="Enter quote..." required></textarea>
+        <label>Author:</label>
+        <input type="text" placeholder="Author name" />
+        <button type="submit">Submit Quote</button>
+        <p class="form-message"></p>
+      </form>
+    </section>
+
+    <!-- Add Recent Poem Form -->
+<!-- Add Recent Poem Form -->
+<section id="recentPoemForm" class="form-section hidden">
+  <h2>Add Recent Poem</h2>
+  <form id="recentPoemSubmitForm">
+    <label>Title:</label>
+    <input type="text" name="title" placeholder="Recent poem title" required />
+
+    <label>Excerpt (optional):</label>
+    <textarea name="excerpt" rows="4" placeholder="Short excerpt of poem..."></textarea>
+
+    <label>Full Content:</label>
+    <textarea name="content" rows="6" placeholder="Full poem content..." required></textarea>
+
+    <label>Author:</label>
+    <input type="text" name="author" placeholder="Author name" />
+
+    <!-- Flexible Category (multiple allowed, comma-separated) -->
+    <label>Category (comma-separated):</label>
+<input list="categories" name="category" placeholder="Choose or type category" required />
+    <datalist id="categories">
+      <option value="Love">
+      <option value="Life">
+      <option value="Nature">
+      <option value="Friendship">
+      <option value="Inspirational">
+      <option value="Other">
+    </datalist>
+
+    <button type="submit">Submit Recent Poem</button>
+    <p class="form-message"></p>
+  </form>
+</section>
+
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-container">
+     <p>&copy; 2025 Volant Poetry. All rights reserved.</p>
+    <nav class="footer-links">
+      <a href="/">Home</a>
+      <a href="../poems">Poems</a>
+      <a href="/quotes">Quotes</a>
+      <a href="../shared/about">About</a>
+      <a href="../shared/contact">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="module" src="../admin/admin.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// --- Firebase config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// --- Admin access verification ---
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please login as an admin to access this page.");
+    window.location.href = "/admin-login"; // redirect to login
+    return;
+  }
+
+  try {
+    const adminRef = doc(db, "admins", user.uid);
+    const adminSnap = await getDoc(adminRef);
+
+    if (!adminSnap.exists()) {
+      alert("Access denied. Only admins can access this page.");
+      await signOut(auth);
+      window.location.href = "/admin-login"; // redirect non-admin
+    }
+  } catch (err) {
+    console.error("Admin verification error:", err);
+    alert("Error verifying admin access.");
+    await signOut(auth);
+    window.location.href = "/admin-login";
+  }
+});
+</script>
+
+<script>
+// Sidebar toggle logic
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
+
+sidebarToggle.addEventListener("click", () => {
+  sidebar.classList.toggle("show");
+});
+</script>
+
+</body>
+</html>
