@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>All Categories | Volant Poetry</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="png" href="images/volant-favicon.png" />
+
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    padding-top: 100px; /* Prevent content hiding under nav */
+  }
+
+  h2 {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #4b2aad;
+    margin-bottom: 2rem;
+  }
+
+  .categories-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.8rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 1200px;
+    justify-items: start;
+  }
+
+  .categories-container a {
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #B8860B;
+    transition: all 0.25s ease;
+  }
+
+  .categories-container a:hover {
+    color: #DAA520;
+    transform: translateY(-2px);
+  }
+
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.2rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-text {
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+  }
+
+  .nav-links a:hover {
+    color: #4b2aad;
+  }
+
+  .menu-toggle {
+    display: none;
+    cursor: pointer;
+    color: #4b2aad;
+  }
+
+  .close-btn {
+    display: none;
+  }
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+    cursor: pointer;
+    color: #4b2aad;
+    z-index: 1100;
+  }
+
+
+ .nav-links {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 90%;            /* was 70% — now nearly full screen */
+  max-width: 500px;      /* allows it to stretch more on larger phones */
+  height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+  box-shadow: -6px 0 25px rgba(0, 0, 0, 0.2);
+  transition: right 0.3s ease-in-out;
+  z-index: 1200;
+}
+
+
+  .nav-links.show {
+    right: 0;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+  }
+
+
+  .close-btn {
+    display: block;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    cursor: pointer;
+    color: #4b2aad;
+  }
+}
+
+/* --- POEMS GRID --- */
+.poems-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.8rem;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* --- POEM CARD --- */
+.poem-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.poem-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.poem-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4b2aad;
+  margin-bottom: 0.5rem;
+}
+
+.poem-author {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.poem-excerpt {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+}
+
+.view-poem-btn {
+  align-self: flex-start;
+  background: #4b2aad;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.view-poem-btn:hover {
+  background: #3a2291;
+}
+
+/* --- MOBILE FRIENDLY --- */
+@media (max-width: 500px) {
+  .poem-card {
+    padding: 1.2rem;
+  }
+  .poem-title {
+    font-size: 1.1rem;
+  }
+  .poem-excerpt {
+    font-size: 0.95rem;
+  }
+
+  .poems-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.8rem;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+}
+/* Make logo image visible on all screen sizes */
+.nav-logo-img {
+  display: inline-block !important;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+/* Ensure it shows on desktop specifically */
+@media (min-width: 769px) {
+  .nav-logo-img {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Also visible on mobile */
+@media (max-width: 768px) {
+  .nav-logo-img {
+    display: inline-block !important;
+  }
+}
+/* Push categories from left on small screens only */
+@media (max-width: 768px) {
+  .categories-container {
+    padding-left: 1.5rem;
+    margin-left: 0;
+  }
+}
+
+/* For very small screens, add a bit more padding */
+@media (max-width: 480px) {
+  .categories-container {
+    padding-left: 2rem;
+  }
+}
+/* Reduce "All Categories" heading on small phones */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* For very small phones (iPhone SE, etc.) */
+@media (max-width: 380px) {
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <nav>
+    <div class="logo">
+      <img src="images/logo.png" alt="Volant Poetry Small Logo" class="nav-logo-img" width="36">
+      <span class="logo-text"><span class="logo-highlight">Volant</span> Poetry</span>
+    </div>
+
+ <div class="search-container">
+</div>
+
+    <div class="nav-links" id="nav-links">
+      <span class="close-btn" id="close-btn">✕</span>
+      <a href="/">Home</a>
+      <a href="/poems">Poems</a>
+      <a href="/authors">Authors</a>
+      <a href="/shared/about">About</a>
+      <a href="/submit">Submit</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="menu-toggle" id="menu-toggle">☰</div>
+    </div>
+  </nav>
+</header>
+
+<!-- Overlay (only once!) -->
+<div class="menu-overlay" id="menu-overlay"></div>
+
+<h2>All Categories</h2>
+<ul id="categories-container" class="categories-container">
+  <li></li>
+</ul>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const container = document.getElementById("categories-container");
+
+  async function loadAllCategories() {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    const categoriesSet = new Set();
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if(Array.isArray(data.categories)){
+        data.categories.forEach(cat => {
+          if (cat && cat.trim() !== "") categoriesSet.add(cat.trim());
+        });
+      }
+    });
+
+    const categories = Array.from(categoriesSet).sort((a,b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
+    container.innerHTML = "";
+
+    if(categories.length === 0){
+      container.innerHTML = "<li>No categories found.</li>";
+      return;
+    }
+
+    categories.forEach(cat => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="category.html?name=${encodeURIComponent(cat)}">${cat}</a>`;
+      container.appendChild(li);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", loadAllCategories);
+</script>
+
+<script>
+  // Navbar toggle for mobile
+  document.getElementById("menu-toggle").addEventListener("click", () => {
+    document.getElementById("nav-links").classList.toggle("show");
+  });
+
+  // Close when clicking "✕"
+  document.getElementById("close-btn").addEventListener("click", () => {
+    document.getElementById("nav-links").classList.remove("show");
+  });
+
+  // Close when clicking a nav link
+  document.querySelectorAll("#nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+      document.getElementById("nav-links").classList.remove("show");
+    });
+  });
+</script>
+
+
+<script src="return-url-handler.js"></script>
+</body>
+</html>

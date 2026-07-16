@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex, nofollow">
+<title>Drafts Manager | Volant Poetry</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+
+<style>
+:root{
+  --primary:#4b2aad;
+  --muted:#6b6b6b;
+  --bg-start: #ff9a9e;
+  --bg-mid: #fad0c4;
+  --bg-end: #a18cd1;
+  --card-bg: rgba(255,255,255,0.92);
+  --radius:12px;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+  min-height:100vh;
+  color:#111;
+  padding:40px 20px;
+}
+
+/* Header / logo */
+.header {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:18px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  color:#fff;
+  font-size:1.6rem;
+  font-weight:700;
+}
+
+/* Container */
+.container {
+  max-width:900px;
+  margin:0 auto;
+  background: var(--card-bg);
+  padding:20px;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+/* Title + actions */
+.top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+.top-row h1{
+  font-size:1.2rem;
+  margin:0;
+}
+.top-row .actions { display:flex; gap:10px; align-items:center; }
+
+/* Simple card list */
+.cards { display:flex; flex-direction:column; gap:12px; }
+.card {
+  background: #fff;
+  border-radius:10px;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  border:1px solid rgba(0,0,0,0.04);
+}
+.card .left { flex:1; }
+.card .title { font-weight:700; margin:0 0 6px 0; font-size:1rem;}
+.card .meta { font-size:0.85rem; color:var(--muted); margin-bottom:8px;}
+.card .excerpt { margin:0; white-space:pre-wrap; color:#222; max-height:70px; overflow:hidden; }
+
+/* Buttons */
+.btn {
+  border:0;
+  background:var(--primary);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:0.9rem;
+}
+.btn.secondary { background:#e8e8e8; color:#111; }
+.btn.danger { background:#e34a4a; }
+.btn.ghost { background:transparent; border:1px solid rgba(0,0,0,0.08); color:#111; }
+
+.card .controls { display:flex; gap:8px; flex-direction:column; align-items:flex-end; }
+
+/* small screens make controls row */
+@media(min-width:480px){ .card .controls { flex-direction:row; align-items:center; } }
+
+/* Empty state */
+.empty {
+  text-align:center;
+  padding:28px;
+  color:var(--muted);
+}
+
+/* Edit modal (simple) */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:2000;
+}
+.modal {
+  width:92%;
+  max-width:720px;
+  background:#fff;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.25);
+}
+.modal h2 { margin:0 0 8px 0; font-size:1.05rem }
+.form-row { margin-bottom:10px; }
+.form-row label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:6px; }
+.form-row input, .form-row textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family:inherit; font-size:0.95rem; }
+.modal .footer { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.small-muted { font-size:0.85rem; color:var(--muted); }
+
+.top-actions-note { font-size:0.9rem; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Volant Poetry</div>
+  <div class="top-actions-note">Your drafts — edit, publish, or delete</div>
+</div>
+
+<div class="container">
+  <div class="top-row">
+    <h1>My Poem Drafts (<span id="draftCount">0</span>)</h1>
+    <div class="actions">
+      <button id="newDraftBtn" class="btn secondary">+ New Draft</button>
+      <button id="refreshBtn" class="btn ghost">Refresh</button>
+    </div>
+  </div>
+
+  <div id="draftsList" class="cards" aria-live="polite"></div>
+
+  <div id="emptyState" class="empty" style="display:none;">
+    <p><strong>No drafts yet.</strong></p>
+    <p class="small-muted">Click “New Draft” to create one — or submit a poem from the submission page.</p>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">Edit Draft</h2>
+
+    <div class="form-row">
+      <label for="editTitle">Title</label>
+      <input id="editTitle" type="text" />
+    </div>
+
+    <div class="form-row">
+      <label for="editContent">Content</label>
+      <textarea id="editContent" rows="8"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label for="editCategories">Categories (comma-separated)</label>
+      <input id="editCategories" type="text" />
+    </div>
+
+    <div class="form-row">
+      <label for="editAuthor">Author</label>
+      <input id="editAuthor" type="text" />
+    </div>
+
+    <div class="footer">
+      <button id="closeModalBtn" class="btn secondary">Cancel</button>
+      <button id="saveDraftBtn" class="btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const draftsList = document.getElementById('draftsList');
+const emptyState = document.getElementById('emptyState');
+const refreshBtn = document.getElementById('refreshBtn');
+const newDraftBtn = document.getElementById('newDraftBtn');
+
+const modalBackdrop = document.getElementById('modalBackdrop');
+const editTitle = document.getElementById('editTitle');
+const editContent = document.getElementById('editContent');
+const editCategories = document.getElementById('editCategories');
+const editAuthor = document.getElementById('editAuthor');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const saveDraftBtn = document.getElementById('saveDraftBtn');
+
+let currentUser = null;
+let unsubscribe = null;
+let editingDraftId = null;
+
+function formatTimestamp(ts){
+  if(!ts) return '—';
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString();
+  } catch(e){
+    return '—';
+  }
+}
+
+function openModal(draft){
+  editingDraftId = draft.id;
+  editTitle.value = draft.title || '';
+  editContent.value = draft.content || '';
+  editCategories.value = (Array.isArray(draft.categories) ? draft.categories.join(', ') : draft.categories || '');
+  editAuthor.value = draft.author || '';
+  modalBackdrop.style.display = 'flex';
+  editTitle.focus();
+}
+
+function closeModal(){
+  editingDraftId = null;
+  modalBackdrop.style.display = 'none';
+}
+
+onAuthStateChanged(auth, user => {
+  if(!user){
+    alert('Please log in to manage drafts.');
+    window.location.href = `universal-login.html?platform=poetry&redirect=${encodeURIComponent(window.location.href)}`;
+    return;
+  }
+  currentUser = user;
+  startListeningToDrafts();
+});
+
+function startListeningToDrafts(){
+  if(unsubscribe) unsubscribe();
+
+  const draftsRef = collection(db, 'draftPoems');
+  const q = query(draftsRef, where('authorId', '==', currentUser.uid));
+
+  unsubscribe = onSnapshot(q, snapshot => {
+    const drafts = [];
+    snapshot.forEach(docSnap => drafts.push({ id: docSnap.id, ...docSnap.data() }));
+    renderDrafts(drafts);
+  });
+}
+
+function renderDrafts(drafts){
+  draftsList.innerHTML = '';
+
+  // 🔥 UPDATE COUNTER
+  document.getElementById("draftCount").textContent = drafts.length;
+
+  if(!drafts.length){
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  drafts.sort((a,b) => {
+    const ta = a.timestamp?.toDate?.().getTime?.() || 0;
+    const tb = b.timestamp?.toDate?.().getTime?.() || 0;
+    return tb - ta;
+  });
+
+  drafts.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const left = document.createElement('div');
+    left.className = 'left';
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'title';
+    titleEl.textContent = d.title || '(Untitled)';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const catText = Array.isArray(d.categories) ? d.categories.join(', ') : (d.categories || 'Uncategorized');
+    meta.textContent = `${d.author || 'Anonymous'} · ${catText} · saved ${formatTimestamp(d.timestamp)}`;
+
+    const excerpt = document.createElement('p');
+    excerpt.className = 'excerpt';
+    const txt = d.content || '';
+    excerpt.textContent = txt.length > 300 ? txt.slice(0,300) + '…' : txt;
+
+    left.appendChild(titleEl);
+    left.appendChild(meta);
+    left.appendChild(excerpt);
+
+    const controls = document.createElement('div');
+    controls.className = 'controls';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn secondary';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => openModal(d);
+
+    const publishBtn = document.createElement('button');
+    publishBtn.className = 'btn';
+    publishBtn.textContent = 'Publish';
+    publishBtn.onclick = () => publishDraft(d);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn danger';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => deleteDraft(d);
+
+    controls.appendChild(editBtn);
+    controls.appendChild(publishBtn);
+    controls.appendChild(deleteBtn);
+
+    card.appendChild(left);
+    card.appendChild(controls);
+    draftsList.appendChild(card);
+  });
+}
+
+newDraftBtn.onclick = async () => {
+  if(!currentUser) return alert('Not authenticated.');
+  try{
+    const ref = await addDoc(collection(db, 'draftPoems'), {
+      title: 'Untitled',
+      content: '',
+      categories: [],
+      author: currentUser.displayName || currentUser.email.split('@')[0],
+      authorId: currentUser.uid,
+      timestamp: serverTimestamp(),
+      submittedBy: currentUser.displayName || currentUser.email.split('@')[0],
+      status: 'draft'
+    });
+
+    const snap = await getDoc(doc(db, 'draftPoems', ref.id));
+    openModal({ id: ref.id, ...snap.data() });
+
+  }catch(err){
+    alert('Error creating draft: ' + err.message);
+  }
+};
+
+refreshBtn.onclick = () => {
+  if(unsubscribe){
+    unsubscribe();
+    startListeningToDrafts();
+  }
+};
+
+saveDraftBtn.onclick = async () => {
+  if(!editingDraftId) return;
+  const updated = {
+    title: editTitle.value.trim() || 'Untitled',
+    content: editContent.value,
+    categories: (editCategories.value || '').split(',').map(x => x.trim()).filter(Boolean),
+    author: editAuthor.value.trim() || currentUser.displayName || currentUser.email.split('@')[0],
+    timestamp: serverTimestamp()
+  };
+
+  try{
+    await updateDoc(doc(db, 'draftPoems', editingDraftId), updated);
+    closeModal();
+
+  }catch(err){
+    alert('Error saving draft: ' + err.message);
+  }
+};
+
+async function deleteDraft(d){
+  if(!confirm('Delete this draft permanently?')) return;
+  try{
+    await deleteDoc(doc(db, 'draftPoems', d.id));
+  }catch(err){
+    alert('Error deleting draft: ' + err.message);
+  }
+}
+
+async function publishDraft(d){
+  if(!confirm('Publish this draft?')) return;
+  try{
+    await addDoc(collection(db, 'recentPoems'), {
+      title: d.title,
+      content: d.content,
+      author: d.author,
+      authorId: d.authorId,
+      categories: Array.isArray(d.categories) ? d.categories : [],
+      timestamp: serverTimestamp(),
+      submittedBy: d.submittedBy || d.author,
+      status: 'published',
+      views: 0,
+      likes: 0,
+      commentsCount: 0
+    });
+
+    await deleteDoc(doc(db, 'draftPoems', d.id));
+    alert('Draft published!');
+
+  }catch(err){
+    alert('Error publishing draft: ' + err.message);
+  }
+}
+
+closeModalBtn.onclick = closeModal;
+
+modalBackdrop.onclick = e => {
+  if(e.target === modalBackdrop) closeModal();
+};
+
+document.onkeydown = e => {
+  if(e.key === 'Escape' && modalBackdrop.style.display === 'flex') closeModal();
+};
+</script>
+
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>

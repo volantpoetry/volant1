@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Poetry in Motion | Volant Poetry</title>
+<link rel="stylesheet" href="tes.css">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #fdf6f0, #e2e9f0, #f7f0e5, #e8e0d8);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    color: #4b3f2f;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .poem-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: transparent;
+  }
+  .poem-card {
+    background: linear-gradient(160deg, #fdf6f0, #e2e9f0);
+    color: #4b3f2f;
+    border-radius: 14px;
+    max-width: 700px;
+    width: 100%;
+    padding: 30px 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  #poem-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin:0; }
+  #poem-content { font-family: 'Inter', sans-serif; font-size: 1rem; line-height: 1.6; white-space: pre-wrap; }
+  .author { font-style: italic; font-size: 0.9rem; color: #6b5a4c; }
+  @media (max-width: 768px) {
+    .poem-card { padding: 20px 15px; width: 84%; margin-left: -8%; }
+    #poem-title { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<section class="poem-section">
+  <div id="poem-container" class="poem-card">
+    <h2 id="poem-title"></h2>
+    <p id="poem-content"></p>
+    <span class="author" id="poem-author"></span>
+  </div>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const collectionName = params.get("collection");
+const slug = params.get("slug");
+
+const titleEl = document.getElementById("poem-title");
+const contentEl = document.getElementById("poem-content");
+const authorEl = document.getElementById("poem-author");
+
+async function loadMotionPoem() {
+  if (!collectionName || !slug) {
+    titleEl.textContent = "Poem not found";
+    return;
+  }
+
+  try {
+    const colRef = collection(db, collectionName);
+    const snapshot = await getDocs(colRef);
+
+    if (snapshot.empty) {
+      titleEl.textContent = "Poem not found";
+      return;
+    }
+
+    // Find the document matching the slug
+    const docSnap = snapshot.docs.find(d => {
+      const data = d.data();
+      const docSlug = data.slug || (data.title ? data.title.toLowerCase().replace(/\s+/g, "-") : d.id);
+      return docSlug === slug;
+    });
+
+    if (!docSnap) {
+      titleEl.textContent = "Poem not found";
+      return;
+    }
+
+    const data = docSnap.data();
+    titleEl.textContent = data.title || "Untitled";
+    contentEl.innerHTML = data.content ? data.content.replace(/\n/g, "<br>") : "";
+    authorEl.textContent = data.authorName || data.author || data.username || "Anonymous";
+
+  } catch (err) {
+    console.error("Error loading poem:", err);
+    titleEl.textContent = "Poem not found";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadMotionPoem);
+</script>
+
+<script src="return-url-handler.js"></script>
+</body>
+</html>

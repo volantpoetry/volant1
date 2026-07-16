@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Edit Profile | Volant Poetry</title>
+  <link rel="stylesheet" href="style.css">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+  <style>
+    body { font-family: sans-serif; background:#f5f5f5; padding:20px; }
+    .profile-form { max-width:400px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .profile-form label { display:block; margin-top:10px; font-weight:600; }
+    .profile-form input, .profile-form textarea { width:100%; padding:6px; margin-top:4px; border-radius:4px; border:1px solid #ccc; }
+    .profile-form button { margin-top:15px; padding:8px 12px; border:none; background:#5a3cb3; color:white; border-radius:6px; cursor:pointer; }
+    .profile-form button:disabled { opacity:0.6; cursor:not-allowed; }
+    .success-msg { color:green; margin-top:10px; }
+    .error-msg { color:red; margin-top:10px; }
+    
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">Edit Your Profile</h2>
+
+  <div class="profile-form">
+    <label>Real Name:</label>
+    <input type="text" id="editRealName" placeholder="Enter your real name (optional)">
+
+    <label>Username:</label>
+    <input type="text" id="editUsername" placeholder="Enter your username">
+
+    <label>Email:</label>
+    <input type="email" id="editEmail" placeholder="Enter your email">
+
+    <label>Bio:</label>
+    <textarea id="editBio" rows="4" placeholder="Write something about yourself"></textarea>
+
+    <button id="saveProfileBtn">Save Changes</button>
+
+    <p class="success-msg" id="successMsg" style="display:none;">Profile updated successfully!</p>
+    <p class="error-msg" id="errorMsg" style="display:none;">Failed to update profile. Try again.</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const realNameInput = document.getElementById("editRealName");
+    const usernameInput = document.getElementById("editUsername");
+    const emailInput = document.getElementById("editEmail");
+    const bioInput = document.getElementById("editBio");
+    const saveBtn = document.getElementById("saveProfileBtn");
+    const successMsg = document.getElementById("successMsg");
+    const errorMsg = document.getElementById("errorMsg");
+
+    let currentUserUid = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("You must be logged in to edit your profile.");
+        window.location.href = `universal-login.html?platform=poetry&redirect=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
+
+      currentUserUid = user.uid;
+
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        realNameInput.value = data.realName || "";
+        usernameInput.value = data.username || "";
+        emailInput.value = data.email || "";
+        bioInput.value = data.bio || "";
+      } else {
+        // Create a new document if missing
+        await setDoc(userRef, { 
+          realName: "",
+          username: user.displayName || "", 
+          email: user.email, 
+          bio: "" 
+        });
+        realNameInput.value = "";
+        usernameInput.value = user.displayName || "";
+        emailInput.value = user.email || "";
+        bioInput.value = "";
+      }
+    });
+
+    saveBtn.addEventListener("click", async () => {
+      if (!currentUserUid) return;
+
+      const newRealName = realNameInput.value.trim();
+      const newUsername = usernameInput.value.trim();
+      const newEmail = emailInput.value.trim();
+      const newBio = bioInput.value.trim();
+
+      if (!newUsername || !newEmail) {
+        errorMsg.textContent = "Username and Email are required!";
+        errorMsg.style.display = "block";
+        successMsg.style.display = "none";
+        return;
+      }
+
+      saveBtn.disabled = true;
+      errorMsg.style.display = "none";
+      successMsg.style.display = "none";
+
+      try {
+        const userRef = doc(db, "users", currentUserUid);
+        await updateDoc(userRef, {
+          realName: newRealName,
+          username: newUsername,
+          email: newEmail,
+          bio: newBio
+        });
+
+        successMsg.style.display = "block";
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        errorMsg.style.display = "block";
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+  </script>
+
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+
+            <script>
+            // Return URL Handler - Redirect to previous page after login
+            (function() {
+                // Function to get return URL
+                function getReturnUrl() {
+                    // Check URL parameters first
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let returnUrl = urlParams.get('returnUrl');
+                    
+                    // Check session storage
+                    if (!returnUrl) {
+                        returnUrl = sessionStorage.getItem('returnUrl');
+                    }
+                    
+                    // Check referrer
+                    if (!returnUrl || returnUrl === 'null' || returnUrl === 'undefined') {
+                        returnUrl = document.referrer || window.location.pathname;
+                    }
+                    
+                    // Exclude auth pages
+                    const excludePages = ['login', 'signup', 'verify', 'reset', 'check-verification'];
+                    if (excludePages.some(page => returnUrl.includes(page))) {
+                        returnUrl = '/index.html';
+                    }
+                    
+                    // Clean up URL
+                    if (returnUrl) {
+                        // Remove any existing returnUrl parameters to avoid loops
+                        returnUrl = returnUrl.split('?')[0];
+                        // Make sure it starts with /
+                        if (!returnUrl.startsWith('/') && !returnUrl.startsWith('http')) {
+                            returnUrl = '/' + returnUrl;
+                        }
+                    }
+                    
+                    return returnUrl || '/index.html';
+                }
+                
+                // Function to redirect after successful login
+                window.redirectAfterLogin = function() {
+                    const returnUrl = getReturnUrl();
+                    sessionStorage.removeItem('returnUrl'); // Clean up
+                    window.location.href = returnUrl;
+                };
+                
+                // Save return URL when page loads (for login page)
+                if (window.location.pathname.includes('login') || 
+                    window.location.pathname.includes('signup')) {
+                    const returnUrl = getReturnUrl();
+                    sessionStorage.setItem('returnUrl', returnUrl);
+                    
+                    // Update any login form action to include returnUrl
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const forms = document.querySelectorAll('form');
+                        forms.forEach(form => {
+                            if (form.action && form.action.includes('login')) {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'returnUrl';
+                                hiddenInput.value = returnUrl;
+                                form.appendChild(hiddenInput);
+                            }
+                        });
+                    });
+                }
+                
+                // Intercept successful login responses
+                const originalFetch = window.fetch;
+                window.fetch = function(...args) {
+                    return originalFetch.apply(this, args).then(response => {
+                        // Check if this is a login response
+                        const url = args[0];
+                        if (typeof url === 'string' && url.includes('login')) {
+                            const clonedResponse = response.clone();
+                            clonedResponse.json().then(data => {
+                                if (data.success || data.token || data.user) {
+                                    // Login successful - redirect
+                                    setTimeout(() => {
+                                        const returnUrl = getReturnUrl();
+                                        sessionStorage.removeItem('returnUrl');
+                                        window.location.href = returnUrl;
+                                    }, 500);
+                                }
+                            }).catch(() => {});
+                        }
+                        return response;
+                    });
+                };
+                
+                // Store current page before navigating to login
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link) {
+                        const href = link.getAttribute('href');
+                        if (href && (href.includes('login') || href.includes('signup'))) {
+                            // Store current page before leaving
+                            const currentPath = window.location.pathname;
+                            if (!currentPath.includes('login') && !currentPath.includes('signup')) {
+                                sessionStorage.setItem('returnUrl', currentPath);
+                            }
+                        }
+                    }
+                });
+            })();
+            </script>
+            
+<script src="return-url-handler.js"></script>
+</body>
+</html>

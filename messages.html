@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Volant Messenger | Poets' Private Chat</title>
+    <link rel="stylesheet" href="style.css" />
+ <!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f6f5fc 0%, #f0eef9 100%); min-height: 100vh; }
+    header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; max-width: 1400px; margin: 0 auto; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo-img { height: 40px; width: auto; }
+    .logo-text { font-size: 1.3rem; font-weight: 600; color: #4b2aad; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { text-decoration: none; color: #4a5568; font-weight: 500; transition: color 0.3s; }
+    .nav-links a:hover, .nav-links a.active { color: #4b2aad; }
+    .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; color: #4b2aad; }
+    .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+    .messenger-container { display: flex; gap: 24px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; min-height: 70vh; height: calc(100vh - 140px); }
+    .conversations-sidebar { width: 320px; background: #faf9ff; border-right: 1px solid #e9e4ff; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid #e9e4ff; }
+    .sidebar-header h3 { font-size: 1.1rem; color: #1a1a1a; margin-bottom: 12px; }
+    .new-message-btn { width: 100%; background: #4b2aad; color: white; border: none; padding: 10px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .new-message-btn:hover { background: #3a1f8a; transform: translateY(-2px); }
+    .conversations-list { flex: 1; overflow-y: auto; padding: 10px; }
+    .conversation-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+    .conversation-item:hover { background: #f0edff; }
+    .conversation-item.active { background: #e9e4ff; border-left: 3px solid #4b2aad; }
+    .conversation-avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: linear-gradient(135deg, #4b2aad, #7c5cbf); }
+    .conversation-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #4b2aad, #7c5cbf); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; }
+    .conversation-info { flex: 1; min-width: 0; }
+    .conversation-name { font-weight: 600; color: #1a1a1a; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .conversation-last-msg { font-size: 0.75rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unread-badge { background: #ff9800; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; font-weight: 600; }
+    .chat-area { flex: 1; display: flex; flex-direction: column; background: white; overflow: hidden; }
+    .chat-header { padding: 20px; border-bottom: 1px solid #e9e4ff; display: flex; align-items: center; justify-content: space-between; background: white; }
+    .chat-header-left { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .chat-header-left:hover .chat-header-info h4 { color: #4b2aad; text-decoration: underline; }
+    .chat-header-avatar-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .chat-header-avatar-placeholder { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #4b2aad, #7c5cbf); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+    .chat-header-info h4 { font-size: 1rem; margin-bottom: 4px; }
+    .chat-header-info p { font-size: 0.75rem; color: #888; }
+    .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #faf9ff; }
+    .message { display: flex; max-width: 70%; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .message.sent { align-self: flex-end; }
+    .message.received { align-self: flex-start; }
+    .message-bubble { padding: 10px 14px; border-radius: 18px; word-wrap: break-word; max-width: 100%; }
+    .message.sent .message-bubble { background: #4b2aad; color: white; border-bottom-right-radius: 4px; }
+    .message.received .message-bubble { background: white; color: #333; border: 1px solid #e9e4ff; border-bottom-left-radius: 4px; }
+    .message-time { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; text-align: right; }
+    .message.sent .message-time { color: #ddd; }
+    .message.received .message-time { color: #999; }
+    .message-input-area { padding: 20px; border-top: 1px solid #e9e4ff; display: flex; gap: 12px; background: white; align-items: flex-end; }
+    .message-input-area textarea { flex: 1; padding: 12px 16px; border: 1px solid #e9e4ff; border-radius: 24px; font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none; resize: vertical; min-height: 48px; max-height: 120px; line-height: 1.4; }
+    .message-input-area textarea:focus { border-color: #4b2aad; }
+    .send-btn { background: #4b2aad; color: white; border: none; padding: 0 24px; border-radius: 30px; font-weight: 600; cursor: pointer; height: 48px; transition: all 0.3s; }
+    .send-btn:hover { background: #3a1f8a; transform: translateY(-2px); }
+    .empty-chat { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #aaa; gap: 12px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 24px; padding: 28px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+    .modal-content h3 { margin-bottom: 20px; color: #1a1a1a; }
+    .search-users { width: 100%; padding: 12px; border: 1px solid #e9e4ff; border-radius: 30px; margin-bottom: 20px; }
+    .users-list-modal { max-height: 300px; overflow-y: auto; }
+    .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+    .user-item:hover { background: #f0edff; }
+    .user-item-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .user-item-avatar-placeholder { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #4b2aad, #7c5cbf); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+    .close-modal { margin-top: 20px; width: 100%; padding: 10px; background: #eee; border: none; border-radius: 30px; cursor: pointer; }
+    .username-link { color: #4b2aad; text-decoration: none; font-weight: 500; }
+    .username-link:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .messenger-container { flex-direction: column; height: auto; }
+      .conversations-sidebar { width: 100%; max-height: 300px; }
+      .message { max-width: 85%; }
+      .nav-links { display: none; position: absolute; top: 70px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      .nav-links.show { display: flex; }
+      .menu-toggle { display: block; }
+    }
+    .nav-logo-img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+  <div class="logo">
+      <img src="images/logokk.png" alt="Volant Poetry Logo" class="nav-logo-img">
+      <span class="logo-text"><span class="logo-highlight">Volant</span> Poetry</span>
+    </div>
+    <div class="nav-links" id="nav-links">
+      <a href="/">Home</a>
+      <a href="/poems">Poems</a>
+      <a href="/shared/about">About</a>
+      <a href="/shared/contact">Contact</a>
+      <a href="/user-profile">My Profile</a>
+      <a href="/messenger" class="active">💬 Messages</a>
+    </div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+  </nav>
+</header>
+<div class="container">
+  <div class="messenger-container">
+    <div class="conversations-sidebar">
+      <div class="sidebar-header">
+        <h3>💌 Conversations</h3>
+        <button id="newMessageBtn" class="new-message-btn">✏️ New Message</button>
+      </div>
+      <div id="conversationsList" class="conversations-list">Loading...</div>
+    </div>
+    <div class="chat-area">
+      <div id="chatHeader" class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-header-avatar-placeholder">✨</div>
+          <div class="chat-header-info"><h4>Select a conversation</h4><p>Start messaging with fellow poets</p></div>
+        </div>
+      </div>
+      <div id="messagesContainer" class="messages-container"><div class="empty-chat"><span>💬</span><p>Choose a conversation or start a new one</p></div></div>
+      <div id="messageInputArea" class="message-input-area" style="display: none;">
+        <textarea id="messageInput" placeholder="Write a message..." autocomplete="off" rows="1"></textarea>
+        <button id="sendBtn" class="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="newConversationModal" class="modal">
+  <div class="modal-content">
+    <h3>Start a new conversation</h3>
+    <input type="text" id="searchUsers" class="search-users" placeholder="Search poets by name...">
+    <div id="usersListModal" class="users-list-modal">Loading poets...</div>
+    <button class="close-modal" id="closeModalBtn">Cancel</button>
+  </div>
+</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs, 
+    getDoc, 
+    doc, 
+    addDoc, 
+    orderBy, 
+    onSnapshot, 
+    updateDoc, 
+    setDoc, 
+    serverTimestamp, 
+    writeBatch 
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+    authDomain: "silent-depth.firebaseapp.com",
+    projectId: "silent-depth",
+    storageBucket: "silent-depth.appspot.com",
+    messagingSenderId: "78008755450",
+    appId: "1:78008755450:web:3fd0f0f298a08820935543"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null, currentConversationId = null, currentOtherUserId = null;
+  let conversationsUnsubscribe = null, messagesUnsubscribe = null;
+  let allUsersCache = [];
+
+  function getInitials(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
+  function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+  function formatTime(date) { const diff = Date.now() - date; if (diff < 60000) return 'Just now'; if (diff < 3600000) return `${Math.floor(diff/60000)}m`; if (diff < 86400000) return `${Math.floor(diff/3600000)}h`; return date.toLocaleDateString(); }
+
+  // Auto-resize textarea
+  function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+  }
+
+  async function loadAllUsers() {
+    if (!currentUser) return [];
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    const users = [];
+    usersSnapshot.forEach(docSnap => { 
+      if (docSnap.id !== currentUser.uid) {
+        const data = docSnap.data();
+        users.push({ 
+          uid: docSnap.id, 
+          username: data.username || data.displayName || 'Anonymous Poet',
+          photoURL: data.photoURL || null,
+          email: data.email || ''
+        }); 
+      }
+    });
+    allUsersCache = users;
+    return users;
+  }
+
+  async function getUserDetails(uid) {
+    if (uid === currentUser?.uid) return { username: 'You', uid, photoURL: currentUser.photoURL };
+    const cached = allUsersCache.find(u => u.uid === uid);
+    if (cached) return cached;
+    try { 
+      const userDoc = await getDoc(doc(db, "users", uid)); 
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        return { uid, username: data.username || data.displayName || 'Poet', photoURL: data.photoURL || null };
+      } 
+    } catch(e) {}
+    return { uid, username: 'Poet', photoURL: null };
+  }
+
+  function getAvatarHtml(photoURL, username, size = '48px') {
+    if (photoURL && photoURL.startsWith('http')) {
+      return `<img src="${escapeHtml(photoURL)}" class="conversation-avatar-img" style="width:${size}; height:${size};" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'conversation-avatar-placeholder\' style=\'width:${size}; height:${size};\'>${getInitials(username)}</div>';">`;
+    }
+    return `<div class="conversation-avatar-placeholder" style="width:${size}; height:${size};">${getInitials(username)}</div>`;
+  }
+
+  function getSmallAvatarHtml(photoURL, username, size = '44px') {
+    if (photoURL && photoURL.startsWith('http')) {
+      return `<img src="${escapeHtml(photoURL)}" class="chat-header-avatar-img" style="width:${size}; height:${size};" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'chat-header-avatar-placeholder\' style=\'width:${size}; height:${size};\'>${getInitials(username)}</div>';">`;
+    }
+    return `<div class="chat-header-avatar-placeholder" style="width:${size}; height:${size};">${getInitials(username)}</div>`;
+  }
+
+  function getModalAvatarHtml(photoURL, username, size = '44px') {
+    if (photoURL && photoURL.startsWith('http')) {
+      return `<img src="${escapeHtml(photoURL)}" class="user-item-avatar" style="width:${size}; height:${size};" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'user-item-avatar-placeholder\' style=\'width:${size}; height:${size};\'>${getInitials(username)}</div>';">`;
+    }
+    return `<div class="user-item-avatar-placeholder" style="width:${size}; height:${size};">${getInitials(username)}</div>`;
+  }
+
+  async function getCurrentUserProfile() {
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    if (userDoc.exists()) {
+      currentUser.photoURL = userDoc.data().photoURL || null;
+      currentUser.displayName = userDoc.data().username || userDoc.data().displayName || currentUser.email?.split('@')[0];
+    } else {
+      currentUser.displayName = currentUser.email?.split('@')[0] || 'Poet';
+      currentUser.photoURL = null;
+    }
+  }
+
+  function getConversationId(id1, id2) { return [id1, id2].sort().join('_'); }
+
+  async function createOrGetConversation(otherUserId) {
+    const convId = getConversationId(currentUser.uid, otherUserId);
+    const convRef = doc(db, "conversations", convId);
+    const convSnap = await getDoc(convRef);
+    if (!convSnap.exists()) {
+      const otherUser = await getUserDetails(otherUserId);
+      await setDoc(convRef, { 
+        participants: [currentUser.uid, otherUserId], 
+        participantDetails: { 
+          [currentUser.uid]: { username: currentUser.displayName || 'Me', photoURL: currentUser.photoURL || null },
+          [otherUserId]: { username: otherUser.username, photoURL: otherUser.photoURL || null }
+        }, 
+        lastMessage: null, 
+        lastMessageTime: null, 
+        createdAt: serverTimestamp() 
+      });
+    }
+    return convId;
+  }
+
+  async function getUnreadCount(conversationId) {
+    try {
+      const messagesSnap = await getDocs(collection(db, `conversations/${conversationId}/messages`));
+      let unread = 0;
+      messagesSnap.forEach(doc => { const data = doc.data(); if (!data.read && data.senderId !== currentUser.uid) unread++; });
+      return unread;
+    } catch(e) { return 0; }
+  }
+
+  function loadConversations() {
+    if (!currentUser) return;
+    const conversationsQuery = query(collection(db, "conversations"), where("participants", "array-contains", currentUser.uid), orderBy("lastMessageTime", "desc"));
+    if (conversationsUnsubscribe) conversationsUnsubscribe();
+    conversationsUnsubscribe = onSnapshot(conversationsQuery, async (snapshot) => {
+      const conversations = [];
+      for (const docSnap of snapshot.docs) {
+        const convData = docSnap.data();
+        const otherId = convData.participants.find(p => p !== currentUser.uid);
+        const otherUser = await getUserDetails(otherId);
+        conversations.push({ id: docSnap.id, otherUser, lastMessage: convData.lastMessage || '', lastMessageTime: convData.lastMessageTime, unreadCount: await getUnreadCount(docSnap.id) });
+      }
+      renderConversations(conversations);
+    });
+  }
+
+  function renderConversations(conversations) {
+    const container = document.getElementById('conversationsList');
+    if (!container) return;
+    if (conversations.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">💔 No conversations yet. Start a new one!</div>'; return; }
+    container.innerHTML = conversations.map(conv => `
+      <div class="conversation-item ${currentConversationId === conv.id ? 'active' : ''}" data-conv-id="${conv.id}" data-other-uid="${conv.otherUser.uid}">
+        ${getAvatarHtml(conv.otherUser.photoURL, conv.otherUser.username, '48px')}
+        <div class="conversation-info">
+          <div class="conversation-name">
+            <span>${escapeHtml(conv.otherUser.username)}</span>
+            ${conv.unreadCount > 0 ? `<span class="unread-badge">${conv.unreadCount}</span>` : ''}
+          </div>
+          <div class="conversation-last-msg">${escapeHtml(conv.lastMessage?.substring(0, 40) || 'No messages yet')}</div>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.conversation-item').forEach(el => { el.addEventListener('click', () => { openConversation(el.dataset.convId, el.dataset.otherUid); }); });
+  }
+
+  async function openConversation(conversationId, otherUserId) {
+    currentConversationId = conversationId;
+    currentOtherUserId = otherUserId;
+    document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.conversation-item[data-conv-id="${conversationId}"]`)?.classList.add('active');
+    const otherUser = await getUserDetails(otherUserId);
+    document.getElementById('chatHeader').innerHTML = `
+      <div class="chat-header-left" data-uid="${otherUser.uid}">
+        ${getSmallAvatarHtml(otherUser.photoURL, otherUser.username, '44px')}
+        <div class="chat-header-info">
+          <h4>${escapeHtml(otherUser.username)}</h4>
+          <p>✍️ Poet</p>
+        </div>
+      </div>
+    `;
+    // Add click handler to navigate to user profile
+    document.querySelector('.chat-header-left')?.addEventListener('click', () => {
+      window.location.href = `user-profile.html?uid=${otherUser.uid}`;
+    });
+    document.getElementById('messageInputArea').style.display = 'flex';
+    const textarea = document.getElementById('messageInput');
+    textarea.value = '';
+    textarea.style.height = 'auto';
+    loadMessages(conversationId);
+    await markMessagesAsRead(conversationId);
+  }
+
+  async function markMessagesAsRead(conversationId) {
+    if (!conversationId) return;
+    try {
+      const messagesSnap = await getDocs(collection(db, `conversations/${conversationId}/messages`));
+      const batch = writeBatch(db);
+      messagesSnap.forEach(docSnap => { 
+        const data = docSnap.data(); 
+        if (!data.read && data.senderId !== currentUser.uid) {
+          batch.update(doc(db, `conversations/${conversationId}/messages`, docSnap.id), { read: true });
+        }
+      });
+      await batch.commit();
+    } catch(e) { console.warn("Error marking messages as read:", e); }
+  }
+
+  function loadMessages(conversationId) {
+    if (messagesUnsubscribe) messagesUnsubscribe();
+    const messagesQuery = query(collection(db, `conversations/${conversationId}/messages`));
+    messagesUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const messages = [];
+      snapshot.forEach(docSnap => messages.push({ id: docSnap.id, ...docSnap.data() }));
+      messages.sort((a, b) => {
+        const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+        const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+        return timeA - timeB;
+      });
+      renderMessages(messages);
+      // Mark as read whenever new messages arrive and conversation is open
+      if (currentConversationId === conversationId) {
+        markMessagesAsRead(conversationId);
+      }
+    });
+  }
+
+  function renderMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    if (!container) return;
+    if (messages.length === 0) { container.innerHTML = '<div class="empty-chat"><span>💌</span><p>Send a message to start the conversation!</p></div>'; return; }
+    container.innerHTML = messages.map(msg => { 
+      const isSent = msg.senderId === currentUser.uid; 
+      const time = msg.timestamp?.toDate ? formatTime(msg.timestamp.toDate()) : formatTime(new Date(msg.timestamp)); 
+      return `<div class="message ${isSent ? 'sent' : 'received'}">
+        <div class="message-bubble">
+          ${escapeHtml(msg.text)}
+          <div class="message-time">${time} ${isSent ? (msg.read ? '✓✓' : '✓') : ''}</div>
+        </div>
+      </div>`; 
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const textarea = document.getElementById('messageInput');
+    const text = textarea.value.trim();
+    if (!text || !currentConversationId) return;
+    const convRef = doc(db, "conversations", currentConversationId);
+    await addDoc(collection(db, `conversations/${currentConversationId}/messages`), { 
+      text, 
+      senderId: currentUser.uid, 
+      timestamp: serverTimestamp(), 
+      read: false 
+    });
+    await updateDoc(convRef, { lastMessage: text, lastMessageTime: serverTimestamp() });
+    textarea.value = '';
+    textarea.style.height = 'auto';
+    textarea.focus();
+  }
+
+  async function showNewConversationModal() {
+    const modal = document.getElementById('newConversationModal');
+    const usersListDiv = document.getElementById('usersListModal');
+    const searchInput = document.getElementById('searchUsers');
+    const users = await loadAllUsers();
+    function renderUserList(filter = '') {
+      const filtered = users.filter(u => u.username.toLowerCase().includes(filter.toLowerCase()));
+      if (filtered.length === 0) { usersListDiv.innerHTML = '<div style="padding:12px; color:#999;">No poets found</div>'; return; }
+      usersListDiv.innerHTML = filtered.map(user => `
+        <div class="user-item" data-uid="${user.uid}" data-username="${escapeHtml(user.username)}">
+          ${getModalAvatarHtml(user.photoURL, user.username, '44px')}
+          <div>
+            <div style="font-weight:500;">${escapeHtml(user.username)}</div>
+            <div style="font-size:0.7rem; color:#888;">Poet</div>
+          </div>
+        </div>
+      `).join('');
+      document.querySelectorAll('.user-item').forEach(el => { 
+        el.addEventListener('click', async () => { 
+          const otherUid = el.dataset.uid; 
+          const convId = await createOrGetConversation(otherUid); 
+          modal.classList.remove('active'); 
+          openConversation(convId, otherUid); 
+          loadConversations(); 
+        }); 
+      });
+    }
+    renderUserList();
+    searchInput.value = '';
+    searchInput.oninput = (e) => renderUserList(e.target.value);
+    modal.classList.add('active');
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "/universal-login.html?platform=poetry&redirect=messages"; return; }
+    currentUser = user;
+    await getCurrentUserProfile();
+    await loadAllUsers();
+    loadConversations();
+    document.getElementById('newMessageBtn').addEventListener('click', showNewConversationModal);
+    document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('newConversationModal').classList.remove('active'));
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    const textarea = document.getElementById('messageInput');
+    textarea.addEventListener('keypress', (e) => { 
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    textarea.addEventListener('input', function() { autoResizeTextarea(this); });
+    document.getElementById('newConversationModal').addEventListener('click', (e) => { 
+      if (e.target === document.getElementById('newConversationModal')) 
+        document.getElementById('newConversationModal').classList.remove('active'); 
+    });
+  });
+  document.getElementById("menu-toggle")?.addEventListener("click", () => document.getElementById("nav-links")?.classList.toggle("show"));
+</script>
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>

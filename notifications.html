@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Notifications | Volant Poetry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+ <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f6f5fc 0%, #f0eef9 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 5%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #4b2aad;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #4a5568;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #4b2aad;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #4b2aad;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .notifications-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #1a1a1a;
+    }
+
+    .mark-read-btn {
+      background: #4b2aad;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .mark-read-btn:hover {
+      background: #3a1f8a;
+      transform: translateY(-2px);
+    }
+
+    .tabs-wrapper {
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      margin-bottom: 25px;
+      padding-bottom: 8px;
+    }
+
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      background: transparent;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #666;
+      border-radius: 40px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: #4b2aad;
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #e9e4ff;
+      color: #4b2aad;
+    }
+
+    .tabs-wrapper::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .tabs-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+
+    .notification-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* NOTIFICATION CARD - clickable area for marking as read, but not for navigation */
+    .notification-item {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      transition: all 0.2s ease;
+      border-left: 4px solid #4b2aad;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: #fefefe;
+    }
+
+    .notification-item.unread {
+      background: #f0edff;
+      border-left-color: #ff9800;
+    }
+
+    .notification-item.unread:hover {
+      background: #e8e4ff;
+    }
+
+    .notification-item.read {
+      opacity: 0.75;
+    }
+
+    .notification-icon {
+      font-size: 28px;
+      min-width: 50px;
+      text-align: center;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .notification-content {
+      flex: 1;
+      pointer-events: none; /* Let parent handle clicks, but clickable spans will re-enable */
+    }
+
+    .notification-message {
+      font-size: 15px;
+      color: #1e1e2a;
+      margin-bottom: 6px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    /* Clickable spans inside message: poem title and username */
+    .clickable-link {
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-block;
+      pointer-events: auto; /* Re-enable clicks on these elements */
+      position: relative;
+      z-index: 2;
+    }
+
+    .clickable-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Author/username specific style - color #B8860B (goldenrod) */
+    .clickable-user {
+      cursor: pointer;
+      font-weight: 600;
+      color: #B8860B;
+      text-decoration: none;
+      pointer-events: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .clickable-user:hover {
+      text-decoration: underline;
+      color: #9a6e0a;
+    }
+
+    /* Poem title link style */
+    .poem-title-link {
+      font-weight: 700;
+      color: #4b2aad;
+      cursor: pointer;
+      border-bottom: 1px dashed #c2b5f0;
+      pointer-events: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .poem-title-link:hover {
+      border-bottom: 1px solid #4b2aad;
+      color: #2c1a6e;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 16px;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      color: #999;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .collab-badge {
+      display: inline-block;
+      background: #e9e4ff;
+      color: #4b2aad;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 650px) {
+      .container {
+        padding: 0 15px;
+      }
+      
+      .notification-item {
+        padding: 12px 15px;
+      }
+      
+      .notification-icon {
+        font-size: 24px;
+        min-width: 40px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 99;
+      }
+      
+      .nav-links.show {
+        display: flex;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+    }
+    /* ========== VOLANT POETRY LOGO ========== */
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #4b2aad;
+  text-decoration: none;
+  gap: 0.6rem;
+  cursor: default;
+}
+
+.logo-highlight {
+  color: #fff;
+  text-shadow: 
+    0 0 2px #4b2aad,
+    0 0 4px #4b2aad,
+    0 0 6px #4b2aad;
+}
+
+.nav-logo-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 1.4rem;
+  }
+  
+  .nav-logo-img {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.2rem;
+  }
+}
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo">
+      <img src="images/logokk.png" alt="Volant Poetry Logo" class="nav-logo-img" onerror="this.style.display='none'">
+      <span class="logo-text"><span class="logo-highlight">Volant</span> Poetry</span>
+    </div>
+    <div class="nav-links" id="nav-links">
+      <a href="/">Home</a>
+      <a href="/poems">Poems</a>
+      <a href="/shared/about">About</a>
+      <a href="/shared/contact">Contact</a>
+      <a href="/user-profile">My Profile</a>
+    </div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="notifications-header">
+    <h1> Notifications</h1>
+    <button id="markAllReadBtn" class="mark-read-btn">Mark all as read</button>
+  </div>
+
+  <div class="tabs-wrapper">
+    <div class="tabs" id="tabsContainer">
+      <button class="tab-btn active" data-tab="all"> All</button>
+      <button class="tab-btn" data-tab="likes">❤️ Likes</button>
+      <button class="tab-btn" data-tab="comments">💬 Comments</button>
+      <button class="tab-btn" data-tab="replies">↩️ Replies</button>
+      <button class="tab-btn" data-tab="follows">👥 Follows</button>
+      <button class="tab-btn" data-tab="collaborations">🤝 Collaborations</button>
+    </div>
+  </div>
+
+  <div id="allTab" class="tab-content active">
+    <div id="allNotifications" class="notification-list"></div>
+  </div>
+  <div id="likesTab" class="tab-content">
+    <div id="likesNotifications" class="notification-list"></div>
+  </div>
+  <div id="commentsTab" class="tab-content">
+    <div id="commentsNotifications" class="notification-list"></div>
+  </div>
+  <div id="repliesTab" class="tab-content">
+    <div id="repliesNotifications" class="notification-list"></div>
+  </div>
+  <div id="followsTab" class="tab-content">
+    <div id="followsNotifications" class="notification-list"></div>
+  </div>
+  <div id="collaborationsTab" class="tab-content">
+    <div id="collaborationsNotifications" class="notification-list"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  updateDoc, 
+  orderBy, 
+  limit,
+  writeBatch,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+let existingCollaborationsLoaded = false;
+
+function formatTime(timestamp) {
+  if (!timestamp) return "Just now";
+  let date;
+  if (timestamp.toDate) date = timestamp.toDate();
+  else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000);
+  else date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+  return date.toLocaleDateString();
+}
+
+function getNotificationIcon(type) {
+  switch(type) {
+    case 'like': return '❤️';
+    case 'comment': return '💬';
+    case 'reply': return '↩️';
+    case 'follow': return '👥';
+    case 'collaboration': return '🤝';
+    default: return '🔔';
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+async function getPoemSlugAndTitle(poemId) {
+  if (!poemId) return { slug: null, title: null };
+  try {
+    const poemDoc = await getDoc(doc(db, "recentPoems", poemId));
+    if (poemDoc.exists()) {
+      const data = poemDoc.data();
+      const title = data.title || "Untitled";
+      let slug = data.slug;
+      if (!slug && title) {
+        slug = title.toString().toLowerCase().trim()
+          .replace(/[\s\_]+/g, "-")
+          .replace(/[^a-z0-9\-]/g, "")
+          .replace(/\-+/g, "-")
+          .replace(/^\-+|\-+$/g, "");
+      }
+      return { slug, title };
+    }
+  } catch (err) { console.warn(err); }
+  return { slug: null, title: null };
+}
+
+// Build notification HTML - ONLY username and poem title are clickable links
+// Username gets color #B8860B
+function buildNotificationHTML(notification, poemSlug, poemTitle) {
+  const usernameRaw = notification.fromUserName || 'Someone';
+  const safeUsername = escapeHtml(usernameRaw);
+  let messageHtml = '';
+  const type = notification.type;
+  const commentExcerpt = notification.commentText ? escapeHtml(notification.commentText.substring(0, 100)) : '';
+  const replyExcerpt = notification.replyText ? escapeHtml(notification.replyText.substring(0, 100)) : '';
+  
+  // Username link - color #B8860B (goldenrod)
+  const userProfileUrl = `user-profile.html?uid=${notification.fromUser || ''}`;
+  const usernameLink = `<span class="clickable-user" data-href="${userProfileUrl}" data-id="${notification.id}" data-read="${notification.read}">${safeUsername}</span>`;
+  
+  if (type === 'like') {
+    const poemDisplay = poemTitle ? 
+      `<span class="clickable-link poem-title-link" data-href="poem.html?slug=${encodeURIComponent(poemSlug || '')}" data-id="${notification.id}" data-read="${notification.read}">“${escapeHtml(poemTitle)}”</span>` : 
+      'a poem';
+    messageHtml = `${usernameLink} liked your poem ${poemDisplay}`;
+  } 
+  else if (type === 'comment') {
+    const poemDisplay = poemTitle ? 
+      `<span class="clickable-link poem-title-link" data-href="poem.html?slug=${encodeURIComponent(poemSlug || '')}" data-id="${notification.id}" data-read="${notification.read}">“${escapeHtml(poemTitle)}”</span>` : 
+      'a poem';
+    const snippet = commentExcerpt ? `<br><em>"${commentExcerpt}${notification.commentText?.length > 100 ? '...' : ''}"</em>` : '';
+    messageHtml = `${usernameLink} commented on ${poemDisplay}:${snippet}`;
+  }
+  else if (type === 'reply') {
+    const snippet = replyExcerpt ? `<br><em>"${replyExcerpt}${notification.replyText?.length > 100 ? '...' : ''}"</em>` : '';
+    messageHtml = `${usernameLink} replied to your comment: ${snippet}`;
+  }
+  else if (type === 'follow') {
+    messageHtml = `${usernameLink} started following you`;
+  }
+  else if (type === 'collaboration') {
+    if (notification.isExistingCollaborator && notification.workTitle) {
+      const workDisplay = notification.poemSlug ? 
+        `<span class="clickable-link poem-title-link" data-href="poem.html?slug=${encodeURIComponent(notification.poemSlug)}" data-id="${notification.id}" data-read="${notification.read}">“${escapeHtml(notification.workTitle)}”</span>` :
+        `<strong>“${escapeHtml(notification.workTitle)}”</strong>`;
+      messageHtml = `${usernameLink} added you as a collaborator on ${workDisplay} ✨ You are now part of this creative team!`;
+    } 
+    else if (notification.collaborationTitle) {
+      const collabUrl = `collaboration.html?id=${encodeURIComponent(notification.collaborationId || '')}`;
+      const collabDisplay = `<span class="clickable-link poem-title-link" data-href="${collabUrl}" data-id="${notification.id}" data-read="${notification.read}">“${escapeHtml(notification.collaborationTitle)}”</span>`;
+      messageHtml = `${usernameLink} invited you to collaborate on ${collabDisplay} 🤝`;
+    }
+    else if (poemTitle) {
+      const poemDisplay = `<span class="clickable-link poem-title-link" data-href="poem.html?slug=${encodeURIComponent(poemSlug || '')}" data-id="${notification.id}" data-read="${notification.read}">“${escapeHtml(poemTitle)}”</span>`;
+      messageHtml = `${usernameLink} requested a collaboration on your poem ${poemDisplay}`;
+    }
+    else {
+      messageHtml = `${usernameLink} wants to collaborate with you on a poetic project`;
+    }
+  }
+  else {
+    messageHtml = notification.message ? `${usernameLink} ${escapeHtml(notification.message)}` : 'New notification';
+  }
+  return messageHtml;
+}
+
+async function fetchExistingCollaborationsAsNotifications() {
+  if (!currentUser) return [];
+  if (existingCollaborationsLoaded) return [];
+  const collaborationNotifs = [];
+  try {
+    const collabQuery = query(collection(db, "collaborations"), where("collaborators", "array-contains", currentUser.uid));
+    const collabSnapshot = await getDocs(collabQuery);
+    for (const collabDoc of collabSnapshot.docs) {
+      const collabData = collabDoc.data();
+      const addedBy = collabData.ownerId || collabData.createdBy || collabData.addedBy;
+      let addedByName = "A poet";
+      if (addedBy && addedBy !== currentUser.uid) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", addedBy));
+          if (userDoc.exists()) addedByName = userDoc.data().username || "A poet";
+        } catch(e) {}
+      } else if (addedBy === currentUser.uid) continue;
+      const workTitle = collabData.title || collabData.workTitle || "a poetry work";
+      const poemId = collabData.poemId || collabData.workId;
+      let poemSlug = null;
+      if (poemId) {
+        const slugData = await getPoemSlugAndTitle(poemId);
+        poemSlug = slugData.slug;
+      }
+      const createdAt = collabData.createdAt || collabData.timestamp || Timestamp.now();
+      collaborationNotifs.push({
+        id: `collab_existing_${collabDoc.id}`,
+        type: 'collaboration',
+        fromUser: addedBy,
+        fromUserName: addedByName,
+        collaborationId: collabDoc.id,
+        workTitle: workTitle,
+        poemId: poemId,
+        poemSlug: poemSlug,
+        timestamp: createdAt,
+        read: false,
+        isExistingCollaborator: true
+      });
+    }
+    const poemsQuery = query(collection(db, "recentPoems"), where("collaborators", "array-contains", currentUser.uid));
+    const poemsSnapshot = await getDocs(poemsQuery);
+    for (const poemDoc of poemsSnapshot.docs) {
+      const poemData = poemDoc.data();
+      const addedBy = poemData.ownerId || poemData.authorId || poemData.createdBy;
+      let addedByName = "The author";
+      if (addedBy && addedBy !== currentUser.uid) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", addedBy));
+          if (userDoc.exists()) addedByName = userDoc.data().username || "The author";
+        } catch(e) {}
+      } else continue;
+      const poemSlugObj = await getPoemSlugAndTitle(poemDoc.id);
+      const alreadyExists = collaborationNotifs.some(n => n.poemId === poemDoc.id);
+      if (!alreadyExists) {
+        collaborationNotifs.push({
+          id: `collab_existing_poem_${poemDoc.id}`,
+          type: 'collaboration',
+          fromUser: addedBy,
+          fromUserName: addedByName,
+          poemId: poemDoc.id,
+          workTitle: poemData.title || "a poem",
+          poemSlug: poemSlugObj.slug,
+          timestamp: poemData.createdAt || poemData.timestamp || Timestamp.now(),
+          read: false,
+          isExistingCollaborator: true
+        });
+      }
+    }
+  } catch (err) { console.warn(err); }
+  existingCollaborationsLoaded = true;
+  return collaborationNotifs;
+}
+
+async function loadNotifications() {
+  if (!currentUser) return [];
+  try {
+    const notificationsRef = collection(db, "notifications");
+    const q = query(notificationsRef, where("forUser", "==", currentUser.uid), orderBy("timestamp", "desc"), limit(150));
+    const snapshot = await getDocs(q);
+    let notifications = [];
+    for (const docSnap of snapshot.docs) {
+      const notification = { id: docSnap.id, ...docSnap.data() };
+      notification.timestamp = notification.timestamp || notification.createdAt || null;
+      notification.fromUser = notification.fromUser || notification.userId || null;
+      if (notification.fromUser && !notification.fromUserName) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", notification.fromUser));
+          notification.fromUserName = userDoc.exists() ? userDoc.data().username : "Someone";
+        } catch (err) { notification.fromUserName = "Someone"; }
+      }
+      if ((notification.type === 'like' || notification.type === 'comment' || notification.type === 'reply' || notification.type === 'collaboration') && notification.poemId) {
+        const { slug, title } = await getPoemSlugAndTitle(notification.poemId);
+        notification.poemTitle = title || notification.poemTitle;
+        notification.poemSlug = slug;
+      }
+      if (notification.type === 'collaboration' && notification.collaborationId && !notification.collaborationTitle) {
+        try {
+          const collabDoc = await getDoc(doc(db, "collaborations", notification.collaborationId));
+          if (collabDoc.exists()) notification.collaborationTitle = collabDoc.data().title || "poetry collaboration";
+        } catch (e) {}
+      }
+      notifications.push(notification);
+    }
+    const existingCollabNotifs = await fetchExistingCollaborationsAsNotifications();
+    const existingIds = new Set();
+    notifications.forEach(n => { if (n.collaborationId) existingIds.add(n.collaborationId); if (n.poemId) existingIds.add(n.poemId); });
+    const newCollabNotifs = existingCollabNotifs.filter(c => !existingIds.has(c.collaborationId || c.poemId));
+    notifications = [...notifications, ...newCollabNotifs];
+    notifications.sort((a,b) => (b.timestamp?.toDate?.() || new Date(b.timestamp)) - (a.timestamp?.toDate?.() || new Date(a.timestamp)));
+    renderNotifications(notifications);
+    const unreadCount = notifications.filter(n => !n.read).length;
+    document.title = unreadCount ? `(${unreadCount}) Notifications | Volant Poetry` : `Notifications | Volant Poetry`;
+    return notifications;
+  } catch (err) {
+    console.error(err);
+    const container = document.getElementById("allNotifications");
+    if(container) container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Unable to load notifications</h3><p>Please check your connection</p></div>';
+  }
+}
+
+async function markAsRead(notificationId) {
+  if (!notificationId || notificationId.startsWith('collab_existing_')) return;
+  try {
+    await updateDoc(doc(db, "notifications", notificationId), { read: true });
+  } catch (err) { console.error(err); }
+}
+
+async function markAllAsRead() {
+  if (!currentUser) return;
+  try {
+    const q = query(collection(db, "notifications"), where("forUser", "==", currentUser.uid), where("read", "==", false));
+    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(docSnap => batch.update(doc(db, "notifications", docSnap.id), { read: true }));
+    await batch.commit();
+    await loadNotifications();
+  } catch (err) { console.error(err); }
+}
+
+function renderNotifications(notifications) {
+  const containers = {
+    all: document.getElementById("allNotifications"),
+    likes: document.getElementById("likesNotifications"),
+    comments: document.getElementById("commentsNotifications"),
+    replies: document.getElementById("repliesNotifications"),
+    follows: document.getElementById("followsNotifications"),
+    collaborations: document.getElementById("collaborationsNotifications")
+  };
+  Object.values(containers).forEach(c => { if(c) c.innerHTML = ''; });
+  if (notifications.length === 0) {
+    const emptyHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><h3>No notifications yet</h3><p>When someone interacts, you'll see it here!</p></div>`;
+    Object.values(containers).forEach(c => { if(c) c.innerHTML = emptyHTML; });
+    return;
+  }
+  const filtered = {
+    all: notifications,
+    likes: notifications.filter(n => n.type === 'like'),
+    comments: notifications.filter(n => n.type === 'comment'),
+    replies: notifications.filter(n => n.type === 'reply'),
+    follows: notifications.filter(n => n.type === 'follow'),
+    collaborations: notifications.filter(n => n.type === 'collaboration')
+  };
+  for (const [tab, notifs] of Object.entries(filtered)) {
+    const container = containers[tab];
+    if (!container) continue;
+    if (notifs.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✨</div><h3>No ${tab === 'all' ? '' : tab} notifications</h3></div>`;
+      continue;
+    }
+    notifs.forEach(notification => {
+      const poemSlug = notification.poemSlug || null;
+      const poemTitle = notification.poemTitle || null;
+      const messageHtmlContent = buildNotificationHTML(notification, poemSlug, poemTitle);
+      const notificationDiv = document.createElement("div");
+      notificationDiv.className = `notification-item ${notification.read ? 'read' : 'unread'}`;
+      notificationDiv.dataset.id = notification.id;
+      notificationDiv.dataset.read = notification.read;
+      notificationDiv.innerHTML = `
+        <div class="notification-icon">${getNotificationIcon(notification.type)}</div>
+        <div class="notification-content">
+          <div class="notification-message">${messageHtmlContent}</div>
+          <div class="notification-time">${formatTime(notification.timestamp)} ${notification.isExistingCollaborator ? '<span class="collab-badge">Existing collaborator</span>' : ''}</div>
+        </div>
+      `;
+      
+      // Handle click on the notification item itself -> mark as read
+      notificationDiv.addEventListener('click', async (e) => {
+        // If the click target is a clickable link (username or poem title), do NOT mark as read here,
+        // let the link's own handler do the marking and navigation.
+        const target = e.target;
+        const isClickable = target.closest('.clickable-user, .clickable-link, .poem-title-link');
+        if (isClickable) return;
+        
+        // Otherwise, mark as read without navigation
+        if (!notification.read && !notification.id?.startsWith('collab_existing_')) {
+          await markAsRead(notification.id);
+          notification.read = true;
+          notificationDiv.classList.remove("unread");
+          notificationDiv.classList.add("read");
+        }
+      });
+      
+      // Attach click handlers to clickable elements (username and poem title)
+      const clickableSpans = notificationDiv.querySelectorAll('.clickable-user, .clickable-link, .poem-title-link');
+      clickableSpans.forEach(span => {
+        span.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          // Mark as read if unread
+          if (!notification.read && !notification.id?.startsWith('collab_existing_')) {
+            await markAsRead(notification.id);
+            notification.read = true;
+            notificationDiv.classList.remove("unread");
+            notificationDiv.classList.add("read");
+          }
+          const url = span.getAttribute('data-href');
+          if (url && url !== '#') {
+            window.location.href = url;
+          }
+        });
+      });
+      
+      container.appendChild(notificationDiv);
+    });
+  }
+}
+
+function setupTabs() {
+  const tabs = document.querySelectorAll(".tab-btn");
+  function activateTab(tabId) {
+    tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabId));
+    document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+    const activeContent = document.getElementById(`${tabId}Tab`);
+    if (activeContent) activeContent.classList.add("active");
+  }
+  tabs.forEach(tab => tab.addEventListener("click", (e) => {
+    e.preventDefault();
+    activateTab(tab.dataset.tab);
+  }));
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "/universal-login.html?platform=poetry&redirect=notifications";
+    return;
+  }
+  currentUser = user;
+  await loadNotifications();
+  setupTabs();
+  document.getElementById("markAllReadBtn")?.addEventListener("click", markAllAsRead);
+});
+
+document.getElementById("menu-toggle")?.addEventListener("click", () => {
+  document.getElementById("nav-links")?.classList.toggle("show");
+});
+</script>
+<script>
+// Dynamic login/signup link setup for current page redirect
+(function() {
+  function setupDynamicAuthLinks() {
+    const currentPage = window.location.href;
+    const currentFile = window.location.pathname.split('/').pop();
+    let platform = 'poetry';
+    if (currentFile.startsWith('store/')) platform = 'reads';
+    if (currentFile === 'parent-house.html') platform = 'foundry';
+    
+    const loginParams = new URLSearchParams();
+    loginParams.append('platform', platform);
+    loginParams.append('redirect', currentPage);
+    
+    document.querySelectorAll('a[href*="universal-login.html"]').forEach(link => {
+      link.href = `universal-login.html?${loginParams.toString()}`;
+    });
+    
+    document.querySelectorAll('a[href*="universal-signup.html"]').forEach(link => {
+      link.href = `universal-signup.html?${loginParams.toString()}`;
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDynamicAuthLinks);
+  } else {
+    setupDynamicAuthLinks();
+  }
+})();
+</script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>

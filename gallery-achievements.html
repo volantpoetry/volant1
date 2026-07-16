@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>achievements · gallery</title>
+<!-- Favicons -->
+<link rel="icon" type="image/png" href="images/volant-favicon.png">
+<link rel="apple-touch-icon" href="images/volant-favicon.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f4f6fa;
+      padding: 16px 12px;  /* smaller outer padding for tiny phones */
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* header – compact */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 28px;          /* reduced for small screen */
+      color: #1e1e2f;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header h1 span {
+      background: linear-gradient(145deg, #5a67d8, #6b46c1);
+      color: white;
+      font-size: 14px;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-weight: 500;
+    }
+
+    .header p {
+      color: #4b5565;
+      font-size: 15px;
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 0 6px;
+    }
+
+    /* stats pills – wrap nicely, small */
+    .stats-summary {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background: white;
+      padding: 8px 16px;
+      border-radius: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #2d3748;
+      border: 1px solid #e0e7ef;
+    }
+
+    .stat-pill .count {
+      background: #5a67d8;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* filter bar – fits 320px */
+    .filter-bar {
+      background: white;
+      border-radius: 32px;
+      padding: 8px 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border: 1px solid #dee4ed;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 6px 12px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: #5f6b7a;
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+
+    .filter-tab:hover {
+      background: #f0f4fe;
+      color: #2d3748;
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(145deg, #5a67d8, #6b46c1);
+      color: white;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 40px;
+      border: 1px solid #dae2ed;
+      flex: 1 1 160px;
+      min-width: 140px;
+    }
+
+    .search-box span {
+      color: #8596b0;
+      font-size: 14px;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      padding: 6px 0;
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+    }
+
+    /* category cards – softer */
+    .category {
+      background: white;
+      border-radius: 28px;
+      padding: 20px 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.02);
+      border: 1px solid #e6ecf5;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .category-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(145deg, #5a67d8, #6b46c1);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: white;
+      box-shadow: 0 8px 16px rgba(90, 103, 216, 0.15);
+      flex-shrink: 0;
+    }
+
+    .category-title h2 {
+      font-size: 20px;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+
+    .badge-count {
+      color: #5f6c86;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-count span {
+      background: #eef3fc;
+      padding: 2px 8px;
+      border-radius: 30px;
+      font-weight: 600;
+      color: #2e405b;
+    }
+
+    /* grid – 2 columns on smallest, nicely balanced */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+
+    /* card – compact, readable */
+    .achievement-card {
+      background: #f9fcff;
+      border-radius: 20px;
+      padding: 16px 10px 14px;
+      transition: 0.15s ease;
+      border: 1px solid #eef3fc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .achievement-card:hover {
+      border-color: #8b9dff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.02);
+    }
+
+    /* badge image wrapper – tap to zoom */
+    .badge-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .badge-image {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid white;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+      background: #eef3fc;
+      transition: transform 0.1s;
+    }
+
+    .badge-wrapper:active .badge-image {
+      transform: scale(0.97);
+    }
+
+    /* magnifying hint only on hover (non-essential) */
+    .badge-wrapper:hover::after {
+      content: '🔍';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #5a67d8;
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border: 2px solid white;
+    }
+
+    .badge-level {
+      position: absolute;
+      bottom: -2px;
+      right: -5px;
+      background: #1e293b;
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      border: 2px solid white;
+    }
+
+    .achievement-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 13px;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .achievement-desc {
+      font-size: 10.5px;
+      color: #5f6c86;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 28px;
+      padding: 0 2px;
+      display: -webkit-box;
+display: box;
+-webkit-line-clamp: 2;
+line-clamp: 2;
+-webkit-box-orient: vertical;
+box-orient: vertical;
+    }
+
+    .requirement-badge {
+      background: white;
+      border-radius: 30px;
+      padding: 6px 8px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #e2eaf5;
+      width: 100%;
+      justify-content: center;
+      font-weight: 500;
+      color: #364558;
+    }
+
+    .requirement-icon {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .requirement-value {
+      font-weight: 700;
+      color: #5a67d8;
+      margin-left: 2px;
+    }
+
+    .status-indicator {
+      margin-top: 10px;
+      font-size: 9px;
+      padding: 4px 8px;
+      border-radius: 40px;
+      background: #edf2f9;
+      color: #435269;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      letter-spacing: 0.2px;
+    }
+
+    .status-indicator.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    /* modal – perfect for small screen */
+    .preview-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+      padding: 16px;
+    }
+
+    .preview-modal.active {
+      display: flex;
+    }
+
+    .preview-content {
+      max-width: 94%;
+      max-height: 90%;
+      position: relative;
+      animation: fadeUp 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0.6; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 60vh;
+      border-radius: 32px;
+      box-shadow: 0 18px 30px rgba(0, 0, 0, 0.5);
+      border: 3px solid white;
+      background: white;
+    }
+
+    .preview-close {
+      position: absolute;
+      top: -40px;
+      right: -8px;
+      width: 42px;
+      height: 42px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .preview-info {
+      margin-top: 20px;
+      text-align: center;
+      color: white;
+      text-shadow: 0 1px 4px black;
+      padding: 0 6px;
+    }
+
+    .preview-info h3 {
+      font-size: 20px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .preview-info p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .loading, .empty-state {
+      padding: 40px 10px;
+      background: white;
+      border-radius: 40px;
+      text-align: center;
+      color: #7085a3;
+      font-size: 15px;
+    }
+
+    @media (max-width: 400px) {
+      .achievements-grid {
+        grid-template-columns: 1fr 1fr;  /* keeps two columns even at 320px */
+        gap: 10px;
+      }
+      .category {
+        padding: 16px 12px;
+      }
+      .badge-image {
+        width: 62px;
+        height: 62px;
+      }
+      .achievement-title {
+        font-size: 12px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .filter-tab {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>
+        🏆 Platform Achievements
+        <span>gallery</span>
+      </h1>
+      <p> Earnable badges</p>
+    </div>
+
+    <div class="stats-summary" id="statsSummary"></div>
+
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="poemsSubmitted">📝 Poems</button>
+        <button class="filter-tab" data-filter="likesReceived">❤️ Likes</button>
+        <button class="filter-tab" data-filter="commentsMade">💬 Made</button>
+        <button class="filter-tab" data-filter="commentsReceived">📨 Received</button>
+      </div>
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Search badges...">
+      </div>
+    </div>
+
+    <div id="categoriesContainer"></div>
+  </div>
+
+  <div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+      <button class="preview-close" id="closePreview">✕</button>
+      <img class="preview-image" id="previewImage" src="" alt="badge">
+      <div class="preview-info" id="previewInfo">
+        <h3 id="previewTitle"></h3>
+        <p id="previewDescription"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allAchievements = [];
+    let currentFilter = 'all';
+    let searchTerm = '';
+
+    const categoryInfo = {
+      poemsSubmitted: { icon: '📝', name: 'Poems submitted', color: '#4299e1' },
+      likesReceived: { icon: '❤️', name: 'Likes received', color: '#ed64a6' },
+      commentsMade: { icon: '💬', name: 'Comments made', color: '#48bb78' },
+      commentsReceived: { icon: '📨', name: 'Comments received', color: '#9f7aea' }
+    };
+
+    // modal functions
+    window.showPreview = function(imageUrl, title, description) {
+      document.getElementById('previewImage').src = imageUrl;
+      document.getElementById('previewTitle').textContent = title;
+      document.getElementById('previewDescription').textContent = description;
+      document.getElementById('previewModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+
+    function hidePreview() {
+      document.getElementById('previewModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    document.getElementById('closePreview').addEventListener('click', hidePreview);
+    document.getElementById('previewModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('previewModal')) hidePreview();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePreview(); });
+
+    // load data
+    async function loadAchievements() {
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = '<div class="loading">🏆 loading achievements ...</div>';
+
+      try {
+        const snapshot = await getDocs(collection(db, "achievements"));
+        allAchievements = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+                                      .filter(ach => ach.active === true);
+        updateStats();
+        renderAchievements();
+      } catch (error) {
+        container.innerHTML = '<div class="empty-state">⚠️ could not load · using demo data</div>';
+        // fallback friendly demo data so layout shows
+        allAchievements = [
+          { id: 'p1', title: 'First poem', description: 'Submit your first poem', active: true, condition: { type: 'poemsSubmitted', min: 1 }, imageUrl: 'https://via.placeholder.com/70/4299e1/ffffff?text=📝' },
+          { id: 'p2', title: 'Poet apprentice', description: '5 poems written', active: true, condition: { type: 'poemsSubmitted', min: 5 }, imageUrl: '' },
+          { id: 'p3', title: 'Published writer', description: '15 poems shared', active: true, condition: { type: 'poemsSubmitted', min: 15 } },
+          { id: 'l1', title: 'First like', description: 'Someone liked your poem', active: true, condition: { type: 'likesReceived', min: 1 } },
+          { id: 'l2', title: 'Crowd pleaser', description: '25 likes total', active: true, condition: { type: 'likesReceived', min: 25 } },
+          { id: 'c1', title: 'Chatter', description: '10 comments made', active: true, condition: { type: 'commentsMade', min: 10 } },
+          { id: 'cr1', title: 'Popular topic', description: '5 comments received', active: true, condition: { type: 'commentsReceived', min: 5 } },
+          { id: 'cr2', title: 'In demand', description: '20 comments received', active: true, condition: { type: 'commentsReceived', min: 20 } },
+        ];
+        updateStats();
+        renderAchievements();
+      }
+    }
+
+    function updateStats() {
+      const stats = document.getElementById('statsSummary');
+      const total = allAchievements.length;
+      const byType = {
+        poemsSubmitted: allAchievements.filter(a => a.condition?.type === 'poemsSubmitted').length,
+        likesReceived: allAchievements.filter(a => a.condition?.type === 'likesReceived').length,
+        commentsMade: allAchievements.filter(a => a.condition?.type === 'commentsMade').length,
+        commentsReceived: allAchievements.filter(a => a.condition?.type === 'commentsReceived').length,
+      };
+      stats.innerHTML = `
+        <div class="stat-pill"><span>🏆 total</span><span class="count">${total}</span></div>
+        <div class="stat-pill"><span>📝 poems</span><span class="count">${byType.poemsSubmitted}</span></div>
+        <div class="stat-pill"><span>❤️ likes</span><span class="count">${byType.likesReceived}</span></div>
+        <div class="stat-pill"><span>💬 made</span><span class="count">${byType.commentsMade}</span></div>
+        <div class="stat-pill"><span>📨 received</span><span class="count">${byType.commentsReceived}</span></div>
+      `;
+    }
+
+    function getFilteredAchievements() {
+      let filtered = [...allAchievements];
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(ach => ach.condition?.type === currentFilter);
+      }
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filtered = filtered.filter(ach => 
+          (ach.title?.toLowerCase().includes(term)) ||
+          (ach.description?.toLowerCase().includes(term)) ||
+          (ach.condition?.min?.toString().includes(term))
+        );
+      }
+      return filtered;
+    }
+
+    function renderAchievements() {
+      const container = document.getElementById('categoriesContainer');
+      const filtered = getFilteredAchievements();
+
+      if (!filtered.length) {
+        container.innerHTML = '<div class="empty-state">✨ no matching badges</div>';
+        return;
+      }
+
+      const grouped = {};
+      filtered.forEach(ach => {
+        const type = ach.condition?.type || 'other';
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(ach);
+      });
+
+      Object.keys(grouped).forEach(type => {
+        grouped[type].sort((a,b) => (a.condition?.min || 0) - (b.condition?.min || 0));
+      });
+
+      let html = '';
+      Object.entries(categoryInfo).forEach(([type, info]) => {
+        const items = grouped[type] || [];
+        if (items.length === 0 && currentFilter === 'all' && !searchTerm) return;
+        if (items.length === 0 && currentFilter !== 'all') return;
+
+        html += `
+          <div class="category" data-category="${type}">
+            <div class="category-header">
+              <div class="category-icon" style="background: linear-gradient(145deg, ${info.color}, #6b46c1);">
+                ${info.icon}
+              </div>
+              <div class="category-title">
+                <h2>${info.name}</h2>
+                <div class="badge-count"><span>${items.length}</span> badges</div>
+              </div>
+            </div>
+            <div class="achievements-grid">
+              ${items.map(ach => renderCard(ach, info.icon)).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html || '<div class="empty-state">☁️ no categories to show</div>';
+    }
+
+    function renderCard(ach, catIcon) {
+      const condition = ach.condition || { min: 0, type: 'poemsSubmitted' };
+      const minVal = condition.min ?? 0;
+      let levelIcon = minVal < 10 ? '🌱' : minVal < 30 ? '🌿' : minVal < 60 ? '🌟' : '👑';
+
+      const imageUrl = ach.imageUrl || `https://via.placeholder.com/70/5a67d8/ffffff?text=${catIcon}`;
+      const safeTitle = ach.title?.replace(/"/g, '&quot;') || 'achievement';
+      const safeDesc = ach.description?.replace(/"/g, '&quot;') || 'meet the requirement';
+
+      return `
+        <div class="achievement-card">
+          <div class="badge-wrapper" onclick='showPreview("${imageUrl}", "${safeTitle}", "${safeDesc}")'>
+            <img class="badge-image" src="${imageUrl}" alt="${safeTitle}" onerror="this.src='https://via.placeholder.com/70/94a3b8/ffffff?text=🏅'">
+            <div class="badge-level">${levelIcon}</div>
+          </div>
+          <div class="achievement-title">${safeTitle}</div>
+          <div class="achievement-desc">${safeDesc}</div>
+          <div class="requirement-badge">
+            <span class="requirement-icon">${catIcon}</span>
+            <span class="requirement-text">${minVal}+</span>
+            <span class="requirement-value">${condition.type.replace(/([A-Z])/g, ' $1').trim()}</span>
+          </div>
+          <div class="status-indicator active">✅ active</div>
+        </div>
+      `;
+    }
+
+    // filter & search listeners
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        renderAchievements();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderAchievements();
+    });
+
+    loadAchievements();
+  </script>
+<script src="return-url-handler.js"></script>
+</body>
+</html>
