@@ -40,24 +40,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // ===== GET SECRET KEY =====
-    // Try multiple ways to get the secret key
-    let PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+    // ===== GET SECRET KEY FROM ENVIRONMENT ONLY =====
+    const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
     
-    // If still not found, check if we're in development
     if (!PAYSTACK_SECRET_KEY) {
-      console.log('⚠️ PAYSTACK_SECRET_KEY not in environment');
-      
-      // For local development only - use fallback
-      if (process.env.NODE_ENV === 'development' || !process.env.VERCEL_ENV) {
-        console.log('Using development fallback key');
-        PAYSTACK_SECRET_KEY = 'sk_test_f8876ad12143a082c7cc867fdc430d94bf9d11d5';
-      }
-    }
-    
-    // Final check - if still not set, return error
-    if (!PAYSTACK_SECRET_KEY) {
-      console.error('❌ PAYSTACK_SECRET_KEY not found');
+      console.error('❌ PAYSTACK_SECRET_KEY not found in environment');
       console.error('Environment:', {
         NODE_ENV: process.env.NODE_ENV,
         VERCEL_ENV: process.env.VERCEL_ENV,
@@ -66,12 +53,7 @@ export default async function handler(req, res) {
       
       return res.status(500).json({
         success: false,
-        message: 'Payment service not configured - missing secret key',
-        debug: {
-          hasKey: !!process.env.PAYSTACK_SECRET_KEY,
-          nodeEnv: process.env.NODE_ENV,
-          vercelEnv: process.env.VERCEL_ENV
-        }
+        message: 'Payment service not configured - missing secret key'
       });
     }
     
@@ -80,7 +62,6 @@ export default async function handler(req, res) {
     console.log('Amount:', amount);
     console.log('Email:', email);
     console.log('Environment:', process.env.VERCEL_ENV || 'development');
-    console.log('Key source:', process.env.PAYSTACK_SECRET_KEY ? 'environment' : 'fallback');
     console.log('============================');
 
     // Verify with Paystack
