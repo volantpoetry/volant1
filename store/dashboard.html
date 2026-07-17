@@ -964,7 +964,7 @@
 <!-- HEADER -->
 <header>
   <nav>
-    <a href="/" class="logo-header">
+    <a href="index.html" class="logo-header">
       <img src="../images/logokk.png" alt="Volant Reads Logo" class="nav-logo-img" onerror="this.style.display='none'">
       <span class="logo-text"><span class="logo-highlight">Volant</span> Reads</span>
     </a>
@@ -973,7 +973,7 @@
         <i class="fas fa-bars"></i>
       </button>
       <button class="btn-logout" id="signOutBtn" title="Sign out"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-      <a href="/" class="btn-store"><i class="fas fa-store"></i> Store</a>
+      <a href="index.html" class="btn-store"><i class="fas fa-store"></i> Store</a>
     </div>
   </nav>
 </header>
@@ -1014,7 +1014,7 @@
       </div>
       <div class="user">
         <div class="avatar" id="userAvatar"></div>
-        <a href="/submit" class="action-btn" id="mainActionBtn"><i class="fas fa-upload"></i> Upload Book</a>
+        <a href="submit.html" class="action-btn" id="mainActionBtn"><i class="fas fa-upload"></i> Upload Book</a>
       </div>
     </div>
 
@@ -2607,7 +2607,7 @@ async function loadAuthorData(user) {
     showPage('sales');
   });
   document.getElementById('exploreBtn')?.addEventListener('click', () => {
-    window.location.href = "/dashboard";
+    window.location.href = 'dashboard.html';
   });
 
   document.getElementById('saveSettingsBtn')?.addEventListener('click', async () => {
@@ -2630,7 +2630,7 @@ async function loadAuthorData(user) {
   document.getElementById('signOutBtn')?.addEventListener('click', async () => {
     try {
       await signOut(auth);
-      window.location.href = "/dashboard";
+      window.location.href = 'dashboard.html';
     } catch (e) {
       showToast('Error signing out.', 'error');
     }

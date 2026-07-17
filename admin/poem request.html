@@ -258,9 +258,9 @@
     <div class="search-container" id="mobileSearchContainer"><input id="mobile-search" type="text" placeholder="Search..." /></div>
     <div class="nav-links" id="navLinks">
       <span class="close-btn" id="closeMenuBtn">✕</span>
-      <a href="/">Home</a>
-      <a href="../shared/about">About</a>
-      <a href="../user-profile">My Profile</a>
+      <a href="../index.html">Home</a>
+      <a href="../shared/about.html">About</a>
+      <a href="../user-profile.html">My Profile</a>
     </div>
     <div class="mobile-icons">
       <div class="search-toggle" id="mobileSearchToggle">🔍</div>
@@ -362,7 +362,7 @@
             <div><strong>📜 responses (${responses.length})</strong></div>
             <div id="resp-${id}">${responses.slice(0,2).map(r => `<div class="poem-response"><strong>${escapeHtml(r.poetName)}</strong> wrote:<br>${escapeHtml(r.poemText)}</div>`).join('')}${responses.length>2?`<div class="member-tag">+${responses.length-2} more</div>`:''}</div>
             ${currentUser ? `<textarea id="respText-${id}" rows="2" placeholder="Write a poem in response..." style="margin-top:12px;"></textarea>
-            <button class="respond-btn" data-id="${id}" class="btn" style="margin-top:6px;">✍️ Offer Poem</button>` : `<p style="margin-top:12px; color:#b87c4f;">🔐 <a href="/universal-login.html?platform=poetry&redirect=poem%20request">Sign in</a> to respond</p>`}
+            <button class="respond-btn" data-id="${id}" class="btn" style="margin-top:6px;">✍️ Offer Poem</button>` : `<p style="margin-top:12px; color:#b87c4f;">🔐 <a href="universal-login.html?platform=poetry&redirect=poem%20request.html">Sign in</a> to respond</p>`}
           </div>
         `;
       });

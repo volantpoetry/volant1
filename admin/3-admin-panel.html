@@ -140,9 +140,9 @@
   <div class="logo">Volant Poetry</div>
   <div class="menu-toggle" id="menu-toggle">☰</div>
   <div class="nav-links" id="nav-links">
-    <a href="/admin">1st Admin Panel</a>
-    <a href="/" class="active">2rd Admin Panel</a>
-    <a href="/">Home</a>
+    <a href="admin.html">1st Admin Panel</a>
+    <a href="../index.html" class="active">2rd Admin Panel</a>
+    <a href="../index.html">Home</a>
   </div>
 </nav>
 
@@ -167,42 +167,42 @@
   <div class="content">
     <div class="column">
       <h4>Column 1</h4>
-           <a href="/dashboard">General Dashboard</a>
-        <a href="/poemcount">Total No. of Poems</a>
-      <a href="/manage">Manage Poems</a>
-            <a href="/addcategories">Add PoemsCategories</a>
-        <a href="/manage-poems-cate">Remove Poems Categories</a>
-         <a href="/manage-categories">Manage Entire Categories</a>
-      <a href="/store/dashboard">No of Likes & Comments</a>
-      <a href="/Manage-Likes">Clear Likes</a>
-        <a href="/comment-manage">Clear Comments</a>
-         <a href="/assign-images">Assign Images</a>
-      <a href="/all-users">Users & Delete</a>
-           <a href="/administrators">Admins</a>
-               <a href="/admin-achievements">Achievements Edit</a>
+           <a href="dashboard.html">General Dashboard</a>
+        <a href="poemcount.html">Total No. of Poems</a>
+      <a href="manage.html">Manage Poems</a>
+            <a href="addcategories.html">Add PoemsCategories</a>
+        <a href="manage-poems-cate.html">Remove Poems Categories</a>
+         <a href="manage-categories.html">Manage Entire Categories</a>
+      <a href="store/dashboard.html">No of Likes & Comments</a>
+      <a href="Manage-Likes.html">Clear Likes</a>
+        <a href="comment-manage.html">Clear Comments</a>
+         <a href="assign-images.html">Assign Images</a>
+      <a href="all-users.html">Users & Delete</a>
+           <a href="administrators.html">Admins</a>
+               <a href="admin-achievements.html">Achievements Edit</a>
     </div>
     <div class="column">
       <h4>Column 2</h4>
-  <a href="/submitclassic">Submit Classic Poems</a>
-      <a href="/editClassicPoems">Edit Classic Poems</a>
-      <a href="/Select-Poem-of-the-Week">Select Poem of the Week</a>
-            <a href="/admin-achievements">Manage Achievemnts</a>
-      <a href="/admin-levels">Manage Poets Levels</a>
+  <a href="submitclassic.html">Submit Classic Poems</a>
+      <a href="editClassicPoems.html">Edit Classic Poems</a>
+      <a href="Select-Poem-of-the-Week.html">Select Poem of the Week</a>
+            <a href="admin-achievements.html">Manage Achievemnts</a>
+      <a href="admin-levels.html">Manage Poets Levels</a>
     </div>
     <div class="column">
       <h4>Column 3</h4>
-        <a href="/poemdraft">Drafts</a>
-      <a href="../messages">Messages & Manage</a>
-       <a href="/admin-mailing">Subscribers</a>
-              <a href="/messages_from_users">Messages From Users</a>
+        <a href="poemdraft.html">Drafts</a>
+      <a href="../messages.html">Messages & Manage</a>
+       <a href="admin-mailing.html">Subscribers</a>
+              <a href="messages_from_users.html">Messages From Users</a>
     </div>
     <div class="column">
       <h4>Column 4</h4>
-          <a href="../shared/universal-signup">Users Sign Up</a>
-   <a href="../shared/universal-login">Users Login</a>
-      <a href="/admin-signup">Admin Sign Up</a>
-      <a href="/admin-login">Admin Login</a>
-     <a href="../store/approvals">Admin Approve</a>
+          <a href="../shared/universal-signup.html">Users Sign Up</a>
+   <a href="../shared/universal-login.html">Users Login</a>
+      <a href="admin-signup.html">Admin Sign Up</a>
+      <a href="admin-login.html">Admin Login</a>
+     <a href="../store/approvals.html">Admin Approve</a>
    
     </div>
   </div>
@@ -260,11 +260,11 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById("admin-dashboard").style.display = "block";
     } else {
       // Not an admin → redirect
-      window.location.href = "/admin-login";
+      window.location.href = "admin-login.html";
     }
   } else {
     // Not logged in → redirect
-    window.location.href = "/admin-login";
+    window.location.href = "admin-login.html";
   }
 });
 </script>

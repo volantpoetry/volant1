@@ -81,9 +81,9 @@ main.content { flex: 1; padding: 20px; }
   <div class="logo">Volant Poetry</div>
   <div class="menu-toggle" id="menu-toggle">☰</div>
   <div class="nav-links" id="nav-links">
-    <a href="/admin" class="active">1st Admin Panel</a>
-  <a href="/3-admin-panel">2rd Admin Panel</a>
-    <a href="/">Home</a>
+    <a href="admin.html" class="active">1st Admin Panel</a>
+  <a href="3-admin-panel.html">2rd Admin Panel</a>
+    <a href="../index.html">Home</a>
   </div>
 </nav>
 
@@ -176,11 +176,11 @@ main.content { flex: 1; padding: 20px; }
   <div class="footer-container">
      <p>&copy; 2025 Volant Poetry. All rights reserved.</p>
     <nav class="footer-links">
-      <a href="/">Home</a>
-      <a href="../poems">Poems</a>
-      <a href="/quotes">Quotes</a>
-      <a href="../shared/about">About</a>
-      <a href="../shared/contact">Contact</a>
+      <a href="../index.html">Home</a>
+      <a href="../poems.html">Poems</a>
+      <a href="quotes.html">Quotes</a>
+      <a href="../shared/about.html">About</a>
+      <a href="../shared/contact.html">Contact</a>
     </nav>
   </div>
 </footer>
@@ -209,7 +209,7 @@ const db = getFirestore(app);
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     alert("Please login as an admin to access this page.");
-    window.location.href = "/admin-login"; // redirect to login
+    window.location.href = "admin-login.html"; // redirect to login
     return;
   }
 
@@ -220,13 +220,13 @@ onAuthStateChanged(auth, async (user) => {
     if (!adminSnap.exists()) {
       alert("Access denied. Only admins can access this page.");
       await signOut(auth);
-      window.location.href = "/admin-login"; // redirect non-admin
+      window.location.href = "admin-login.html"; // redirect non-admin
     }
   } catch (err) {
     console.error("Admin verification error:", err);
     alert("Error verifying admin access.");
     await signOut(auth);
-    window.location.href = "/admin-login";
+    window.location.href = "admin-login.html";
   }
 });
 </script>

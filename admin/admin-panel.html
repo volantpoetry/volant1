@@ -74,9 +74,9 @@ main.content { flex: 1; padding: 20px; }
   <div class="logo">Rence Blunt Poetry</div>
   <div class="menu-toggle" id="menu-toggle">☰</div>
   <div class="nav-links" id="nav-links">
-    <a href="/admin">1st Admin Panel</a>
-      <a href="/3-admin-panel">2rd Admin Panel</a>
-    <a href="/">Home</a>
+    <a href="admin.html">1st Admin Panel</a>
+      <a href="3-admin-panel.html">2rd Admin Panel</a>
+    <a href="../index.html">Home</a>
   </div>
 </nav>
 
@@ -214,11 +214,11 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById("admin-dashboard").style.display = "block";
     } else {
       // Not an admin → redirect
-      window.location.href = "/admin-login";
+      window.location.href = "admin-login.html";
     }
   } else {
     // Not logged in → redirect
-    window.location.href = "/admin-login";
+    window.location.href = "admin-login.html";
   }
 });
 </script>

@@ -1173,13 +1173,13 @@
                 fetchPoems();
             } else {
                 adminEmailSpan.textContent = "Not logged in";
-                window.location.href = "/../shared/users-login";
+                window.location.href = "../shared/users-login.html";
             }
         });
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await signOut(auth);
-            window.location.href = "/../shared/users-login";
+            window.location.href = "../shared/users-login.html";
         });
 
         searchInput.addEventListener('input', applyFilter);

@@ -275,7 +275,7 @@
     <div id="hintContainer"></div>
 
     <div class="btn-group">
-      <a href="/users-login" class="btn btn-primary">Go to Login</a>
+      <a href="users-login.html" class="btn btn-primary">Go to Login</a>
       <button class="btn btn-secondary" id="resendBtn">Resend Email</button>
     </div>
 
@@ -376,7 +376,7 @@
     let currentEmail = urlEmail || localStorage.getItem('pendingVerificationEmail') || 'your email';
     displayEmail.textContent = currentEmail;
 
-    const loginLink = document.querySelector('.links a[href="/users-login"]');
+    const loginLink = document.querySelector('.links a[href="users-login.html"]');
     if (loginLink) {
       const loginParams = new URLSearchParams();
       loginParams.append('platform', platform);

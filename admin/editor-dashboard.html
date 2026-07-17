@@ -196,12 +196,12 @@ let editorsCache = [];
 
 // ---------- ADMIN CHECK ----------
 onAuthStateChanged(auth, async (user) => {
-  if(!user){ alert('Please sign in'); window.location.href='/admin-login'; return; }
+  if(!user){ alert('Please sign in'); window.location.href='admin-login.html'; return; }
   currentUser = user;
   const adminSnap = await getDoc(doc(db, 'admins', user.uid));
   const editorSnap = await getDoc(doc(db, 'editors', user.uid));
   if(!adminSnap.exists() && !editorSnap.exists()){
-    alert('Access denied'); window.location.href='/'; return;
+    alert('Access denied'); window.location.href='../index.html'; return;
   }
   adminInfoEl.textContent = `${user.displayName || 'Admin'} • ${user.email || ''}`;
   await loadEditorsList();

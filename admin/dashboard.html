@@ -133,14 +133,14 @@ async function checkAdminAccess(user) {
 onAuthStateChanged(auth, async user => {
   if (!user) {
     alert("Access denied. Sign in required.");
-    window.location.href = "/index";
+    window.location.href = "index.html";
     return;
   }
 
   const adminData = await checkAdminAccess(user);
   if (!adminData) {
     alert("You are not authorized to access the Admin Dashboard.");
-    window.location.href = "/index";
+    window.location.href = "index.html";
   } else {
     // Show signed-in admin info
     document.getElementById("admin-info").textContent = `Signed in as: ${user.email}`;

@@ -2167,7 +2167,7 @@ function goToLogin() {
   <!-- HEADER -->
   <header>
     <nav>
-      <a href="/" class="logo" style="text-decoration:none;">
+      <a href="index.html" class="logo" style="text-decoration:none;">
         <img src="../images/logokk.png" alt="Volant Reads Logo" class="nav-logo-img">
         <span class="logo-text"><span class="logo-highlight">Volant</span> Reads</span>
       </a>
@@ -2260,7 +2260,7 @@ function goToLogin() {
       <i class="fas fa-book-open"></i>
       <h2>Book Not Found</h2>
       <p>The book you're looking for doesn't exist or has been removed. Or check your internet connection and refresh the page.</p>
-      <a href="/" class="btn-back" style="display:inline-flex;"><i class="fas fa-arrow-left"></i> Back to Store</a>
+      <a href="index.html" class="btn-back" style="display:inline-flex;"><i class="fas fa-arrow-left"></i> Back to Store</a>
     </div>
 
     <div id="bookDetails" class="book-details">
@@ -2382,7 +2382,7 @@ function goToLogin() {
         </div>
 
         <div style="margin-top: 1.5rem;">
-          <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Store</a>
+          <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Store</a>
         </div>
       </div>
     </div>
@@ -2419,14 +2419,6 @@ function goToLogin() {
       serverTimestamp
     } from "firebase/firestore";
     import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-
-
-// Disable all console logs in production
-console.log = function() {};
-console.error = function() {};
-console.warn = function() {};
-console.info = function() {};
-console.debug = function() {};
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
@@ -3004,7 +2996,7 @@ console.debug = function() {};
         if (avatarHTML === `<span>${initial}</span>` && user.photoURL) avatarHTML = `<img src="${user.photoURL}" alt="Profile" />`;
 
         navRight.innerHTML = `
-          <a href="/dashboard" class="profile-wrap" style="text-decoration:none;">
+          <a href="dashboard.html" class="profile-wrap" style="text-decoration:none;">
             <div class="profile-avatar">${avatarHTML}</div>
             <button class="btn-signout" id="signOutBtn" title="Sign out" style="pointer-events:auto;"><i class="fas fa-sign-out-alt"></i></button>
           </a>
@@ -3347,203 +3339,6 @@ console.debug = function() {};
       }
     }
 
-// ===== FIXED: STRICT VALIDATION WITH PROPER CURRENCY CONVERSION =====
-async function validatePayment(response, bookData) {
-  console.log('Validating payment response:', response);
-  console.log('Book data:', bookData);
-  
-  // Get amount from response - Paystack returns amount in kobo (smallest currency unit)
-  let amount = response.amount || response.transaction?.amount || response.data?.amount || null;
-  if (amount === null || amount === undefined) {
-    if (response.trans && typeof response.trans === 'object') {
-      amount = response.trans.amount;
-    }
-  }
-  
-  // Get currency from response
-  const currency = response.currency || response.data?.currency || 'GHS';
-  const reference = response.reference || response.data?.reference || response.trans || 'unknown';
-  const customer = response.customer || response.data?.customer || null;
-  
-  // Check metadata from different possible locations
-  let metadata = response.metadata || response.data?.metadata || {};
-  if (metadata.custom_fields && Array.isArray(metadata.custom_fields)) {
-    const bookIdField = metadata.custom_fields.find(f => f.variable_name === 'book_id');
-    if (bookIdField) {
-      metadata.book_id = bookIdField.value;
-    }
-  }
-  
-  // ===== CURRENCY CONVERSION WITH EXCHANGE RATES =====
-  const bookCurrency = bookData.pricing.currency || 'USD';
-  const bookAmount = bookData.pricing.amount;
-  
-  // Exchange rates (approximate - you should use a real API in production)
-  const exchangeRates = {
-    'USD': { 'GHS': 13.0 },
-    'GHS': { 'USD': 0.077 }
-  };
-  
-  let expectedAmountInPaymentCurrency = bookAmount;
-  let expectedCurrency = bookCurrency;
-  
-  // If currencies don't match, convert the book price to the payment currency
-  if (bookCurrency !== currency && amount !== null && amount !== undefined) {
-    if (exchangeRates[bookCurrency] && exchangeRates[bookCurrency][currency]) {
-      const rate = exchangeRates[bookCurrency][currency];
-      expectedAmountInPaymentCurrency = bookAmount * rate;
-      expectedCurrency = currency;
-      console.log(`Currency conversion: ${bookAmount} ${bookCurrency} → ${expectedAmountInPaymentCurrency} ${currency} (rate: ${rate})`);
-    } else {
-      // If we don't have a conversion rate, use the book price directly
-      expectedAmountInPaymentCurrency = bookAmount;
-      expectedCurrency = bookCurrency;
-      console.log(`No conversion rate found, using book price directly: ${bookAmount} ${bookCurrency}`);
-    }
-  }
-  
-  // Convert to kobo (smallest currency unit)
-  const expectedAmountInKobo = Math.round(expectedAmountInPaymentCurrency * 100);
-  
-  // 1. Amount must match (allow small tolerance for rounding)
-  let amountMatches = false;
-  if (amount !== null && amount !== undefined) {
-    // Allow 2% tolerance for currency conversion rounding
-    const tolerance = Math.abs(expectedAmountInKobo * 0.02);
-    amountMatches = Math.abs(amount - expectedAmountInKobo) <= tolerance;
-    console.log(`Amount check: ${amount} vs ${expectedAmountInKobo} (tolerance: ${tolerance}) = ${amountMatches}`);
-  } else if (bookData.pricing.amount === 0) {
-    amountMatches = true;
-  }
-  
-  // 2. Currency check - allow GHS/USD conversion
-  let currencyMatches = false;
-  if (currency && bookData.pricing.currency) {
-    if (currency === bookData.pricing.currency) {
-      currencyMatches = true;
-    } else if ((currency === 'GHS' && bookData.pricing.currency === 'USD') || 
-               (currency === 'USD' && bookData.pricing.currency === 'GHS')) {
-      // Allow GHS/USD conversion
-      currencyMatches = true;
-      console.log(`Currency conversion allowed: ${bookData.pricing.currency} → ${currency}`);
-    }
-  }
-  console.log(`Currency check: ${currency} vs ${bookData.pricing.currency} = ${currencyMatches}`);
-  
-  // 3. Customer email must match logged-in user (if customer exists)
-  let emailMatches = true;
-  if (customer && customer.email && currentUser) {
-    emailMatches = customer.email === currentUser.email;
-    console.log(`Email check: ${customer.email} vs ${currentUser.email} = ${emailMatches}`);
-  }
-  
-  // 4. Reference must be valid
-  const validReference = reference && (typeof reference === 'string') && reference.length > 5;
-  console.log(`Reference check: ${reference} = ${validReference}`);
-  
-  // 5. Book must be approved
-  const bookApproved = bookData.status === 'approved';
-  console.log(`Book approved: ${bookApproved}`);
-  
-  // 6. Check if already purchased - allow re-purchase
-  let notAlreadyPurchased = true;
-  if (currentUser && bookData.pricing.amount > 0) {
-    try {
-      const purchaseRef = doc(db, "purchases", `${currentUser.uid}_${bookData.id}`);
-      const purchaseSnap = await getDoc(purchaseRef);
-      if (purchaseSnap.exists()) {
-        const purchaseData = purchaseSnap.data();
-        const downloadCount = purchaseData.downloadCount || 0;
-        const limit = bookData.downloadLimit || bookData.downloads || 5;
-        // If limit is 0 or "unlimited", treat as unlimited
-        if (limit === 'unlimited' || limit === 'Unlimited' || parseInt(limit) === 0) {
-          notAlreadyPurchased = false;
-        } else {
-          const maxLimit = parseInt(limit);
-          notAlreadyPurchased = downloadCount >= maxLimit;
-        }
-        console.log(`Purchase check: downloadCount=${downloadCount}, limit=${limit}, canRePurchase=${notAlreadyPurchased}`);
-      }
-    } catch (err) {
-      console.warn('Error checking purchase status:', err);
-    }
-  }
-  
-  // 7. Book must have valid price
-  const hasValidPrice = bookData.pricing && bookData.pricing.amount !== undefined;
-  console.log(`Has valid price: ${hasValidPrice}`);
-  
-  // 8. Book ID in metadata (optional)
-  const hasBookId = metadata && (metadata.book_id === bookData.id || metadata.bookId === bookData.id);
-  console.log(`Has book ID in metadata: ${hasBookId}`);
-  
-  const validationResults = {
-    amountMatches,
-    currencyMatches,
-    emailMatches,
-    validReference,
-    bookApproved,
-    notAlreadyPurchased,
-    hasValidPrice,
-    hasBookId: hasBookId || true,
-    customerExists: !!customer,
-    reference,
-    amountFromResponse: amount,
-    expectedAmountInKobo,
-    expectedCurrency,
-    bookCurrency,
-    responseCurrency: currency,
-    conversionRate: exchangeRates[bookCurrency]?.[currency] || null
-  };
-  
-  console.log('Validation results:', validationResults);
-  
-  // Determine if valid
-  let isValid = true;
-  
-  if (bookData.pricing.amount === 0) {
-    const criticalChecks = {
-      validReference,
-      bookApproved,
-      hasValidPrice
-    };
-    isValid = Object.values(criticalChecks).every(v => v === true);
-  } else {
-    const results = [];
-    
-    // Amount must match (if we have it)
-    if (amount !== null && amount !== undefined) {
-      results.push(amountMatches);
-    }
-    
-    // Currency must match or be convertible
-    if (currency) {
-      results.push(currencyMatches);
-    }
-    
-    // Email must match (if we have customer data)
-    if (customer && customer.email) {
-      results.push(emailMatches);
-    }
-    
-    // These must always pass
-    results.push(validReference);
-    results.push(bookApproved);
-    results.push(hasValidPrice);
-    
-    // Check purchase status for paid books
-    if (bookData.pricing.amount > 0) {
-      results.push(notAlreadyPurchased);
-    }
-    
-    isValid = results.every(v => v === true);
-  }
-  
-  console.log('Validation result:', isValid);
-  
-  return { isValid, validationResults };
-}
-
     async function recordPurchase(userId, bookId, transactionRef, paymentData = {}) {
       try {
         const purchaseRef = doc(db, "purchases", `${userId}_${bookId}`);
@@ -3657,6 +3452,7 @@ async function validatePayment(response, bookData) {
       }
     }
 
+    // ===== UPDATED: SERVER-SIDE VERIFICATION FOR SINGLE BOOK =====
     async function handleSingleBookPaymentCallback(response) {
       if (!currentUser || !currentBook) {
         showToast('⚠️ User or book not found. Please try again.', 'error');
@@ -3666,40 +3462,79 @@ async function validatePayment(response, bookData) {
         return;
       }
 
-      const { isValid, validationResults } = await validatePayment(response, currentBook);
-      
-      if (!isValid) {
-        console.error('Validation failed:', validationResults);
-        showToast('⚠️ Payment verification failed. Please contact support.', 'error');
-        isProcessingPayment = false;
-        paymentProcessing.classList.remove('active');
-        updatePaymentUIState();
-        return;
-      }
+      // ===== SERVER-SIDE VERIFICATION =====
+      try {
+        // Show processing status
+        paymentProcessing.classList.add('active');
+        
+        console.log('Verifying payment with serverless API...');
+        console.log('Reference:', response.reference);
+        console.log('Amount:', currentBook.pricing?.amount);
+        console.log('Email:', currentUser.email);
 
-      const transactionRef = response.reference || 'paystack_' + Date.now();
-      const success = await recordPurchase(
-        currentUser.uid, 
-        currentBook.id, 
-        transactionRef,
-        {
-          amount: response.amount,
-          currency: response.currency,
-          customerEmail: response.customer?.email || currentUser.email
+        // Call your Vercel serverless function
+        const verificationResponse = await fetch('/api/verify-paystack-transaction', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            reference: response.reference,
+            amount: currentBook.pricing?.amount || 0,
+            email: currentUser.email,
+            bookId: currentBook.id
+          })
+        });
+
+        const verificationResult = await verificationResponse.json();
+        console.log('Verification result:', verificationResult);
+
+        // Check if verification failed
+        if (!verificationResult.success) {
+          console.error('Verification failed:', verificationResult);
+          showToast(`⚠️ ${verificationResult.message || 'Payment verification failed'}`, 'error');
+          isProcessingPayment = false;
+          paymentProcessing.classList.remove('active');
+          updatePaymentUIState();
+          return;
         }
-      );
-      
-      if (success) {
-        hasPaidForBook = true;
-        isProcessingPayment = false;
-        paymentProcessing.classList.remove('active');
-        updatePaymentUI('success');
-        showToast(`✅ Payment verified! "${currentBook.title}" can now be downloaded. 🎉`, 'success');
-        await trackDailyDownload(currentBook.id);
-        await updateUIForBook();
-        setTimeout(() => { downloadBook(); }, 1000);
-      } else {
-        showToast('⚠️ Payment verified but failed to save. Please contact support.', 'error');
+
+        // ===== VERIFICATION SUCCESSFUL - Record purchase =====
+        console.log('✅ Payment verified successfully!');
+        
+        const transactionRef = response.reference || 'paystack_' + Date.now();
+        const success = await recordPurchase(
+          currentUser.uid, 
+          currentBook.id, 
+          transactionRef,
+          {
+            amount: response.amount || currentBook.pricing?.amount,
+            currency: response.currency || currentBook.pricing?.currency || 'GHS',
+            customerEmail: response.customer?.email || currentUser.email,
+            verifiedBy: 'serverless-api',
+            verificationData: verificationResult.data
+          }
+        );
+        
+        if (success) {
+          hasPaidForBook = true;
+          isProcessingPayment = false;
+          paymentProcessing.classList.remove('active');
+          updatePaymentUI('success');
+          showToast(`✅ Payment verified! "${currentBook.title}" can now be downloaded. 🎉`, 'success');
+          await trackDailyDownload(currentBook.id);
+          await updateUIForBook();
+          setTimeout(() => { downloadBook(); }, 1000);
+        } else {
+          showToast('⚠️ Payment verified but failed to save. Please contact support.', 'error');
+          isProcessingPayment = false;
+          paymentProcessing.classList.remove('active');
+          updatePaymentUIState();
+        }
+
+      } catch (error) {
+        console.error('Verification error:', error);
+        showToast('⚠️ Verification failed. Please contact support.', 'error');
         isProcessingPayment = false;
         paymentProcessing.classList.remove('active');
         updatePaymentUIState();
@@ -3778,6 +3613,7 @@ async function validatePayment(response, bookData) {
       }
     }
 
+    // ===== UPDATED: SERVER-SIDE VERIFICATION FOR CART =====
     async function handleCartPaymentCallback(response, items) {
       if (!currentUser) {
         showToast('⚠️ User not found. Please try again.', 'error');
@@ -3789,21 +3625,48 @@ async function validatePayment(response, bookData) {
         return;
       }
 
+      // ===== SERVER-SIDE VERIFICATION FOR EACH ITEM =====
       let allValid = true;
       const invalidItems = [];
+      
       for (const item of items) {
-        const bookRef = doc(db, "books", item.id);
-        const bookSnap = await getDoc(bookRef);
-        if (!bookSnap.exists()) {
+        try {
+          // Get book data from Firestore
+          const bookRef = doc(db, "books", item.id);
+          const bookSnap = await getDoc(bookRef);
+          
+          if (!bookSnap.exists()) {
+            allValid = false;
+            invalidItems.push(item.title || 'Unknown');
+            continue;
+          }
+          
+          const bookData = bookSnap.data();
+          
+          // Call serverless API for verification
+          const verificationResponse = await fetch('/api/verify-paystack-transaction', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              reference: response.reference,
+              amount: bookData.pricing?.amount || 0,
+              email: currentUser.email,
+              bookId: item.id
+            })
+          });
+
+          const verificationResult = await verificationResponse.json();
+          
+          if (!verificationResult.success) {
+            allValid = false;
+            invalidItems.push(bookData.title || 'Unknown');
+          }
+        } catch (error) {
+          console.error('Verification error for item:', item.id, error);
           allValid = false;
           invalidItems.push(item.title || 'Unknown');
-          continue;
-        }
-        const bookData = bookSnap.data();
-        const { isValid } = await validatePayment(response, { ...bookData, id: item.id });
-        if (!isValid) {
-          allValid = false;
-          invalidItems.push(bookData.title || 'Unknown');
         }
       }
       
@@ -3817,8 +3680,10 @@ async function validatePayment(response, bookData) {
         return;
       }
 
+      // ===== ALL VERIFICATIONS PASSED - Record purchases =====
       const transactionRef = response.reference || 'paystack_' + Date.now();
       let allSuccess = true;
+      
       for (const item of items) {
         const success = await recordPurchase(
           currentUser.uid, 
@@ -3826,14 +3691,12 @@ async function validatePayment(response, bookData) {
           transactionRef,
           {
             amount: response.amount / items.length,
-            currency: response.currency,
-            customerEmail: response.customer?.email || currentUser.email
+            currency: response.currency || 'GHS',
+            customerEmail: response.customer?.email || currentUser.email,
+            verifiedBy: 'serverless-api'
           }
         );
         if (!success) allSuccess = false;
-        if (success) {
-          await trackDailyDownload(item.id);
-        }
       }
       
       if (allSuccess) {

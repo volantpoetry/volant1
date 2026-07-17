@@ -3744,7 +3744,7 @@
 <!-- ===== HEADER WITH LOGO ===== -->
 <header>
     <nav>
-        <a href="/" class="logo" style="text-decoration:none;">
+        <a href="store/index.html" class="logo" style="text-decoration:none;">
             <img src="../images/logokk.png" alt="Volant Reads Logo" class="nav-logo-img">
             <span class="logo-text">
                 <span class="logo-highlight">Volant</span> Reads
@@ -3886,22 +3886,22 @@
         <div class="volant-footer-col">
             <h4 class="volant-footer-heading">Volant Reads</h4>
             <ul class="volant-footer-links">
-                <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="../shared/about">About Us</a></li>
-                <li><a href="/">Bookstore</a></li>
-                <li><a href="/submit">Submit Book</a></li>
-                <li><a href="/pwu">Publish With Us</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="../shared/about.html">About Us</a></li>
+                <li><a href="index.html">Bookstore</a></li>
+                <li><a href="submit.html">Submit Book</a></li>
+                <li><a href="pwu.html">Publish With Us</a></li>
             </ul>
         </div>
 
         <div class="volant-footer-col">
             <h4 class="volant-footer-heading">Support</h4>
             <ul class="volant-footer-links">
-                <li><a href="/faq">FAQ</a></li>
-                <li><a href="/refund">Refund Policy</a></li>
-                <li><a href="../shared/terms">Terms &amp; Conditions</a></li>
-                <li><a href="../shared/privacy">Privacy Policy</a></li>
-                            <li><a href="../shared/contact">Contact Us</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="refund.html">Refund Policy</a></li>
+                <li><a href="../shared/terms.html">Terms &amp; Conditions</a></li>
+                <li><a href="../shared/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../shared/contact.html">Contact Us</a></li>
             </ul>
         </div>
 
@@ -3926,7 +3926,7 @@
 
     <div id="volant-footer-bottom">
         <p style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px 14px; margin-bottom:6px;">
-            <a href="/" style="color:#b76e4b; text-decoration:none; font-size:0.8rem; font-weight:600;">🏛️ Volant Reads</a>
+            <a href="../volant_foundry/index.html" style="color:#b76e4b; text-decoration:none; font-size:0.8rem; font-weight:600;">🏛️ Volant Reads</a>
         </p>
         <p style="margin:4px 0;">
             <span style="background:rgba(183,110,75,0.12); padding:2px 14px; border-radius:20px; font-size:0.7rem; color:#b76e4b; font-weight:500;">Part of the Volant Reads Platform</span>
@@ -4063,62 +4063,6 @@ async function recordPurchase(userId, bookId, transactionRef, paymentData = {}) 
     }
 }
 
-async function validatePayment(response, bookData) {
-    const { reference, amount, currency, customer, metadata } = response;
-    
-    let amountMatches = true;
-    if (amount !== null && amount !== undefined && bookData.pricing?.amount > 0) {
-        amountMatches = amount === bookData.pricing.amount * 100;
-    }
-    
-    let currencyMatches = true;
-    if (currency && bookData.pricing?.currency) {
-        currencyMatches = currency === bookData.pricing.currency;
-    }
-    
-    let emailMatches = true;
-    if (customer && customer.email) {
-        emailMatches = customer.email === currentUser.email;
-    }
-    
-    const validReference = reference && 
-                           (reference.startsWith('paystack_') || 
-                            reference.startsWith('T') || 
-                            reference.startsWith('PSTK_')) && 
-                           reference.length > 10;
-    
-    const bookApproved = bookData.status === 'approved';
-    
-    const purchaseRef = doc(db, "purchases", `${currentUser.uid}_${bookData.id}`);
-    const purchaseSnap = await getDoc(purchaseRef);
-    const notAlreadyPurchased = !purchaseSnap.exists() || purchaseSnap.data().status !== 'completed';
-    
-    const hasValidPrice = bookData.pricing && bookData.pricing.amount > 0;
-    const hasBookId = metadata && metadata.book_id === bookData.id;
-    
-    let isValid = true;
-    
-    if (bookData.pricing?.amount === 0) {
-        const criticalChecks = { validReference, bookApproved, notAlreadyPurchased, hasValidPrice };
-        isValid = Object.values(criticalChecks).every(v => v === true);
-    } else {
-        const checksToValidate = {
-            currencyMatches,
-            emailMatches,
-            validReference,
-            bookApproved,
-            notAlreadyPurchased,
-            hasValidPrice
-        };
-        if (amount !== null && amount !== undefined) {
-            checksToValidate.amountMatches = amountMatches;
-        }
-        isValid = Object.values(checksToValidate).every(v => v === true);
-    }
-    
-    return { isValid, alreadyPurchased: purchaseSnap.exists() && purchaseSnap.data().status === 'completed' };
-}
-
 function initiateCartPayment(amount, email, items) {
     if (isProcessingPayment) return;
     
@@ -4175,76 +4119,104 @@ function initiateCartPayment(amount, email, items) {
     }
 }
 
+// ===== UPDATED: SERVER-SIDE VERIFICATION FOR CART =====
 async function handleCartPaymentCallback(response, items) {
-    if (!currentUser) {
-        showToast('⚠️ User not found. Please try again.', 'error');
-        isProcessingPayment = false;
-        cartPaymentProcessing.classList.remove('active');
-        checkoutBtn.disabled = false;
-        checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout with Paystack';
-        return;
-    }
-
-    let allValid = true;
-    const invalidItems = [];
-    
-    for (const item of items) {
-        const bookRef = doc(db, "books", item.id);
-        const bookSnap = await getDoc(bookRef);
-        if (!bookSnap.exists()) {
-            allValid = false;
-            invalidItems.push(item.title || 'Unknown');
-            continue;
-        }
-        const bookData = bookSnap.data();
-        
-        const { isValid } = await validatePayment(response, { ...bookData, id: item.id });
-        if (!isValid) {
-            allValid = false;
-            invalidItems.push(bookData.title || 'Unknown');
-        }
-    }
-    
-    if (!allValid) {
-        showToast(`⚠️ Payment verification failed for: ${invalidItems.join(', ')}. Please contact support.`, 'error');
-        isProcessingPayment = false;
-        cartPaymentProcessing.classList.remove('active');
-        checkoutBtn.disabled = false;
-        checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout with Paystack';
-        return;
-    }
-
-    const transactionRef = response.reference || 'paystack_' + Date.now();
-    let allSuccess = true;
-    
-    for (const item of items) {
-        const success = await recordPurchase(
-            currentUser.uid, 
-            item.id, 
-            transactionRef,
-            {
-                amount: response.amount / items.length,
-                currency: response.currency,
-                customerEmail: response.customer?.email || currentUser.email
-            }
-        );
-        if (!success) allSuccess = false;
-    }
-    
-    if (allSuccess) {
-        showToast(`✅ Payment verified! ${items.length} book(s) added to your library. 🎉`, 'success');
-        saveCartItems([]);
-        cartCount = 0;
-        updateCartBadge();
-        await renderCart();
-        closeCart();
-    } else {
-        showToast('⚠️ Some purchases failed to save. Please contact support.', 'error');
-    }
+  if (!currentUser) {
+    showToast('⚠️ User not found. Please try again.', 'error');
     isProcessingPayment = false;
     cartPaymentProcessing.classList.remove('active');
     checkoutBtn.disabled = false;
     checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout with Paystack';
+    return;
+  }
+
+  // ===== SERVER-SIDE VERIFICATION FOR EACH ITEM =====
+  let allValid = true;
+  const invalidItems = [];
+  
+  for (const item of items) {
+    try {
+      // Get book data from Firestore
+      const bookRef = doc(db, "books", item.id);
+      const bookSnap = await getDoc(bookRef);
+      
+      if (!bookSnap.exists()) {
+        allValid = false;
+        invalidItems.push(item.title || 'Unknown');
+        continue;
+      }
+      
+      const bookData = bookSnap.data();
+      
+      // Call serverless API for verification
+      const verificationResponse = await fetch('/api/verify-paystack-transaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reference: response.reference,
+          amount: bookData.pricing?.amount || 0,
+          email: currentUser.email,
+          bookId: item.id
+        })
+      });
+
+      const verificationResult = await verificationResponse.json();
+      
+      if (!verificationResult.success) {
+        allValid = false;
+        invalidItems.push(bookData.title || 'Unknown');
+      }
+    } catch (error) {
+      console.error('Verification error for item:', item.id, error);
+      allValid = false;
+      invalidItems.push(item.title || 'Unknown');
+    }
+  }
+  
+  if (!allValid) {
+    showToast(`⚠️ Payment verification failed for: ${invalidItems.join(', ')}. Please contact support.`, 'error');
+    isProcessingPayment = false;
+    cartPaymentProcessing.classList.remove('active');
+    checkoutBtn.disabled = false;
+    checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout with Paystack';
+    return;
+  }
+
+  // ===== ALL VERIFICATIONS PASSED - Record purchases =====
+  const transactionRef = response.reference || 'paystack_' + Date.now();
+  let allSuccess = true;
+  
+  for (const item of items) {
+    const success = await recordPurchase(
+      currentUser.uid, 
+      item.id, 
+      transactionRef,
+      {
+        amount: response.amount / items.length,
+        currency: response.currency || 'GHS',
+        customerEmail: response.customer?.email || currentUser.email,
+        verifiedBy: 'serverless-api'
+      }
+    );
+    if (!success) allSuccess = false;
+  }
+  
+  if (allSuccess) {
+    showToast(`✅ Payment verified! ${items.length} book(s) added to your library. 🎉`, 'success');
+    saveCartItems([]);
+    cartCount = 0;
+    updateCartBadge();
+    await renderCart();
+    closeCart();
+  } else {
+    showToast('⚠️ Some purchases failed to save. Please contact support.', 'error');
+  }
+  isProcessingPayment = false;
+  cartPaymentProcessing.classList.remove('active');
+  checkoutBtn.disabled = false;
+  checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Checkout with Paystack';
 }
 
 // ===== TOAST =====
@@ -4367,7 +4339,7 @@ cartBackdrop.addEventListener('click', closeCart);
 checkoutBtn.addEventListener('click', async function() {
     if (!currentUser) {
         showToast('🔐 Please sign in to checkout.', 'error');
-        window.location.href = "/../shared/universal-login.html?platform=reads&platform=reads&redirect=store/index";
+        window.location.href = '../shared/universal-login.html?platform=reads&platform=reads&redirect=store/index.html';
         return;
     }
 
@@ -4705,7 +4677,7 @@ async function renderHeader(user) {
         }
 
         navRight.innerHTML = `
-            <a href="/submit" class="btn-submit">
+            <a href="submit.html" class="btn-submit">
                 <i class="fas fa-plus"></i> Submit
             </a>
             <button class="btn-wishlist-header" id="wishlistHeaderBtn">
@@ -4716,7 +4688,7 @@ async function renderHeader(user) {
                 <i class="fas fa-shopping-cart"></i> <span class="cart-text">Cart</span>
                 <span class="cart-count">${getCartCount()}</span>
             </button>
-            <a href="/dashboard" class="profile-wrap" style="text-decoration:none;">
+            <a href="dashboard.html" class="profile-wrap" style="text-decoration:none;">
                 <div class="profile-avatar">${avatarHTML}</div>
                 <button class="btn-signout" id="signOutBtn" title="Sign out" style="pointer-events:auto;"><i class="fas fa-sign-out-alt"></i></button>
             </a>
@@ -4735,7 +4707,7 @@ async function renderHeader(user) {
         
     } else {
         navRight.innerHTML = `
-            <a href="/submit" class="btn-submit">
+            <a href="submit.html" class="btn-submit">
                 <i class="fas fa-plus"></i> Submit
             </a>
             <button class="btn-wishlist-header" id="wishlistHeaderBtn">
@@ -4752,7 +4724,7 @@ async function renderHeader(user) {
         `;
         document.getElementById('cartOpenBtn')?.addEventListener('click', openCart);
         document.getElementById('wishlistHeaderBtn')?.addEventListener('click', () => {
-            window.location.href = "/../shared/universal-login.html?platform=reads&platform=reads&redirect=store/index";
+            window.location.href = '../shared/universal-login.html?platform=reads&platform=reads&redirect=store/index.html';
         });
     }
     updateCartBadge();
@@ -5049,15 +5021,15 @@ window.addEventListener('storage', (e) => {
                                 checkAdmin(user.uid);
                             } else {
                                 // Not signed in - redirect to admin login
-                                window.location.href = "/../admin/admin-login";
+                                window.location.href = '../admin/admin-login.html';
                             }
                         });
                     })
                     .catch(() => {
-                        window.location.href = "/../admin/admin-login";
+                        window.location.href = '../admin/admin-login.html';
                     });
             } catch (err) {
-                window.location.href = "/../admin/admin-login";
+                window.location.href = '../admin/admin-login.html';
             }
         }
     });
@@ -5086,17 +5058,17 @@ window.addEventListener('storage', (e) => {
                 .then((docSnap) => {
                     if (docSnap.exists()) {
                         // ✅ IS ADMIN - redirect to admin panel
-                        window.location.href = "/../admin/approve";
+                        window.location.href = "../admin/approve.html";
                     } else {
                         // ❌ NOT ADMIN - redirect to admin login
-                        window.location.href = "/../admin/admin-login";
+                        window.location.href = '../admin/admin-login.html';
                     }
                 })
                 .catch(() => {
-                    window.location.href = "/../admin/admin-login";
+                    window.location.href = '../admin/admin-login.html';
                 });
         } catch (err) {
-            window.location.href = "/../admin/admin-login";
+            window.location.href = '../admin/admin-login.html';
         }
     }
     
